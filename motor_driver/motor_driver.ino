@@ -1,14 +1,16 @@
+#include "usart.h"
+
 void coast(char motor);
 void drive(char motor, char vel);
 void usart2_init(unsigned int baud);
 void usart2_tx(unsigned char data);
 
-unsigned int baud = 3; //250k baud rate
+unsigned int baud0 = 3; //250k baud rate
 unsigned int baud2 = 25; //38.4k baud rate
 
 void setup(){
   int serial;
-  //Serial.begin(384000);
+  usart0_init(baud0)
   usart2_init(baud2);
   usart2_tx(0xaa);
 }
@@ -31,15 +33,4 @@ void drive(char motor, char vel){
   usart2_tx(vel<0 ? -vel : vel); //magnitude
 }
 
-void usart2_init(unsigned int baud){
-  UBRR2H = (unsigned char)(baud >> 8); //set baud rate register to correct baud
-  UBRR2L = (unsigned char)baud;
-  UCSR2B = (1<<RXEN2)|(1<<TXEN2); //enable tx and rx
-  UCSR2C = (1<<USBS2)|(3<<UCSZ20); //set data format (8 bit w/ 2 stops)
-}
-
-void usart2_tx(unsigned char data){
-  while (!(UCSR2A & (1<<UDRE2))); //wait until all transmissions are done
-  UDR2 = data;  //shove the data into the buffer
-}
 
