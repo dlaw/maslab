@@ -27,16 +27,8 @@ void coast(char motor){
 }
 
 void drive(char motor, char vel){
-  char dir;
-  if (vel >=0){
-    dir = 0x88 + motor*4;
-  }
-  else{
-    dir = 0x8a + motor*4;
-    vel ^= 0xFF;
-  }
-  usart2_tx(dir);
-  usart2_tx(vel&0x7F);
+  usart2_tx((vel<0 ? 0x8a : 0x88) + motor<<2); //direction
+  usart2_tx(vel<0 ? -vel : vel); //magnitude
 }
 
 void usart2_init(unsigned int baud){
