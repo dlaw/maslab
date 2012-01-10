@@ -8,6 +8,6 @@ void coast(char motor){
 }
 
 void drive(char motor, char vel){
-  usart2_tx((vel<0 ? 0x8a : 0x88) + motor<<2); //direction
+  usart2_tx((vel<0 ? 0x8a : 0x88) + (motor<<2)); //direction
   usart2_tx(vel<0 ? -vel : vel); //magnitude
 }
