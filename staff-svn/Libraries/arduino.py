@@ -1,7 +1,7 @@
 import usb.core, usb.util, serial, time, copy, Queue
 import threading, thread
 
-timeout = 1
+timeout = 2
         
 ###############Master Class###############
 #Handles all messages incoming from the various servo and motor classes, and adds them to the queueHandler
@@ -85,7 +85,7 @@ class Arduino(threading.Thread):
                 #Write Command
                 self.port.flush()
                 self.port.write(command)
-                print command
+                #print command
 
                 #Pause so the arduino can process
                 delayParam = float(self.commandDict[portNum][1])
@@ -94,7 +94,8 @@ class Arduino(threading.Thread):
                 #Read from arduino
                 fromArd = self.port.readline()
                 self.responseDict[portNum]=fromArd #To make sure commandDict isn't changed by this thread
-                print fromArd
+                time.sleep(0.05)
+                print "{0} : {1}".format(command,fromArd)
 
             self.portOpened=self.port.isOpen()
         
@@ -116,7 +117,7 @@ class AnalogSensor:
 
     def getValue(self): #Returns a voltage value
         command ="A%(port)02d" %{'port': self.portNum}
-        value = self.arduino.addCommand(command, self.portNum, 0.05, True)
+        value = self.arduino.addCommand(command, self.portNum, 0.15, True)
         if not value=='':
             voltageVal = int(value)*5.0/1023 #Converts the signal to a voltage
         else:
@@ -134,7 +135,7 @@ class Motor:
 
     def setVal(self,val): #val between 0 and 255
         command ="M%(num)01d%(val)03d" %{'num': self.motorNum, 'val':val}
-        self.arduino.addCommand(command, self.ID, .1, True)
+        self.arduino.addCommand(command, self.ID, 0.05, True)
 
 ###############Digital Sensor Class###############
 class DigitalSensor:
@@ -142,9 +143,9 @@ class DigitalSensor:
         self.arduino = _arduino
         self.portNum = _port
 
-    def getValue(self,angle): #Returns a voltage value
+    def getValue(self): #Returns a voltage value
         command ="D%(port)02d" %{'port': self.portNum}
-        value = self.arduino.addCommand(command, self.portNum, 0.05, True)
+        value = self.arduino.addCommand(command, self.portNum, 0.15, True)
         if not value=='':
             val = int(value)
         else:
