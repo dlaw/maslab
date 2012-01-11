@@ -1,17 +1,10 @@
 #include <avr/interrupt.h>
 
-void usart0_init(unsigned int baud);
-void usart0_tx(unsigned char data);
-unsigned char usart0_rx(void);
-void usart2_init(unsigned int baud);
-void usart2_tx(unsigned char data);
-unsigned char usart2_rx(void);
-
 void usart0_init(unsigned int baud){
   UBRR0H = (unsigned char)(baud >> 8); //set baud rate register to correct baud
   UBRR0L = (unsigned char)baud;
-  UCSR0B = (1<<RXEN0)|(1<<TXEN0); //enable tx and rx
-  UCSR0C = (1<<USBS0)|(3<<UCSZ00); //set data format (8 bit w/ 2 stops)
+  UCSR0B = (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0); //enable tx, rx, and rx complete interrupt
+  UCSR0C = (1<<USBS0)|(3<<UCSZ00); //set data format (8 bit w/ 1 stop)
 }
 
 void usart0_tx(unsigned char data){

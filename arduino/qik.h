@@ -1,8 +1,5 @@
 #include "usart.h"
 
-void coast(char motor);
-void drive(char motor, char vel);
-
 void coast(char motor){
   usart2_tx(0x86+motor); 
 }
