@@ -3,7 +3,6 @@ import freenect
 import cv
 import frame_convert
 import numpy as np
-from cv_utils import *
 
 threshold = 10
 current_hue = 0
@@ -28,8 +27,8 @@ def change_min_val(value):
 
 def show_hue():
     rgb = freenect.sync_get_video()[0]
-    rgb = rgb.astype(np.uint8)
-    hsv = arr_rgb_to_hsv(rgb)
+    hsv = rgb.copy()
+    cv.CvtColor(cv.fromarray(rgb), cv.fromarray(hsv), cv.CV_RGB2HSV)
     hue = hsv[:,:,0]
     hue = hue.astype(np.int16) #to prevent overflow error
     differences = np.mod(hue - current_hue, 180)
@@ -47,9 +46,9 @@ def show_hue():
     #multiply by hsv to get original colors, or by mask to get current_hue 
     colored = filtered[:,:,np.newaxis] * mask
     colored = colored.astype(np.uint8)
-    display = arr_hsv_to_rgb(colored)
-    img = arr_to_img(display[:,:,::-1])
-    cv.ShowImage('Hue', img)
+    display = colored.copy()
+    cv.CvtColor(cv.fromarray(colored), cv.fromarray(display), cv.CV_HSV2BGR)
+    cv.ShowImage('Hue', cv.fromarray(display))
 
 def show_video():
     cv.ShowImage('Video', frame_convert.video_cv(freenect.sync_get_video()[0]))
