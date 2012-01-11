@@ -3,7 +3,7 @@ import freenect
 import cv
 import frame_convert
 import numpy as np
-from helper import *
+from cv_utils import *
 
 threshold = 10
 current_hue = 0
