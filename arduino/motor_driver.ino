@@ -1,13 +1,15 @@
 #include "qik.h"
 #include "adc.h"
 
-unsigned char baud0 = 103; //250k baud rate
-unsigned char baud2 = 25; //38.4k baud rate
 volatile unsigned char analog[15];
 volatile char adchan=0;
-volatile uint32_t com_buf[5];
+
+unsigned char baud0 = 1; //500k baud rate
+unsigned char baud2 = 25; //38.4k baud rate
+volatile unsigned char com_buf[5];
 volatile uint32_t data_buf[5];
-volatile uint32_t raw_rx=0;
+volatile char ser_state=0;
+volatile unsigned char raw_rx=0;
 volatile char frame=0;
 volatile char com_index=0;
 volatile char data_index=0;
@@ -18,19 +20,19 @@ ISR(ADC_vect){
 }
 
 ISR(USART0_RX_vect){
-  raw_rx |= (((uint32_t) UDR0)<<frame);
-  frame+=8;
-  if(frame==32){
-    if((raw_rx>>31)==0x1){
-      com_buf[com_index]=raw_rx;
-      com_index++;
-    }
-    else{
-      data_buf[data_index]=raw_rx;
+  if (ser_state==0){
+    raw_rx = UDR0;
+    frame = commands[raw_rx]-1;
+    com_buf[com_index]=raw_rx;
+    ser_state=1;
+    com_index++;
+  }else{
+    data_buf[data_index] |= (((uint32_t) UDR0)<<(frame*8));
+    frame--;
+    if(frame==-1){
+      ser_state=0;
       data_index++;
     }
-    frame=0;
-    raw_rx=0;
   }
 }
 
@@ -50,11 +52,19 @@ void setup(){
 
 void loop(){ 
   if(com_index>0){
-    usart0_tx(com_buf[com_index-1]&0xff);
+    usart0_tx(com_buf[com_index-1]);
+    delay(100);
+    usart0_tx(0xaa);
+    usart0_tx(frame);
     com_index--;
   }
   if(data_index>0){
+    usart0_tx((data_buf[data_index-1]>>24)&0xff);
+    usart0_tx((data_buf[data_index-1]>>16)&0xff);
+    usart0_tx((data_buf[data_index-1]>>8)&0xff);
     usart0_tx(data_buf[data_index-1]&0xff);
+    usart0_tx(0xbb);
+    data_buf[data_index-1]=0;
     data_index--;
   }
   /*if(analog[2]>30){
