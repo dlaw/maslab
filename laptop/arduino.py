@@ -10,7 +10,7 @@ def raw_command(response_fmt, data_fmt, *data):
     try: return struct.unpack(response_fmt, response_data)
     except: return None
 
-def alive():
+def is_alive():
     """Check whether the arduino is responding to commands."""
     return raw_command('<B', '<B', 0) == (0,)
 
