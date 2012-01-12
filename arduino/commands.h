@@ -48,10 +48,10 @@ void getangle(serdata data) {
 }
 
 void getdistance(serdata data) {
-	usart0_tx((unsigned char) (distance_to_target >> 24) & 0xFF);
-	usart0_tx((unsigned char) (distance_to_target >> 16) & 0xFF);
-	usart0_tx((unsigned char) (distance_to_target >> 8) & 0xFF);
-	usart0_tx((unsigned char) (distance_to_target) & 0xFF);
+	usart0_tx((unsigned char) (dist_to_target >> 24) & 0xFF);
+	usart0_tx((unsigned char) (dist_to_target >> 16) & 0xFF);
+	usart0_tx((unsigned char) (dist_to_target >> 8) & 0xFF);
+	usart0_tx((unsigned char) (dist_to_target) & 0xFF);
 }
 
 void changeparam(serdata data) {

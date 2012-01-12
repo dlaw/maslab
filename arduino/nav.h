@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "consts.h"
 
 volatile uint32_t dist_to_target;
 volatile int32_t theta_to_target;
