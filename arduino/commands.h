@@ -1,7 +1,7 @@
 #include "qik.h"
 
 // serdata is an array of volatile unsigned chars
-typedef volatile unsigned char[] serdata;
+typedef volatile unsigned char serdata[];
 
 // responder is the type of a function that takes serdata and returns void
 typedef void (*responder) (serdata);

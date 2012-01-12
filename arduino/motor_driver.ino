@@ -41,18 +41,4 @@ void setup(){
 }
 
 void loop(){ 
-  if(index>0){
-    (*responses[com])(data);
-    index--;
-  }
-  
-  /*if(analog[2]>30){
-   drive(1,50);
-   drive(0,50);
-   delay(100);
-   }else{
-   drive(1,-50);
-   drive(0,50);
-   delay(100);
-   }*/
 }
