@@ -1,11 +1,9 @@
-char sampa,sampb;
-char lsampa,lsampb;
 int tickl=0,tickr=0,dir=0;;
 
 void x_int_init(void);
 
 ISR(PCINT0_vect){
-  if(((PINB&0x0C)==0x0C)||(PINB&0x0C)==0x00){
+  if(((PINB>>2)^(PINB>>3))&1){
     tickl++;
   }else{
     tickl--;
