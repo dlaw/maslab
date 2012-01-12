@@ -1,0 +1,28 @@
+Serial Communication Protocol
+
+=================================
+| Start Byte (C) | Data Byte(s) |
+=================================
+Start Bytes (Command):
+
+   Command Start Bytes
+
+
+ser_state 0 -> reset state, ready for new command
+	frame = number of bytes expected for data
+	com_buf[com_index]=command received
+	com_index++;
+	ser_state=1; Received command, ready for data
+ser_state 1
+	data_buf[buf_index] |= (((uint16_t) UDR0)<< frame);
+	frame--;
+	if(frame==-1){
+		ser_state=0;
+		buf_index++;
+	};
+        frame--;
+
+
+
+
+
