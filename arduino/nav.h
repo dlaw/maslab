@@ -19,14 +19,14 @@ void timer0_init(int period) {
 }
 
 
-void update_state(volatile int *ticks_l, volatile int *ticks_r, volatile uint32_t *dist_to_target, volatile int32_t *theta_to_target) {
+void update_state(volatile int *ticks_l, volatile int *ticks_r) {
   int dist_moved = (*ticks_l + *ticks_r) >> 1;
   
-  *dist_to_target = *dist_to_target - (pgm_read_word(&(COS_FIX_PT[*theta_to_target >> 6])) * dist_moved) >> 16;
+  dist_to_target = dist_to_target - (pgm_read_word(&(COS_FIX_PT[theta_to_target >> 6])) * dist_moved) >> 16;
   
   
   int32_t theta_rotd = ((*ticks_l - *ticks_r)<<16) / DIST_BETWEEN_WHEELS;
-  *theta_to_target = *theta_to_target + theta_rotd;
+  theta_to_target = theta_to_target + theta_rotd;
   
   // reset tick counters
   *ticks_l = 0;

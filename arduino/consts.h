@@ -2,6 +2,7 @@
 
 const int DIST_BETWEEN_WHEELS = 10;
 const int ACCURACY_THRESHOLD = 10;
+const int THETA_ACCURACY_THRESHOLD = 20000;
 const int ROT_K = -50;
 const int ROT_MOVE_K = -10;
 const int VEL_K = 5;

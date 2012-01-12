@@ -60,6 +60,16 @@ ISR(TIMER0_COMPA_vect) {
   int vel;
   
   update_state(&ticks_l, &ticks_r, &dist_to_target, &theta_to_target);
+
+  // This block would normalize the theta_to_target variable to
+  // be within the range [-pi, pi], but i don't believe that this
+  // is something we actually want at this time
+  
+  /*if (theta_to_target > 205887) { // if theta > pi
+    theta_to_target -= 411775; // subtract 2 pi
+  } else if (theta_to_target < -205887) { // if theta < pi
+    theta_to_target += 411775;
+  }*/
   
   switch (navstate) {
     case 0: // waiting for command
@@ -67,14 +77,20 @@ ISR(TIMER0_COMPA_vect) {
       dr = 0;
       break;
       
-    case 1: // rotating to face destination
-      rot_speed = theta_to_target * ROT_K;
+    case 1: // rotate in place
+      rot_speed = (theta_to_target * ROT_K) >> 16;
       dl = 0 + rot_speed;
       dr = 0 - rot_speed;
+
+      if (theta_to_target < 20000) { // close enough
+        navstate = 0;   // go back to waiting for commands
+        dl = 0;
+        dr = 0;
+      }
       
       break;
       
-    case 2: // moving forward
+    case 2: // move towards target
       vel = VEL_K * dist_to_target;
       rot_speed = theta_to_target * ROT_MOVE_K;
       
@@ -87,10 +103,9 @@ ISR(TIMER0_COMPA_vect) {
       if (dr < -127) dr = -127;
       
       if (dist_to_target < ACCURACY_THRESHOLD) {
-        state = 0;
+        navstate = 0; // go back to waiting for commands
         dl = 0;
         dr = 0;
-        // tell the eeepc that we've reached the destination point
       }
         
       break;
