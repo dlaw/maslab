@@ -26,6 +26,29 @@ Command 0x02: read IR sensor
 
 Command 0x03: rotate in place
 		4 bytes, angle to rotate (in radians << 16)
+	    arduino responds with 0x00
 
 Command 0x04: go to new point
 		8 bytes, distance to target (in wheel "ticks"), angle to target (in radians << 16)
+		arduino responds with 0x00
+
+
+Command 0x05: ask for angle to destination
+		0 bytes,
+		arduino responds with 4 bytes, containing the current angle to destination
+
+Command 0x06: ask for distance to destination
+		0 bytes,
+		arduino responds with 4 bytes, containing the current distance to destination
+
+Command 0x07: change a parameters
+		3 bytes total:
+			1 byte for the parameter number
+				0 - distance between the wheels
+				1 - accuracy threshold for distance (in motor ticks)
+				2 - accuracy threshold for rotations (in radians << 16)
+				3 - proportional gain for rotation in place
+				4 - proportional gain for rotation while moving
+				5 - proportional gain for velocity
+			2 bytes for the parameter value (signed)
+		arduino responds with 1 byte, echoing the parameter number

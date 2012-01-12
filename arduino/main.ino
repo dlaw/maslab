@@ -37,6 +37,12 @@ ISR(PCINT0_vect){            //Pin Change interrupt handler
 }
 
 void setup(){
+  // load default parameters
+
+  for (int i = 0; i < 6; i ++) {
+    parameters[i] = PARAMETERS[i];
+  }
+
   adc_init(2,6);      //channel 2, div 64 clock prescaler
   ext_pcint_init();   //left motor pcint init
   usart0_init(baud0);
@@ -45,16 +51,15 @@ void setup(){
   adchan=2;           //adc channel selection 
   pinMode(2, INPUT);  
   pinMode(30, INPUT); //qik controller error input pin
-  timer0_init(0);
+  timer0_init(125); // period in microseconds = argument * 4 (maximum 255)
   sei();
   adc_start();        //start ADC conversions
 }
 
-void loop(){ 
+void loop(){ // nothing happens in the loop
 }
 
-// the timed control loop currently triggers every
-// 508 uS
+// the timed control loop currently triggers every 500 uS
 ISR(TIMER0_COMPA_vect) {
   int rot_speed;
   int vel;
@@ -64,7 +69,7 @@ ISR(TIMER0_COMPA_vect) {
   // This block would normalize the theta_to_target variable to
   // be within the range [-pi, pi], but i don't believe that this
   // is something we actually want at this time
-  
+
   /*if (theta_to_target > 205887) { // if theta > pi
     theta_to_target -= 411775; // subtract 2 pi
   } else if (theta_to_target < -205887) { // if theta < pi
@@ -78,11 +83,11 @@ ISR(TIMER0_COMPA_vect) {
       break;
       
     case 1: // rotate in place
-      rot_speed = (theta_to_target * ROT_K) >> 16;
+      rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
       dl = 0 + rot_speed;
       dr = 0 - rot_speed;
 
-      if (theta_to_target < 20000) { // close enough
+      if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
         navstate = 0;   // go back to waiting for commands
         dl = 0;
         dr = 0;
@@ -91,8 +96,8 @@ ISR(TIMER0_COMPA_vect) {
       break;
       
     case 2: // move towards target
-      vel = VEL_K * dist_to_target;
-      rot_speed = theta_to_target * ROT_MOVE_K;
+      vel = parameters[VEL_K] * dist_to_target;
+      rot_speed = theta_to_target * parameters[ROT_MOVE_K];
       
       dl = vel + rot_speed;
       dr = vel - rot_speed;
@@ -102,7 +107,7 @@ ISR(TIMER0_COMPA_vect) {
       if (dl < -127) dl = -127;
       if (dr < -127) dr = -127;
       
-      if (dist_to_target < ACCURACY_THRESHOLD) {
+      if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
         navstate = 0; // go back to waiting for commands
         dl = 0;
         dr = 0;
