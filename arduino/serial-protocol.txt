@@ -6,7 +6,9 @@ Serial Communication Protocol
 Start Bytes (Command):
 
    Command Start Bytes
-
+	0x00 laptop->awake?   |   arduino->ack for any command
+	0x01 raw motor speeds- void drive(lvel, rvel);
+		2 bytes lvel, rvel
 
 ser_state 0 -> reset state, ready for new command
 	frame = number of bytes expected for data
