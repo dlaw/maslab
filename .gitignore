@@ -1,5 +1,5 @@
 *.pyc
 *.so
-laptop/flood_fill.c
+laptop/vision/blobs.c
 .#*
 *#

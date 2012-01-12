@@ -1,6 +1,9 @@
 #include "qik.h"
 #include "nav.h"
 
+#define TO_INT(arr,i) arr[i] + ((uint32_t) arr[i+1]) << 8 + \
+  ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24
+
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
 
@@ -24,14 +27,14 @@ void sendir(serdata data){
 }
 
 void rotate(serdata data) {
-	theta_to_target = data[0] + ((uint32_t) data[1]) << 8 + ((uint32_t) data[2]) << 16 + ((uint32_t) data[3]) << 24;
-	navstate = 1; // start rotating
+  theta_to_target = TO_INT(data,0);
+  navstate = 1; // start rotating
 }
 
 void gotopoint(serdata data) {
-	dist_to_target = data[0] + ((uint32_t) data[1]) << 8 + ((uint32_t) data[2]) << 16 + ((uint32_t) data[3]) << 24;
-	theta_to_target = data[4] + ((int32_t) data[5]) << 8 + ((int32_t) data[6]) << 16 + ((int32_t) data[7]) << 24;
-	navstate = 2;
+  dist_to_target = TO_INT(data,0);
+  theta_to_target = TO_INT(data,4);
+  navstate = 2;
 }
 
 void getangle(serdata data) {
