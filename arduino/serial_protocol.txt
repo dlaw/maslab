@@ -1,0 +1,25 @@
+=======================================
+| pleit cereal communication protocol |
+=======================================
+
+All communication is initiated by the laptop.
+
+The laptop sends a one-byte command identifier, followed by zero or
+more data bytes.  The number of data bytes is constant for each
+command.
+
+Whenever the Arduino receives a command, it sends back one or more
+bytes in response.  If there is no response, the command was not read
+successfully.
+
+Command 0x00: are you awake?
+	      0 bytes data
+	      arduino responds with 0x00
+
+Command 0x01: set motor speeds
+	      2 bytes data: left motor speed and right motor speed
+              arduino responds with 0x00
+
+Command 0x02: read IR sensor
+              1 byte data: index of IR sensor to read
+	      arduino responds with the one-byte mesured sensor value
