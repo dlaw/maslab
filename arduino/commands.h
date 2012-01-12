@@ -1,10 +1,9 @@
 #include "qik.h"
 #include "nav.h"
 
-#define TO_INT32(arr,i) arr[i] + ((uint32_t) arr[i+1]) << 8 + \
-  ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24
-
-#define TO_INT16(arr,i) arr[i] + ((uint16_t) arr[i+1] << 8)
+#define TO_INT32(arr,i) (arr[i] + ((uint32_t) arr[i+1]) << 8 + \
+    ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
+#define TO_INT16(arr,i) (arr[i] + ((uint16_t) arr[i+1] << 8))
 
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
