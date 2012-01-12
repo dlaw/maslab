@@ -61,12 +61,12 @@ void changeparam(serdata data) {
 }
 
 // How many bytes of data will follow each command?
-unsigned char commands[3]={
+unsigned char commands[8]={
   0,2,1,4,8,0,0,3
 };
 
 // What function shall be called to respond to each command?
-responder responses[3]={
+responder responses[8]={
   &ack,
   &setmotors,
   &sendir,
