@@ -29,3 +29,11 @@ Command 0x03: rotate in place
 
 Command 0x04: go to new point
 		8 bytes, distance to target (in wheel "ticks"), angle to target (in radians << 16)
+
+Command 0x05: ask for angle to destination
+		0 bytes,
+		arduino responds with 4 bytes, containing the current angle to destination
+
+Command 0x06: ask for distance to destination
+		0 bytes,
+		arduino responds with 4 bytes, containing the current distance to destination

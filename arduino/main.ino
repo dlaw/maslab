@@ -14,6 +14,12 @@ volatile int tickr=0;            //right motor tick counter
 volatile int dl;
 volatile int dr;
 
+volatile int ACCURACY_THRESHOLD = 10;
+volatile int THETA_ACCURACY_THRESHOLD = 20000;
+volatile int ROT_K = -50;
+volatile int ROT_MOVE_K = -10;
+volatile int VEL_K = 5;
+
 ISR(ADC_vect){               //ADC complete interrupt handler
   analog[adchan]=ADCH;
 }
@@ -45,16 +51,15 @@ void setup(){
   adchan=2;           //adc channel selection 
   pinMode(2, INPUT);  
   pinMode(30, INPUT); //qik controller error input pin
-  timer0_init(0);
+  timer0_init(125); // period in microseconds = argument * 4 (maximum 255)
   sei();
   adc_start();        //start ADC conversions
 }
 
-void loop(){ 
+void loop(){ // nothing happens in the loop
 }
 
-// the timed control loop currently triggers every
-// 508 uS
+// the timed control loop currently triggers every 500 uS
 ISR(TIMER0_COMPA_vect) {
   int rot_speed;
   int vel;
@@ -64,7 +69,7 @@ ISR(TIMER0_COMPA_vect) {
   // This block would normalize the theta_to_target variable to
   // be within the range [-pi, pi], but i don't believe that this
   // is something we actually want at this time
-  
+
   /*if (theta_to_target > 205887) { // if theta > pi
     theta_to_target -= 411775; // subtract 2 pi
   } else if (theta_to_target < -205887) { // if theta < pi

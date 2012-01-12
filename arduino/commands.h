@@ -34,9 +34,23 @@ void gotopoint(serdata data) {
 	navstate = 2;
 }
 
+void getangle(serdata data) {
+	usart0_tx((unsigned char) (theta_to_target >> 24) & 0xFF);
+	usart0_tx((unsigned char) (theta_to_target >> 16) & 0xFF);
+	usart0_tx((unsigned char) (theta_to_target >> 8) & 0xFF);
+	usart0_tx((unsigned char) (theta_to_target) & 0xFF);
+}
+
+void getdistance(serdata data) {
+	usart0_tx((unsigned char) (distance_to_target >> 24) & 0xFF);
+	usart0_tx((unsigned char) (distance_to_target >> 16) & 0xFF);
+	usart0_tx((unsigned char) (distance_to_target >> 8) & 0xFF);
+	usart0_tx((unsigned char) (distance_to_target) & 0xFF);
+}
+
 // How many bytes of data will follow each command?
 unsigned char commands[3]={
-  0,2,1,4,8
+  0,2,1,4,8,0,0
 };
 
 // What function shall be called to respond to each command?
@@ -45,5 +59,7 @@ responder responses[3]={
   &setmotors,
   &sendir,
   &rotate,
-  &gotopoint
+  &gotopoint,
+  &getangle,
+  &getdistance
 };
