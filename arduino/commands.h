@@ -1,16 +1,19 @@
 #include "qik.h"
 
-typedef volatile unsigned char[] response;
-typedef void (*responder) (response);
+// serdata is an array of volatile unsigned chars
+typedef volatile unsigned char[] serdata;
+
+// responder is the type of a function that takes serdata and returns void
+typedef void (*responder) (serdata);
 
 // Send an ack
-void ack(response data){
+void ack(serdata data){
   usart0_tx(0x00);
 }
 
 // Set motor speeds and send an ack
-void setmotors(response data){
-  drive(data[0],data[1]);
+void setmotors(serdata data){
+  drive(data[1],data[0]);
   usart0_tx(0x00);
 }
 

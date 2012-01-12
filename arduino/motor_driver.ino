@@ -7,10 +7,8 @@ volatile char adchan=0;
 unsigned char baud0 = 1; //500k baud rate
 unsigned char baud2 = 25; //38.4k baud rate
 volatile unsigned char com=0;
-volatile unsigned char data[12];
-volatile char ser_state=0;
+volatile unsigned char data[12]; // max 12 bytes of data per command
 volatile char frame=0;
-volatile char index=0;
 int16_t go;
 
 ISR(ADC_vect){
@@ -18,14 +16,13 @@ ISR(ADC_vect){
 }
 
 ISR(USART0_RX_vect){
-  if (frame){                //incoming data
-    data[frame-1] = UDR0;    //write rx buffer to data array
-    frame--;                 //decrement remaining bytes to follow
-  }else{                     //incoming command
+  if (!frame){               //if incoming command
     com = UDR0;              //write rx buffer to command variable
     frame = commands[com];   //number of expected data bytes to follow
-  }
-  if(!frame)index++;
+  }else                      //if incoming data
+    data[--frame] = UDR0;    //write rx buffer to data array
+  if(!frame)                 //if command is complete
+    (*responses[com])(data); //run responder
 }
 
 void setup(){
