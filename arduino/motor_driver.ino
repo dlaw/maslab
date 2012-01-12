@@ -20,19 +20,19 @@ ISR(ADC_vect){
 }
 
 ISR(USART0_RX_vect){
-  if (ser_state==0){
+  if (ser_state){
+    data_buf[data_index] |= (((uint32_t) UDR0) << (frame<<3));
+    if(!frame--){
+      ser_state=0;
+      data_index++;
+    }
+  }
+  else{
     raw_rx = UDR0;
     frame = commands[raw_rx]-1;
     com_buf[com_index]=raw_rx;
     ser_state=1;
     com_index++;
-  }else{
-    data_buf[data_index] |= (((uint32_t) UDR0)<<(frame*8));
-    frame--;
-    if(frame==-1){
-      ser_state=0;
-      data_index++;
-    }
   }
 }
 
@@ -77,9 +77,3 @@ void loop(){
    delay(100);
    }*/
 }
-
-
-
-
-
-
