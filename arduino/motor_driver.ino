@@ -1,9 +1,5 @@
 #include "commands.h"
-#include "adc.h"
 #include "external_interrupt.h"
-
-volatile unsigned char analog[15];
-volatile char adchan=0;
 
 unsigned char baud0 = 1; //500k baud rate
 unsigned char baud2 = 25; //38.4k baud rate

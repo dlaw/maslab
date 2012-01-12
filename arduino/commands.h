@@ -17,13 +17,19 @@ void setmotors(serdata data){
   usart0_tx(0x00);
 }
 
+//Send an IR sensor reading
+void sendir(serdata data){
+  usart0_tx(analog[data[0]]);
+}
+
 // How many bytes of data will follow each command?
-unsigned char commands[2]={
-  0,2
+unsigned char commands[3]={
+  0,2,1
 };
 
 // What function shall be called to respond to each command?
-responder responses[2]={
+responder responses[3]={
   &ack,
-  &setmotors
+  &setmotors,
+  &sendir
 };

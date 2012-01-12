@@ -1,4 +1,4 @@
-#include "usart.h"
+#include "adc.h"
 
 void coast(char motor){
   usart2_tx(0x86+motor); 
