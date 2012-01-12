@@ -14,12 +14,6 @@ volatile int tickr=0;            //right motor tick counter
 volatile int dl;
 volatile int dr;
 
-volatile int ACCURACY_THRESHOLD = 10;
-volatile int THETA_ACCURACY_THRESHOLD = 20000;
-volatile int ROT_K = -50;
-volatile int ROT_MOVE_K = -10;
-volatile int VEL_K = 5;
-
 ISR(ADC_vect){               //ADC complete interrupt handler
   analog[adchan]=ADCH;
 }
@@ -43,6 +37,12 @@ ISR(PCINT0_vect){            //Pin Change interrupt handler
 }
 
 void setup(){
+  // load default parameters
+
+  for (int i = 0; i < 6; i ++) {
+    parameters[i] = PARAMETERS[i];
+  }
+
   adc_init(2,6);      //channel 2, div 64 clock prescaler
   ext_pcint_init();   //left motor pcint init
   usart0_init(baud0);
@@ -83,11 +83,11 @@ ISR(TIMER0_COMPA_vect) {
       break;
       
     case 1: // rotate in place
-      rot_speed = (theta_to_target * ROT_K) >> 16;
+      rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
       dl = 0 + rot_speed;
       dr = 0 - rot_speed;
 
-      if (theta_to_target < 20000) { // close enough
+      if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
         navstate = 0;   // go back to waiting for commands
         dl = 0;
         dr = 0;
@@ -96,8 +96,8 @@ ISR(TIMER0_COMPA_vect) {
       break;
       
     case 2: // move towards target
-      vel = VEL_K * dist_to_target;
-      rot_speed = theta_to_target * ROT_MOVE_K;
+      vel = parameters[VEL_K] * dist_to_target;
+      rot_speed = theta_to_target * parameters[ROT_MOVE_K];
       
       dl = vel + rot_speed;
       dr = vel - rot_speed;
@@ -107,7 +107,7 @@ ISR(TIMER0_COMPA_vect) {
       if (dl < -127) dl = -127;
       if (dr < -127) dr = -127;
       
-      if (dist_to_target < ACCURACY_THRESHOLD) {
+      if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
         navstate = 0; // go back to waiting for commands
         dl = 0;
         dr = 0;
