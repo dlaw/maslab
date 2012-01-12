@@ -6,10 +6,9 @@ volatile char adchan=0;
 
 unsigned char baud0 = 1; //500k baud rate
 unsigned char baud2 = 25; //38.4k baud rate
-volatile unsigned char com;
+volatile unsigned char com=0;
 volatile unsigned char data[12];
 volatile char ser_state=0;
-volatile unsigned char raw_rx=0;
 volatile char frame=0;
 volatile char index=0;
 int16_t go;
@@ -19,13 +18,12 @@ ISR(ADC_vect){
 }
 
 ISR(USART0_RX_vect){
-  if (frame){
-    data[frame-1] = UDR0;
-    frame--;
-  }else{
-    raw_rx = UDR0;
-    frame = commands[raw_rx];
-    com=raw_rx;
+  if (frame){                //incoming data
+    data[frame-1] = UDR0;    //write rx buffer to data array
+    frame--;                 //decrement remaining bytes to follow
+  }else{                     //incoming command
+    com = UDR0;              //write rx buffer to command variable
+    frame = commands[com];   //number of expected data bytes to follow
   }
   if(!frame)index++;
 }
