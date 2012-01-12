@@ -28,8 +28,6 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, int min_size, int max_s
                 sz = flood_fill(arr, r, c, next_color)
                 if sz>=min_size and sz<=max_size:
                     blobs.append(next_color)
-    print next_color
-    print len(blobs)
     return arr
 
 @cython.boundscheck(False)
