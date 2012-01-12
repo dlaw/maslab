@@ -1,4 +1,4 @@
-int tickl=0,tickr=0,dir=0;;
+int tickl=0,tickr=0,dir=0;
 
 void x_int_init(void);
 
