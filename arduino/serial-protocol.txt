@@ -9,6 +9,10 @@ Start Bytes (Command):
 	0x00 laptop->awake?   |   arduino->ack for any command
 	0x01 raw motor speeds- void drive(lvel, rvel);
 		2 bytes lvel, rvel
+	0x03 new destination point
+		8 bytes, dist_to_target, theta_to_target
+	0x04 correction to destination point
+		8 bytes, dist_to_target, theta_to_target
 
 ser_state 0 -> reset state, ready for new command
 	frame = number of bytes expected for data
