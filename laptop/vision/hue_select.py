@@ -67,4 +67,3 @@ while 1:
     show_video()
     if cv.WaitKey(10) == 27:
         break
-
