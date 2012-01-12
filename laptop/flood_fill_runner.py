@@ -1,3 +1,6 @@
+import pyximport
+pyximport.install()
+
 import flood_fill
 import numpy as np
 import profile

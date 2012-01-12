@@ -1,7 +1,10 @@
 """
 to compile, run:
 	cython flood_fill.pyx
-	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.7 -o flood_fill.so flood_fill.c
+	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing \
+	      -o flood_fill.so -I/usr/include/python2.7 \
+	     -I/usr/lib/python2.7/site-packages/numpy/core/include/ \
+	     flood_fill.c
 """
 
 import numpy as np
