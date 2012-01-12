@@ -1,4 +1,4 @@
-#include "qik.h"
+#include "commands.h"
 #include "adc.h"
 
 volatile unsigned char analog[15];
@@ -6,13 +6,12 @@ volatile char adchan=0;
 
 unsigned char baud0 = 1; //500k baud rate
 unsigned char baud2 = 25; //38.4k baud rate
-volatile unsigned char com_buf[5];
-volatile uint32_t data_buf[5];
+volatile unsigned char com;
+volatile unsigned char data[12];
 volatile char ser_state=0;
 volatile unsigned char raw_rx=0;
 volatile char frame=0;
-volatile char com_index=0;
-volatile char data_index=0;
+volatile char index=0;
 int16_t go;
 
 ISR(ADC_vect){
@@ -20,20 +19,15 @@ ISR(ADC_vect){
 }
 
 ISR(USART0_RX_vect){
-  if (ser_state){
-    data_buf[data_index] |= (((uint32_t) UDR0) << (frame<<3));
-    if(!frame--){
-      ser_state=0;
-      data_index++;
-    }
-  }
-  else{
+  if (frame){
+    data[frame-1] = UDR0;
+    frame--;
+  }else{
     raw_rx = UDR0;
-    frame = commands[raw_rx]-1;
-    com_buf[com_index]=raw_rx;
-    ser_state=1;
-    com_index++;
+    frame = commands[raw_rx];
+    com=raw_rx;
   }
+  if(!frame)index++;
 }
 
 void setup(){
@@ -41,32 +35,22 @@ void setup(){
   adchan=2;
   pinMode(2, INPUT);
   pinMode(30, INPUT);
-  digitalWrite(30, HIGH); 
+  digitalWrite(48, HIGH); 
   int serial;
   usart0_init(baud0);
   usart2_init(baud2);
   usart2_tx(0xaa);
   sei();
   adc_start();
+  drive(50,50);
 }
 
 void loop(){ 
-  if(com_index>0){
-    usart0_tx(com_buf[com_index-1]);
-    delay(100);
-    usart0_tx(0xaa);
-    usart0_tx(frame);
-    com_index--;
+  if(index>0){
+    (*responses[com])(data);
+    index--;
   }
-  if(data_index>0){
-    usart0_tx((data_buf[data_index-1]>>24)&0xff);
-    usart0_tx((data_buf[data_index-1]>>16)&0xff);
-    usart0_tx((data_buf[data_index-1]>>8)&0xff);
-    usart0_tx(data_buf[data_index-1]&0xff);
-    usart0_tx(0xbb);
-    data_buf[data_index-1]=0;
-    data_index--;
-  }
+  
   /*if(analog[2]>30){
    drive(1,50);
    drive(0,50);
