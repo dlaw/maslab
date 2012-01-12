@@ -1,3 +1,9 @@
+"""
+to compile, run:
+	cython flood_fill.pyx
+	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.7 -o flood_fill.so flood_fill.c
+"""
+
 import numpy as np
 cimport numpy as np
 cimport cython
