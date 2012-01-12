@@ -1,4 +1,8 @@
 #include <avr/interrupt.h>
+#include "usart.h"
+
+volatile unsigned char analog[15];
+volatile char adchan=0;
 
 void adc_init(char channel, char prescaler){
   ADMUX |= (1<<REFS0)|(1<<ADLAR)|(channel&0x0f); //select ADC channel, rvcc as ref, and left-shift the data
