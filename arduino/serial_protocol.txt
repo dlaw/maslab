@@ -23,3 +23,9 @@ Command 0x01: set motor speeds
 Command 0x02: read IR sensor
               1 byte data: index of IR sensor to read
 	      arduino responds with the one-byte mesured sensor value
+
+Command 0x03: new destination point
+		8 bytes, dist_to_target, theta_to_target
+
+Command 0x04: correction to destination point
+		8 bytes, dist_to_target, theta_to_target
