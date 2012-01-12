@@ -15,8 +15,8 @@ def is_alive():
     return raw_command('<B', '<B', 0) == (0,)
 
 def set_motors(left, right):
-    """Set the drive motors.  Speeds range from -128 to 127."""
-    return raw_command('<B', '<Bbb', 1, left, right) == (0,)
+    """Set the drive motors.  Speeds range from -1.0 to 1.0."""
+    return raw_command('<B', '<Bbb', 1, int(127*left), int(127*right)) == (0,)
 
 def get_ir(channel):
     """Ask for an ir reading from CHANNEL"""
