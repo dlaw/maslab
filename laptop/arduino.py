@@ -16,4 +16,4 @@ def alive():
 
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -128 to 127."""
-    return raw_command('<B', '<BBB', 1, left, right) == (0,)
+    return raw_command('<B', '<Bbb', 1, left, right) == (0,)
