@@ -1,5 +1,6 @@
 *.pyc
 *.so
 laptop/vision/blobs.c
+laptop/vision/color.c
 .#*
 *#
