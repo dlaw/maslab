@@ -13,9 +13,9 @@ void timer0_init(char period) {
   TCCR0A &= B00000000;
   TCCR0A |= B00000010;
   
-  // sett /64 prescaler
+  // sett /1024 prescaler
   TCCR0B &= B11111000;
-  TCCR0B |= B00000011;
+  TCCR0B |= B00000101;
 
   OCR0A = period; // trigger the timer interrupt every 500 us
   TIMSK0 |= B00000010; // enable interrupt A

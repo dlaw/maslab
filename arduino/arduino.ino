@@ -8,6 +8,7 @@ volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
 volatile char frame=0;
 
+volatile boolean control_semaphore;
 
 
 volatile int dl;
@@ -28,13 +29,73 @@ void setup(){
   usart0_init(baud0);
   usart1_init(baud2);
   adchan=2;           //adc channel selection 
-  timer0_init(125); // period in microseconds = argument * 4 (maximum 255)
+  timer0_init(156); // period in milliseconds = val * .064 
   sei();            // start interrupts
   adc_start();        //start ADC conversions
   usart1_tx(0xaa);    //initialize the qik controller
 }
 
 void loop(){ // nothing happens in the loop
+  if (control_semaphore) {
+    int rot_speed;
+    int vel;
+    
+    // update the distance/angle to target from how much we've moved in the last 500 uS
+    //update_state(&tickl, &tickr);
+    
+    switch (navstate) {
+      case 0: // waiting for command
+        break;
+        
+      case 1: // rotate in place
+        rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
+        dl = 0 + rot_speed;
+        dr = 0 - rot_speed;
+  
+        if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
+          navstate = 0;   // go back to waiting for commands
+          dl = 0;
+          dr = 0;
+        }
+        
+        drive(dl, -dr);
+        break;
+        
+      case 2: // move towards target
+        // in this mode, theta_to_target should be in the range [-pi, pi]
+  
+        while (theta_to_target > 205887) { // while theta > pi
+          theta_to_target -= 411775; // subtract 2 pi
+        }
+  
+        while (theta_to_target < -205887) { // while theta < pi
+          theta_to_target += 411775;
+        }
+  
+        vel = parameters[VEL_K] * dist_to_target;
+        rot_speed = theta_to_target * parameters[ROT_MOVE_K];
+        
+        dl = vel + rot_speed;
+        dr = vel - rot_speed;
+     
+        if (dl > 127) dl = 127;
+        if (dr > 127) dr = 127;
+        if (dl < -127) dl = -127;
+        if (dr < -127) dr = -127;
+        
+        if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
+          navstate = 0; // go back to waiting for commands
+          dl = 0;
+          dr = 0;
+        }
+          
+        break;
+        
+        drive(dl, -dr);
+    }
+    
+    control_semaphore = false;
+  }
 }
 
 ISR(ADC_vect){               //ADC complete interrupt handler
@@ -49,6 +110,7 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
     data[--frame] = UDR0;    //write rx buffer to data array
   if(!frame)                 //if command is complete
     (*responses[com])(data); //run responder
+    
 }
 
 ISR(INT4_vect){            //Pin Change interrupt handler
@@ -67,62 +129,8 @@ ISR(INT5_vect){            //Pin Change interrupt handler
   }
 }
 
-// the timed control loop currently triggers every 500 uS
+// the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
-  int rot_speed;
-  int vel;
-  
-  // update the distance/angle to target from how much we've moved in the last 500 uS
-  update_state(&tickl, &tickr);
-  
-  switch (navstate) {
-    case 0: // waiting for command
-      break;
-      
-    case 1: // rotate in place
-      rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
-      dl = 0 + rot_speed;
-      dr = 0 - rot_speed;
-
-      if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
-        navstate = 0;   // go back to waiting for commands
-        dl = 0;
-        dr = 0;
-      }
-      
-      break;
-      
-    case 2: // move towards target
-      // in this mode, theta_to_target should be in the range [-pi, pi]
-
-      while (theta_to_target > 205887) { // while theta > pi
-        theta_to_target -= 411775; // subtract 2 pi
-      }
-
-      while (theta_to_target < -205887) { // while theta < pi
-        theta_to_target += 411775;
-      }
-
-      vel = parameters[VEL_K] * dist_to_target;
-      rot_speed = theta_to_target * parameters[ROT_MOVE_K];
-      
-      dl = vel + rot_speed;
-      dr = vel - rot_speed;
-   
-      if (dl > 127) dl = 127;
-      if (dr > 127) dr = 127;
-      if (dl < -127) dl = -127;
-      if (dr < -127) dr = -127;
-      
-      if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
-        navstate = 0; // go back to waiting for commands
-        dl = 0;
-        dr = 0;
-      }
-        
-      break;
-  }
-
-  drive(dl, -dr);
+  control_semaphore = true;
 }
 
