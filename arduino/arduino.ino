@@ -1,8 +1,8 @@
 #include "commands.h"
 #include "external_interrupt.h"
 
-#define baud0 1;  //500k baud rate
-#define baud2 25; //38.4k baud rate
+#define baud0 1  //500k baud rate
+#define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
