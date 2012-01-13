@@ -1,5 +1,6 @@
 #include "qik.h"
 #include "nav.h"
+#include "external_interrupt.h"
 
 #define TO_INT32(arr,i) (arr[i] + ((uint32_t) arr[i+1]) << 8 + \
     ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
@@ -69,13 +70,21 @@ void changeparam(serdata data) {
 	usart0_tx(param);
 }
 
+// command 0x08
+void sendticks(serdata data) {
+  usart0_tx((unsigned char) (tickl>>8) &0xFF);
+  usart0_tx((unsigned char) (tickl) &0xFF);
+  usart0_tx((unsigned char) (tickr>>8) &0xFF);
+  usart0_tx((unsigned char) (tickr) &0xFF);
+}  
+
 // How many bytes of data will follow each command?
-unsigned char commands[8]={
-  0,2,1,4,8,0,0,3
+unsigned char commands[9]={
+  0,2,1,4,8,0,0,3,0
 };
 
 // What function shall be called to respond to each command?
-responder responses[8]={
+responder responses[9]={
   &ack,
   &setmotors,
   &sendir,
@@ -84,4 +93,5 @@ responder responses[8]={
   &getangle,
   &getdistance,
   &changeparam,
+  &sendticks,
 };
