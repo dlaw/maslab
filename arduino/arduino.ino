@@ -22,14 +22,16 @@ void setup(){
     parameters[i] = PARAMETERS[i];
   }
 
-  adc_init(2,6);      //channel 2, div 64 clock prescaler
+  adc_init(6);      //channel 2, div 64 clock prescaler
+  adc_select(2);
+  adc_start();
+
   ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
   adchan=2;           //adc channel selection 
   timer0_init(156); // period in milliseconds = val * .064 
   sei();            // start interrupts
-  adc_start();        //start ADC conversions
   usart1_tx(0xaa);    //initialize the qik controller
 
   adc_init(9, 6);
@@ -113,7 +115,10 @@ void loop(){
 // ******************************
 
 ISR(ADC_vect){               //ADC complete interrupt handler
-  analog[adchan]=ADCH;
+  if (adchan == 9) {
+    usart0_tx(ADCH);
+    usart0_tx(ADCL);
+  }
 }
 
 ISR(USART0_RX_vect){         //USART receive interrupt handler
