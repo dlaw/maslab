@@ -1,8 +1,8 @@
 #include "commands.h"
 #include "external_interrupt.h"
 
-#define baud0 1;  //500k baud rate
-#define baud2 25; //38.4k baud rate
+#define baud0 1  //500k baud rate
+#define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
@@ -38,23 +38,23 @@ ISR(PCINT0_vect){            //Pin Change interrupt handler
 
 void setup(){
   // load default parameters
-
+  pinMode(2, INPUT);  
+  pinMode(29, OUTPUT); //qik controller error input pin
+  digitalWrite(29,0);
   for (int i = 0; i < 6; i ++) {
     parameters[i] = PARAMETERS[i];
   }
-
   adc_init(2,6);      //channel 2, div 64 clock prescaler
   ext_pcint_init();   //left motor pcint init
   usart0_init(baud0);
-  usart2_init(baud2);
-  usart2_tx(0xaa);    //initialize the qik controller
+  usart1_init(baud2);
+  usart1_tx(0xaa);    //initialize the qik controller
   adchan=2;           //adc channel selection 
-  pinMode(2, INPUT);  
-  pinMode(30, INPUT); //qik controller error input pin
   timer0_init(125); // period in microseconds = argument * 4 (maximum 255)
   sei();
   adc_start();        //start ADC conversions
-}
+  drive(100,100);
+  }
 
 void loop(){ // nothing happens in the loop
 }
@@ -64,7 +64,7 @@ ISR(TIMER0_COMPA_vect) {
   int rot_speed;
   int vel;
   
-  update_state(&ticks_l, &ticks_r, &dist_to_target, &theta_to_target);
+  update_state(&tickl, &tickr);
 
   // This block would normalize the theta_to_target variable to
   // be within the range [-pi, pi], but i don't believe that this
