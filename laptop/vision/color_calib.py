@@ -26,7 +26,7 @@ def show_video():
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     cv.ShowImage('Video', cv.fromarray(image))
 
-cv.NamedWindow('Video')
+cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Sliders')
 cv.CreateTrackbar('Target hue', 'Sliders', hue, 180, change_hue)
 cv.CreateTrackbar('Hue const', 'Sliders', hue_c, 300, change_hue_c)
