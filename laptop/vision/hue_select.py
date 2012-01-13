@@ -2,7 +2,7 @@
 import cv
 import numpy as np
 
-def hue_select(rgb, target_hue, hue_tolerance, sat_val_tolerance):
+def hue_select(rgb, target_hue, hue_tolerance, sat_val_tolerance, sat_c, val_c):
     hsv = rgb.copy()
     cv.CvtColor(cv.fromarray(rgb), cv.fromarray(hsv), cv.CV_RGB2HSV)
     hue = hsv[:,:,0]
@@ -12,9 +12,9 @@ def hue_select(rgb, target_hue, hue_tolerance, sat_val_tolerance):
                   differences <= hue_tolerance,
                   differences >= 180-hue_tolerance
                )
-    sat = (255-hsv[:,:,1]).astype(np.uint16)
-    val = (255-hsv[:,:,2]).astype(np.uint16)
-    sv_filter = (np.square(sat) + np.square(val)) < sat_val_tolerance
+    sat = (255-hsv[:,:,1]).astype(np.uint32)
+    val = (255-hsv[:,:,2]).astype(np.uint32)
+    sv_filter = (sat_c*np.square(sat) + val_c*np.square(val)) < sat_val_tolerance
     filtered = filtered * sv_filter
     return filtered
 
