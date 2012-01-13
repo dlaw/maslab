@@ -20,19 +20,17 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=
     cdef int maxr = arr.shape[0]
     cdef int maxc = arr.shape[1]
     cdef int r, c
-    cdef DTYPE_t size, sum_r, sum_c
-    cdef float sum_d, avg_r, avg_c, avg_d, var_d, var_d2
+    cdef DTYPE_t size
     cdef list blobs = []
+    cdef tuple blob_data
     for r in range(maxr):
         for c in range(maxc):
             if arr[r,c] == 1:
                 next_color = next_color + 1
-                size, sum_r, sum_c, sum_d, var_d = flood_fill(arr, depth, r, c, next_color)
+                blob_data = flood_fill(arr, depth, r, c, next_color)
+                size = blob_data[0]
                 if size>=min_size and size<=max_size:
-                    avg_r = 1.0*sum_r/size
-                    avg_c = 1.0*sum_c/size
-                    avg_d = 1.0*sum_d/size
-                    blobs.append((next_color, size, avg_r, avg_c, avg_d, var_d))
+                    blobs.append(blob_data)
     return blobs
 
 @cython.boundscheck(False)
@@ -42,12 +40,10 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=
     cdef int dr, dc, nr, nc
     cdef list to_visit
     cdef DTYPE_t size = 1
-    cdef DTYPE_t sum_r = r
-    cdef DTYPE_t sum_c = c
-    cdef float sum_d = depth[r,c]
-    cdef float var_d_m = depth[r,c]
-    cdef float var_d_s = 0
-    cdef float var_d_oldm
+    cdef tuple r_data = make_data_tuple(<float>r)
+    cdef tuple c_data = make_data_tuple(<float>c)
+    cdef tuple d_data = make_data_tuple(depth[r,c])
+    
     arr[r,c] = color
     to_visit = [(r,c)]
     while to_visit:
@@ -62,12 +58,24 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=
                     arr[nr,nc] = color
                     to_visit.append((nr,nc))
                     size = size + 1
-                    sum_r = sum_r + nr
-                    sum_c = sum_c + nc
-                    sum_d = sum_d + depth[nr,nc]
-                    # from http://www.johndcook.com/standard_deviation.html
-                    var_d_oldm = var_d_m
-                    var_d_m = var_d_oldm + (depth[nr,nc] - var_d_oldm) / size
-                    var_d_s = var_d_s + (depth[nr,nc] - var_d_oldm)*(depth[nr,nc] - var_d_m)
-    return (size, sum_r, sum_c, sum_d, var_d_s/(size-1) if size>1 else 0.0)
+                    r_data = update_data_tuple(r_data, <float>nr, size)
+                    c_data = update_data_tuple(c_data, <float>nc, size)
+                    d_data = update_data_tuple(d_data, depth[nr,nc], size)
+    return (size, color, get_data(r_data, size), get_data(c_data, size), get_data(d_data, size))
+
+# tuple of (sum, M_k, S_k)
+cdef inline tuple make_data_tuple(float x): return (x, x, <float>0.)
+# from http://www.johndcook.com/standard_deviation.html
+cdef inline tuple update_data_tuple(tuple data, float x, DTYPE_t size):
+    return (
+            data[0]+x,
+            data[1]+(x-data[1])/size,
+            data[2]+(x-data[1])*(x-data[1]-(x-data[1])/size)
+           )
+# tuple of (average/mean, variance)
+cdef inline tuple get_data(tuple data, DTYPE_t size):
+    return (
+            data[0]/size,
+            data[2]/(size-1) if size>1 else 0.0
+           )
 
