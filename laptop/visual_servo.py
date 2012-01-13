@@ -3,6 +3,7 @@ import numpy as np
 import freenect
 import vision.blob_select as blob_select
 import cv
+import color
 
 accum_err = 0
 last = 0
