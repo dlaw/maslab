@@ -18,7 +18,6 @@ def visual_servo(theta, kp=-.001, ki=0, kd=0):
     arduino.set_motors(left, -right) # R is reversed in hardware
 
 while True:
-    print "iterating"
     image = freenect.sync_get_video()[0]
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
     depth = freenect.sync_get_depth()[0].astype('float32')
