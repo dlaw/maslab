@@ -1,4 +1,5 @@
 import arduino
+import time
 
-while !arduino.set_motors(0, 0):
-   pass
+while not arduino.set_motors(0, 0):
+   time.sleep(.1)

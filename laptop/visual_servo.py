@@ -7,6 +7,7 @@ import time
 
 accum_err = 0
 last = 0
+speed = 0.3
 def visual_servo(theta, kp=-.004, ki=0, kd=0):
     global accum_err, last
     accum_err += theta
@@ -17,11 +18,12 @@ def visual_servo(theta, kp=-.004, ki=0, kd=0):
     arduino.set_motors(left, -right) # R is reversed in hardware
 
 while True:
+    print "iterating"
     image = freenect.sync_get_video()[0]
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
     depth = freenect.sync_get_depth()[0].astype('float32')
     good = color.select(image, [175,255,255], [30,150,250]).astype('uint32')
-    blob_data = blobs.find_blobs(good, depth, 200, 30000)
+    blob_data = blobs.find_blobs(good, depth, 10000, 30000)
 
     # select the blob with the largest size
     # (there should be very few, so we can be slow)
