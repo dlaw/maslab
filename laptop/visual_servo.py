@@ -6,7 +6,7 @@ from vision import color, blobs
 
 accum_err = 0
 last = 0
-def visual_servo(theta, kp=-.002, ki=0, kd=0):
+def visual_servo(theta, kp=-.001, ki=0, kd=0):
     global accum_err, last
     accum_err += theta
     p, i, d, last = theta, accum_err, theta - last, theta
