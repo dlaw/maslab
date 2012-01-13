@@ -22,20 +22,20 @@ def change_val_c(x):
 def show_video():
     image = freenect.sync_get_video()[0]
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
-    good = color.select(image, [hue, 255, 255], [hue_c, sat_c, val_c])
-    image *= good[..., None]
+    image *= color.select(image, [hue, 255, 255], [hue_c, sat_c, val_c])[...,None]
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     cv.ShowImage('Video', cv.fromarray(image))
 
-cv.NamedWindow('Video')
+cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Sliders')
 cv.CreateTrackbar('Target hue', 'Sliders', hue, 180, change_hue)
 cv.CreateTrackbar('Hue const', 'Sliders', hue_c, 300, change_hue_c)
 cv.CreateTrackbar('Sat const', 'Sliders', sat_c, 300, change_sat_c)
 cv.CreateTrackbar('Val const', 'Sliders', val_c, 300, change_val_c)
 
-while True:
-    show_video()
-    if cv.WaitKey(10) == 27:
-        break
+if __name__ == '__main__':
+    while True:
+        show_video()
+        if cv.WaitKey(10) == 27:
+            break
 
