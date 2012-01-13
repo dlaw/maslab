@@ -1,5 +1,5 @@
 #include "commands.h"
-#include "external_interrupt.h"
+
 
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
@@ -8,23 +8,23 @@ volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
 volatile char frame=0;
 
-volatile int tickl=0;            //left motor encoder tick counter
-volatile int tickr=0;            //right motor encoder tick counter
+
 
 volatile int dl;
 volatile int dr;
 
 void setup(){
-  pinMode(2, INPUT);  
-  pinMode(29, INPUT); //qik controller error input pin
-
-  // load all of the parameters from their default values
+  DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
+  DDRG &= ~0x20;  //digital pin 4, right 
+  DDRF &= ~0x04;  //adc 2
+  
+    // load all of the parameters from their default values
   for (int i = 0; i < 6; i ++) {
     parameters[i] = PARAMETERS[i];
   }
 
   adc_init(2,6);      //channel 2, div 64 clock prescaler
-  ext_pcint_init();   //left motor pcint init
+  ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
   adchan=2;           //adc channel selection 
@@ -51,8 +51,16 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
     (*responses[com])(data); //run responder
 }
 
-ISR(PCINT0_vect){            //Pin Change interrupt handler
-  if(((PINB>>2)^(PINB>>3))&1){ // Used for detecting encoder ticks
+ISR(INT4_vect){            //Pin Change interrupt handler
+  if(((PINE>>4)^(PING>>5))&1){ // Used for detecting encoder ticks
+    tickr++;                  // if they are different, we are rotating one direction
+  }else{
+    tickr--;                  // otherwise, the other direction
+  }
+}
+
+ISR(INT5_vect){            //Pin Change interrupt handler
+  if(((PINE>>5)^(PINE>>3))&1){ // Used for detecting encoder ticks
     tickl++;                  // if they are different, we are rotating one direction
   }else{
     tickl--;                  // otherwise, the other direction
