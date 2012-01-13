@@ -15,3 +15,22 @@ def select(hsv, targets, scalers):
     hsv = hsv.astype('float64') - targets
     hsv[...,0] = ((hsv[...,0] + 90) % 180) - 90 # circular distance
     return numpy.sum(numpy.square(hsv / scalers), -1) < 1
+
+arr = None
+summ = None
+result = None
+def select2(hsv, targets, scalers):
+    global arr, summ, result
+    if arr is None: arr = numpy.empty_like(hsv, dtype='float')
+    if summ is None: summ = numpy.empty_like(arr[...,0])
+    if result is None: result = numpy.empty_like(summ, dtype='bool')
+    arr[:] = hsv
+    arr -= targets
+    arr[...,0] += 90
+    arr[...,0] %= 180
+    arr[...,0] -= 90
+    arr /= scalers
+    numpy.square(arr, out=arr)
+    numpy.sum(arr, -1, out=summ)
+    result = summ < 1
+    return result
