@@ -7,7 +7,7 @@ volatile int navstate; // algorithm's internal state
 volatile int16_t parameters[6];
 
 
-
+// Initialize Timer0 for use in timing the control loop
 void timer0_init(char period) {
   // set Timer0 to CTC mode
   TCCR0A &= B00000000;
@@ -21,14 +21,16 @@ void timer0_init(char period) {
   TIMSK0 |= B00000010; // enable interrupt A
 }
 
-
+// This function looks at the number of ticks on each wheel since the last time it was called,
+// and updates the nav system's internal target state
 void update_state(volatile int *ticks_l, volatile int *ticks_r) {
   int dist_moved = (*ticks_l + *ticks_r) >> 1;
-  
-  dist_to_target = dist_to_target - (pgm_read_word(&(COS_FIX_PT[theta_to_target >> 6])) * dist_moved) >> 16;
-  
+  dist_to_target = dist_to_target - (pgm_read_word(&(COS_FIX_PT[theta_to_target >> 4])) * dist_moved) >> 16;
   
   int32_t theta_rotd = ((*ticks_l - *ticks_r)<<16) / parameters[DIST_BETWEEN_WHEELS];
+  // dist_between_weels must be equal to:| (distance between wheels) * (ticks per revolution)
+  //                                     | --------------------------------------------------
+  //                                     |                circumference of wheels
   theta_to_target = theta_to_target + theta_rotd;
   
   // reset tick counters

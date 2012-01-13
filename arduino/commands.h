@@ -11,28 +11,34 @@ typedef volatile unsigned char serdata[];
 // responder is the type of a function that takes serdata and returns void
 typedef void (*responder) (serdata);
 
+// command 0x00
 // Send an ack
 void ack(serdata data){
   usart0_tx(0x00);
 }
 
+// commnad 0x01
 // Set motor speeds and send an ack
 void setmotors(serdata data){
   drive(data[1],data[0]);
   usart0_tx(0x00);
+  navstate = 0; // override whatever other control loop is happening
 }
 
+// command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
   usart0_tx(analog[data[0]]);
 }
 
+// command 0x03
 void rotate(serdata data) {
   theta_to_target = TO_INT32(data,0);
   navstate = 1; // start rotating
   usart0_tx(0x00);
 }
 
+// command 0x04
 void gotopoint(serdata data) {
   dist_to_target = TO_INT32(data,0);
   theta_to_target = TO_INT32(data,4);
@@ -40,6 +46,7 @@ void gotopoint(serdata data) {
   usart0_tx(0x00);
 }
 
+// command 0x05
 void getangle(serdata data) {
 	usart0_tx((unsigned char) (theta_to_target >> 24) & 0xFF);
 	usart0_tx((unsigned char) (theta_to_target >> 16) & 0xFF);
@@ -47,6 +54,7 @@ void getangle(serdata data) {
 	usart0_tx((unsigned char) (theta_to_target) & 0xFF);
 }
 
+// command 0x06
 void getdistance(serdata data) {
 	usart0_tx((unsigned char) (dist_to_target >> 24) & 0xFF);
 	usart0_tx((unsigned char) (dist_to_target >> 16) & 0xFF);
@@ -54,6 +62,7 @@ void getdistance(serdata data) {
 	usart0_tx((unsigned char) (dist_to_target) & 0xFF);
 }
 
+// command 0x07
 void changeparam(serdata data) {
 	unsigned char param = data[0];
 	parameters[param] = TO_INT16(data,1);
