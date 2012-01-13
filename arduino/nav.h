@@ -38,7 +38,7 @@ void update_state(volatile int *ticks_l, volatile int *ticks_r) {
   }
 
   int dist_moved = (*ticks_l + *ticks_r) >> 1;
-  dist_to_target = dist_to_target - (pgm_read_word(&(COS_FIX_PT[constrained_theta >> 4])) * dist_moved) >> 16;
+  dist_to_target = dist_to_target - (pgm_read_word(&(COS_FIX_PT[(constrained_theta << 5) / 3217])) * dist_moved) >> 16;
   
   int32_t theta_rotd = ((*ticks_l - *ticks_r)<<16) / parameters[DIST_BETWEEN_WHEELS];
   // dist_between_weels must be equal to:| (distance between wheels) * (ticks per revolution)

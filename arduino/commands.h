@@ -80,7 +80,7 @@ void sendticks(serdata data) {
 
 // How many bytes of data will follow each command?
 unsigned char commands[9]={
-  0,2,1,4,8,0,0,3,0
+  0,2,1,4,8,0,0,3,0,0
 };
 
 // What function shall be called to respond to each command?
@@ -94,4 +94,5 @@ responder responses[9]={
   &getdistance,
   &changeparam,
   &sendticks,
+  &sendbattvoltage
 };
