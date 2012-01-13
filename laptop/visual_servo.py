@@ -2,8 +2,16 @@
 import freenect, cv, frame_convert, numpy
 import vision.blob_select as blob_select
 
-def track_ball():
+accum_err = 0
+last = 0
+def visual_servo(theta, kp=.5, ki=0, kd=0):
     global accum_err, last
+    accum_err += theta
+    p, i, d, last = theta, accum_err, theta - last, theta
+    turn = kp*p + ki*i + kd*d
+    arduino.set_motors(.3 + turn, -(.3 - turn)) # R is reversed in hardware
+
+while True:
     rgb = freenect.sync_get_video()[0]
     depth = freenect.sync_get_depth()[0].astype('float32')
     blob_data, filtered = blob_select.blob_select(rgb, depth, target_hue = 0, hue_tolerance = 10, sat_val_tolerance = 45000, sat_c = 1.2, val_c = 0.8, min_blob_area = 1000, max_blob_area = 35000)
@@ -23,11 +31,3 @@ def track_ball():
     else:
         visual_servo(320-avg_c)
 
-accum_err = 0
-last = 0
-def visual_servo(theta, kp=.5, ki=0, kd=0):
-    global accum_err, last
-    accum_err += theta
-    p, i, d, last = theta, accum_err, theta - last, theta
-    turn = kp*p + ki*i + kd*d
-    arduino.set_motors(.3 + turn, -(.3 - turn)) # R is reversed in hardware
