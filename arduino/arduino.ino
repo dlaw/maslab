@@ -1,6 +1,5 @@
 #include "commands.h"
-
-
+#include "test_motors.h"
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
@@ -32,23 +31,29 @@ void setup(){
   sei();            // start interrupts
   adc_start();        //start ADC conversions
   usart1_tx(0xaa);    //initialize the qik controller
+
+  adc_init(9, 6);
+  adc_start();
   
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
 }
 
-void loop(){ // nothing happens in the loop
+void loop(){
   if (digitalRead(53) == LOW) {
     test_motors();
   }
 
+  // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore) {
     int rot_speed;
     int vel;
     
+    // disable the semaphore
     control_semaphore = false;
     
     // update the distance/angle to target from how much we've moved in the last 500 uS
+    // this is commented out until some bugs are fixed
     //update_state(&tickl, &tickr);
     
     switch (navstate) {
@@ -96,35 +101,16 @@ void loop(){ // nothing happens in the loop
           dl = 0;
           dr = 0;
         }
-          
-        break;
-        
+
         drive(dl, -dr);
+        break;   
     }
   }
 }
 
-void fixed_delay(int delval) {
-  for(int i = 0; i < 16000; i++) {
-    for(int j = 0; j < delval; j++) {
-      __asm__("nop\n\t"); 
-    }
-  }
-}
-
-void test_motors(void) {
-  drive(127, -127);
-  
-  // delay for 500 ms
-  fixed_delay(500);
-  
-  drive(-127, 127);
-  
-  fixed_delay(500);
-  
-  usart0_tx(0x00);
-}
-  
+// ******************************
+// * INTERRUPT SERVICE ROUTINES *
+// ******************************
 
 ISR(ADC_vect){               //ADC complete interrupt handler
   analog[adchan]=ADCH;
