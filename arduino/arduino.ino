@@ -159,6 +159,66 @@ ISR(INT5_vect){            //Pin Change interrupt handler
 
 // the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
+<<<<<<< Updated upstream
   control_semaphore = true;
+=======
+  int rot_speed;
+  int vel;
+  
+  // update the distance/angle to target from how much we've moved in the last 500 uS
+  update_state(&tickl, &tickr);
+  
+  switch (navstate) {
+    case 0: // waiting for command
+      dl = 0;
+      dr = 0;
+      break;
+      
+    case 1: // rotate in place
+      rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
+      dl = 0 + rot_speed;
+      dr = 0 - rot_speed;
+
+      if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
+        navstate = 0;   // go back to waiting for commands
+        dl = 0;
+        dr = 0;
+      }
+      
+      break;
+      
+    case 2: // move towards target
+      // in this mode, theta_to_target should be in the range [-pi, pi]
+
+      while (theta_to_target > 205887) { // while theta > pi
+        theta_to_target -= 411775; // subtract 2 pi
+      }
+
+      while (theta_to_target < -205887) { // while theta < pi
+        theta_to_target += 411775;
+      }
+
+      vel = parameters[VEL_K] * dist_to_target;
+      rot_speed = theta_to_target * parameters[ROT_MOVE_K];
+      
+      dl = vel + rot_speed;
+      dr = vel - rot_speed;
+   
+      if (dl > 127) dl = 127;
+      if (dr > 127) dr = 127;
+      if (dl < -127) dl = -127;
+      if (dr < -127) dr = -127;
+      
+      if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
+        navstate = 0; // go back to waiting for commands
+        dl = 0;
+        dr = 0;
+      }
+        
+      break;
+  }
+
+  drive(dl, -dr);
+>>>>>>> Stashed changes
 }
 
