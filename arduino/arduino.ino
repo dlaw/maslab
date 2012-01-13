@@ -10,7 +10,6 @@ volatile char frame=0;
 
 volatile boolean control_semaphore;
 
-
 volatile int dl;
 volatile int dr;
 
@@ -33,12 +32,21 @@ void setup(){
   sei();            // start interrupts
   adc_start();        //start ADC conversions
   usart1_tx(0xaa);    //initialize the qik controller
+  
+  pinMode(53, INPUT);
+  digitalWrite(53, HIGH);
 }
 
 void loop(){ // nothing happens in the loop
+  if (digitalRead(53) == LOW) {
+    test_motors();
+  }
+
   if (control_semaphore) {
     int rot_speed;
     int vel;
+    
+    control_semaphore = false;
     
     // update the distance/angle to target from how much we've moved in the last 500 uS
     //update_state(&tickl, &tickr);
@@ -93,10 +101,30 @@ void loop(){ // nothing happens in the loop
         
         drive(dl, -dr);
     }
-    
-    control_semaphore = false;
   }
 }
+
+void fixed_delay(int delval) {
+  for(int i = 0; i < 16000; i++) {
+    for(int j = 0; j < delval; j++) {
+      __asm__("nop\n\t"); 
+    }
+  }
+}
+
+void test_motors(void) {
+  drive(127, -127);
+  
+  // delay for 500 ms
+  fixed_delay(500);
+  
+  drive(-127, 127);
+  
+  fixed_delay(500);
+  
+  usart0_tx(0x00);
+}
+  
 
 ISR(ADC_vect){               //ADC complete interrupt handler
   analog[adchan]=ADCH;
