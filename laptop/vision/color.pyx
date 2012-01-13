@@ -37,9 +37,9 @@ def select(np.ndarray[DTYPE_t, ndim=3] hsv not None, list targets not None, list
     
     for i in range(hsv.shape[0]):
         for j in range(hsv.shape[1]):
-            hue = ((<float>hsv[i,j,0] - target0 + 90) % 180) - 90
-            sat = <float>hsv[i,j,1] - target1
-            val = <float>hsv[i,j,2] - target2
-            arr[i,j] = ((hue/scaler0)**2 + (sat/scaler1)**2 + (val/scaler2)**2) < 1
+            hue = (((<float>hsv[i,j,0] - target0 + 90) % 180) - 90) / scaler0
+            sat = (<float>hsv[i,j,1] - target1) / scaler1
+            val = (<float>hsv[i,j,2] - target2) / scaler2
+            arr[i,j] = (hue*hue + sat*sat + val*val) < 1
     return arr
 
