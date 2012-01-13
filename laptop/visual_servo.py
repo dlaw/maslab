@@ -1,9 +1,8 @@
 import arduino
 import numpy as np
 import freenect
-import vision.blob_select as blob_select
 import cv
-import color
+from vision import color, blobs
 
 accum_err = 0
 last = 0
