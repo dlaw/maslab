@@ -1,6 +1,3 @@
-import pyximport
-pyximport.install()
-
 import cv
 import numpy as np
 import blobs

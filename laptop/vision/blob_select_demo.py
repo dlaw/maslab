@@ -1,7 +1,6 @@
 import blob_select
 import freenect
 import cv
-import frame_convert
 import numpy as np
 
 current_hue = 0
@@ -58,7 +57,7 @@ def show_blobs():
     cv.ShowImage('Blobs', cv.fromarray(draw_img))
 
 def show_video():
-    cv.ShowImage('Video', frame_convert.video_cv(freenect.sync_get_video()[0]))
+    cv.ShowImage('Video', cv.fromarray(freenect.sync_get_video()[0]))
 
 cv.NamedWindow('Video')
 cv.NamedWindow('Filtered')
