@@ -77,8 +77,6 @@ ISR(TIMER0_COMPA_vect) {
   
   switch (navstate) {
     case 0: // waiting for command
-      dl = 0;
-      dr = 0;
       break;
       
     case 1: // rotate in place
