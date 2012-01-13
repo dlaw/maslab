@@ -1,4 +1,4 @@
-import freenect, cv, numpy, color, blobs
+import freenect, cv, numpy as np, color, blobs
 
 hue = 175
 hue_c, sat_c, val_c = 30, 200, 200
@@ -30,7 +30,7 @@ def show_video():
     good = color.select(image, [hue,255,255], [hue_c,sat_c,val_c]).astype('uint32')
     blob_data = blobs.find_blobs(good, depth, min_area, max_area)
     image[:] = 0
-    for blobcolor, size, avg_r, avg_c, avg_d, var_d in blob_data:
+    for size, blob_color, (avg_r, var_r), (avg_c, var_c), (avg_d, var_d) in blob_data:
         cv.Circle(cv.fromarray(image), (int(avg_c), int(avg_r)), int((1.0*size/3.14)**0.5), [255,255,255])
     cv.ShowImage('Video', cv.fromarray(image))
 
