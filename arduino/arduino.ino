@@ -64,7 +64,7 @@ ISR(TIMER0_COMPA_vect) {
   int rot_speed;
   int vel;
   
-  update_state(&ticks_l, &ticks_r, &dist_to_target, &theta_to_target);
+  update_state(&tickl, &tickr);
 
   // This block would normalize the theta_to_target variable to
   // be within the range [-pi, pi], but i don't believe that this
