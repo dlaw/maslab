@@ -13,9 +13,12 @@ def visual_servo(theta, kp=-.002, ki=0, kd=0):
     arduino.set_motors(np.clip(.5 + turn, -1, 1), np.clip(-(.5 - turn), -1, 1)) # R is reversed in hardware
 
 while True:
-    rgb = freenect.sync_get_video()[0]
+    image = freenect.sync_get_video()[0]
+    cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
     depth = freenect.sync_get_depth()[0].astype('float32')
-    blob_data, filtered = blob_select.blob_select(rgb, depth, target_hue = 0, hue_tolerance = 10, sat_val_tolerance = 45000, sat_c = 1.2, val_c = 0.8, min_blob_area = 1000, max_blob_area = 35000)
+    good = color.select(image, [175,255,255], [30,150,250]).astype('uint32')
+    blob_data = blobs.find_blobs(good, depth, 200, 30000)
+    
     # select the blob with the largest size
     # (there should be very few, so we can be slow)
     biggest = None
@@ -24,7 +27,7 @@ while True:
         if biggest is None or size > biggest:
             biggest = size
             biggest_idx = idx
-    if biggest is None: #move randomly
+    if biggest is None:
         accum_err = 0
         last = 0
         arduino.set_motors(.5, .5)
