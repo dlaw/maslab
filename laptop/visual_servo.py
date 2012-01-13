@@ -24,17 +24,16 @@ while True:
 
     # select the blob with the largest size
     # (there should be very few, so we can be slow)
-    biggest = None
-    biggest_idx = None
-    for idx, blob in enumerate(blob_data):
-        size = blob[0]
-        if biggest is None or size > biggest:
-            biggest = size
-            biggest_idx = idx
-    if biggest is None:
+    biggest_size = None
+    biggest_avg_c = None
+    for size, blob_color, (avg_r, var_r), (avg_c, var_c), (avg_d, var_d) in blob_data:
+        if biggest_size is None or size > biggest_size:
+            biggest_size = size
+            biggest_avg_c = avg_c
+    if biggest_avg_c is None:
         accum_err = 0
         last = 0
         arduino.set_motors(.5, .5)
     else:
-        visual_servo(320-int(blob_data[biggest_idx][3][0])) # 320 - (avg_c of biggest blob)
+        visual_servo(320 - biggest_avg_c)
 
