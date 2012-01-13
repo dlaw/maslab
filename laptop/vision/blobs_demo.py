@@ -34,7 +34,7 @@ def show_video():
         cv.Circle(cv.fromarray(image), (int(avg_c), int(avg_r)), int((1.0*size/3.14)**0.5), [255,255,255])
     cv.ShowImage('Video', cv.fromarray(image))
 
-cv.NamedWindow('Video')
+cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Sliders')
 cv.CreateTrackbar('Target hue', 'Sliders', hue, 180, change_hue)
 cv.CreateTrackbar('Hue const', 'Sliders', hue_c, 300, change_hue_c)
@@ -43,8 +43,9 @@ cv.CreateTrackbar('Val const', 'Sliders', val_c, 300, change_val_c)
 cv.CreateTrackbar('Min blob area', 'Sliders', min_area, 3000, change_min_area)
 cv.CreateTrackbar('Max blob area', 'Sliders', max_area, 100000, change_max_area)
 
-while 1:
-    show_video()
-    if cv.WaitKey(10) == 27:
-        break
+if __name__ == '__main__':
+    while True:
+        show_video()
+        if cv.WaitKey(10) == 27:
+            break
 
