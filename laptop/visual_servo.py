@@ -3,10 +3,11 @@ import numpy as np
 import freenect
 import cv
 from vision import color, blobs
+import time
 
 accum_err = 0
 last = 0
-def visual_servo(theta, kp=-.001, ki=0, kd=0):
+def visual_servo(theta, kp=-.004, ki=0, kd=0):
     global accum_err, last
     accum_err += theta
     p, i, d, last = theta, accum_err, theta - last, theta
@@ -36,4 +37,4 @@ while True:
         arduino.set_motors(.5, .5)
     else:
         visual_servo(theta)
-
+    time.sleep(.05)

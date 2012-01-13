@@ -1,3 +1,4 @@
 import arduino
 
-arduino.set_motors(0, 0)
+while !arduino.set_motors(0, 0):
+   pass
