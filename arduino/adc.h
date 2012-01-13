@@ -19,6 +19,10 @@ void adc_select(char channel){
   ADCSRB |= channel&0x08;
 }
 
+unsigned char adc_channel(void){
+  return ((ADMUX&0x07)|(ADCSRB&0x08));
+}
+
 void adc_start(void){
   ADCSRA |=(1<<ADSC); //start conversions
 }
