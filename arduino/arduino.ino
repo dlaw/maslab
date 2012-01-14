@@ -39,10 +39,6 @@ void setup(){
 }
 
 void loop(){
-  if ((millis() - timeout) > 1000) {
-    drive(0,0);
-  }
-  
   if (digitalRead(53) == LOW) {
     test_motors();
   }
@@ -61,6 +57,12 @@ void loop(){
     
     switch (navstate) {
       case 0: // waiting for command
+        if (timeout > 100) {
+          drive(0,0);
+          timeout = 0;
+        }
+        
+        timeout++;
         break;
         
       case 1: // rotate in place
@@ -115,6 +117,9 @@ void loop(){
 // * INTERRUPT SERVICE ROUTINES *
 // ******************************
 /*
+
+// This is disabled because it wasn't working reliably with
+// reading battery voltage
 ISR(ADC_vect){               //ADC complete interrupt handler
   if (adc_channel() == 9) {
     unsigned char low = ADCL & B11000000;

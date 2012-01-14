@@ -17,4 +17,5 @@ void test_motors(void) {
   fixed_delay(500);
   
   usart0_tx(0x00);
+  drive(0,0);
 }
