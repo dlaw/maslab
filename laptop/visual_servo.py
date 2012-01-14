@@ -2,7 +2,7 @@ import arduino
 import numpy as np
 import freenect
 import cv
-from vision import color, blobs
+from vision import color, blobs, init_kinect
 import time
 
 accum_err = 0
@@ -18,7 +18,7 @@ def visual_servo(theta, kp=-.003, ki=0, kd=0):
     arduino.set_motors(left, -right) # R is reversed in hardware
 
 
-
+init_kinect.init()
 while True:
     raw_image = freenect.sync_get_video()[0]
     image = np.empty((240,320,3), 'uint8')
