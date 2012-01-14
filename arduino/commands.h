@@ -78,13 +78,17 @@ void sendticks(serdata data) {
   usart0_tx((unsigned char) (tickr) &0xFF);
 }  
 
+void sendbattvoltage(serdata data) {
+  adc_select(9);
+}
+
 // How many bytes of data will follow each command?
-unsigned char commands[9]={
-  0,2,1,4,8,0,0,3,0
+unsigned char commands[10]={
+  0,2,1,4,8,0,0,3,0,0
 };
 
 // What function shall be called to respond to each command?
-responder responses[9]={
+responder responses[10]={
   &ack,
   &setmotors,
   &sendir,
@@ -94,4 +98,5 @@ responder responses[9]={
   &getdistance,
   &changeparam,
   &sendticks,
+  &sendbattvoltage
 };

@@ -4,7 +4,8 @@ to compile, run:
 	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing \
 	      -o blobs.so -I/usr/include/python2.7 \
 	     -I/usr/lib/python2.7/site-packages/numpy/core/include/ \
-	     blobs.c
+	     -I/usr/local/lib/python2.7/dist-packages/numpy/core/include/ \
+         blobs.c
 """
 
 import numpy as np
