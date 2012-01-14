@@ -12,6 +12,8 @@ typedef volatile unsigned char serdata[];
 // responder is the type of a function that takes serdata and returns void
 typedef void (*responder) (serdata);
 
+long timeout;
+
 // command 0x00
 // Send an ack
 void ack(serdata data){
@@ -24,6 +26,7 @@ void setmotors(serdata data){
   drive(data[1],data[0]);
   usart0_tx(0x00);
   navstate = 0; // override whatever other control loop is happening
+  timeout = millis();
 }
 
 // command 0x02
@@ -79,7 +82,9 @@ void sendticks(serdata data) {
 }  
 
 void sendbattvoltage(serdata data) {
-  adc_select(9);
+  int battvoltage = analogRead(9);
+  usart0_tx((battvoltage >> 8) & 0xFF);
+  usart0_tx(battvoltage & 0xFF);
 }
 
 // How many bytes of data will follow each command?

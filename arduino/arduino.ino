@@ -1,6 +1,6 @@
 #include "commands.h"
 #include "test_motors.h"
-#define baud0 103  //500k baud rate
+#define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
@@ -22,14 +22,14 @@ void setup(){
     parameters[i] = PARAMETERS[i];
   }
 
-  adc_init(6);      //channel 2, div 64 clock prescaler
-  adc_select(2);
-  adc_start();
+  //adc_init(6);      //channel 2, div 64 clock prescaler
+  //adc_select(2);
+  //adc_start();
 
   ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
-  adchan=2;           //adc channel selection 
+  //adchan=2;           //adc channel selection 
   timer0_init(156); // period in milliseconds = val * .064 
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
@@ -39,6 +39,10 @@ void setup(){
 }
 
 void loop(){
+  if ((millis() - timeout) > 1000) {
+    drive(0,0);
+  }
+  
   if (digitalRead(53) == LOW) {
     test_motors();
   }
@@ -110,14 +114,23 @@ void loop(){
 // ******************************
 // * INTERRUPT SERVICE ROUTINES *
 // ******************************
-
+/*
 ISR(ADC_vect){               //ADC complete interrupt handler
   if (adc_channel() == 9) {
-    usart0_tx(ADCH);
-    usart0_tx(ADCL);
+    unsigned char low = ADCL & B11000000;
+    unsigned char high = ADCH & 0xFF;
+    
+    low = low >> 6 + high << 2;
+    high = high >> 6;
+    
+    usart0_tx(high);
+    usart0_tx(low);
+    adchan = 2;
   }
+  
+  adc_select(adchan);
 }
-
+*/
 ISR(USART0_RX_vect){         //USART receive interrupt handler
   if (!frame){               //if incoming command
     com = UDR0;              //write rx buffer to command variable
