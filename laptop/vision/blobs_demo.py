@@ -43,9 +43,15 @@ cv.CreateTrackbar('Val const', 'Sliders', val_c, 300, change_val_c)
 cv.CreateTrackbar('Min blob area', 'Sliders', min_area, 3000, change_min_area)
 cv.CreateTrackbar('Max blob area', 'Sliders', max_area, 100000, change_max_area)
 
-if __name__ == '__main__':
-    while True:
-        show_video()
-        if cv.WaitKey(10) == 27:
-            break
+i = 0
+t = None
+while True:
+    i += 1
+    if i == 20:
+        if t: print((time.time() - t) / 20)
+        t = time.time()
+        i = 0
+    show_video()
+    if cv.WaitKey(10) == 27:
+        break
 
