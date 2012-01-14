@@ -17,8 +17,6 @@ def visual_servo(theta, kp=-.003, ki=0, kd=0):
     right = np.clip(2*speed - turn, -1, 1)
     arduino.set_motors(left, -right) # R is reversed in hardware
 
-
-
 while True:
     raw_image = freenect.sync_get_video()[0]
     image = np.empty((240,320,3), 'uint8')
@@ -26,7 +24,7 @@ while True:
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
     depth = freenect.sync_get_depth()[0].astype('float32')
     good = color.select(image, [175,255,255], [15,150,250]).astype('uint32')
-    blob_data = blobs.find_blobs(good, depth, 100, 30000)
+    blob_data = blobs.find_blobs(good, depth, 100)
 
     # select the blob with the largest size
     # (there should be very few, so we can be slow)

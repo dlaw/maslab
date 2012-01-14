@@ -15,7 +15,7 @@ DTYPE = np.uint32
 ctypedef np.uint32_t DTYPE_t
 
 @cython.boundscheck(False)
-def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=2] depth not None, int min_size, int max_size):
+def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=2] depth not None, int min_size):
     assert arr.dtype == DTYPE
     cdef DTYPE_t next_color = 1
     cdef int maxr = arr.shape[0]
@@ -30,7 +30,7 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=
                 next_color = next_color + 1
                 blob_data = flood_fill(arr, depth, r, c, next_color)
                 size = blob_data[0]
-                if size>=min_size and size<=max_size:
+                if size >= min_size:
                     blobs.append(blob_data)
     return blobs
 
@@ -79,4 +79,3 @@ cdef inline tuple get_data(tuple data, DTYPE_t size):
             data[0]/size,
             data[2]/(size-1) if size>1 else 0.0
            )
-
