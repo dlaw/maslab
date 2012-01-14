@@ -17,9 +17,12 @@ def visual_servo(theta, kp=-.004, ki=0, kd=0):
     right = np.clip(.5 - turn, -1, 1)
     arduino.set_motors(left, -right) # R is reversed in hardware
 
+
+
 while True:
-    print "iterating"
-    image = freenect.sync_get_video()[0]
+    raw_image = freenect.sync_get_video()[0]
+    image = numpy.empty((240,320,3), 'uint8')
+    cv.Resize(cv.fromarray(raw_image), cv.fromarray(image))
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
     depth = freenect.sync_get_depth()[0].astype('float32')
     good = color.select(image, [175,255,255], [30,150,250]).astype('uint32')
