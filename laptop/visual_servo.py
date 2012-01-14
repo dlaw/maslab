@@ -7,14 +7,14 @@ import time
 
 accum_err = 0
 last = 0
-speed = 0.25
+speed = 0.4
 def visual_servo(theta, kp=-.003, ki=0, kd=0):
     global accum_err, last
     accum_err += theta
     p, i, d, last = theta, accum_err, theta - last, theta
     turn = kp*p + ki*i + kd*d
-    left = np.clip(2*speed + turn, -1, 1)
-    right = np.clip(2*speed - turn, -1, 1)
+    left = np.clip(speed + turn, -1, 1)
+    right = np.clip(speed - turn, -1, 1)
     arduino.set_motors(left, -right) # R is reversed in hardware
 
 
