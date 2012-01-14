@@ -26,7 +26,7 @@ void setmotors(serdata data){
   drive(data[1],data[0]);
   usart0_tx(0x00);
   navstate = 0; // override whatever other control loop is happening
-  timeout = millis();
+  timeout = 0;
 }
 
 // command 0x02
