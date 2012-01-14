@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import freenect, cv, numpy as np, color, blobs
 
 maxv = {'target_hue': 180,
@@ -11,7 +13,9 @@ const = {'target_hue': 175,
          'val_c': 200,
          'min_area': 100}
 def updater(name):
-    return lambda value: const[name] = value
+    def update(value):
+        const[name] = value
+    return update
 
 def show_video():
     image = freenect.sync_get_video()[0]
@@ -30,7 +34,7 @@ def show_video():
 
 cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Constants')
-for c in constants:
+for c in const:
     cv.CreateTrackbar(c, 'Constants', const[c], maxv[c], updater(c))
 
 if __name__ == '__main__':
