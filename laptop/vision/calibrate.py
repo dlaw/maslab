@@ -29,7 +29,10 @@ def updater(name):
     return update
 
 def show_video():
-    t, image, depth = kinect.get_images()
+    #t, image, depth = kinect.get_images()
+    image = np.empty((480,640,3), dtype='uint8')
+    cv.CvtColor(cv.LoadImage("rb.png"), cv.fromarray(image), cv.CV_BGR2HSV)
+    depth = np.random.randint(0,2047,(480, 640)).astype('uint16')
 
     targets = np.array([
         [const['target_hue'], 255, 255],
@@ -45,7 +48,7 @@ def show_video():
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2 - colors[...,None]
     blob_data = blobs.find_blobs(colors, depth, const['min_area'])
-    for size, blob_color, row, col, d in blob_data:
+    for size, row, col, d in blob_data:
         cv.Circle(cv.fromarray(image), (int(col[0]), int(row[0])),
                   int((size / 3.14)**0.5), [255, 255, 255])
     for i in range(image.shape[1]):
