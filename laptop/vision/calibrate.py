@@ -44,9 +44,9 @@ def show_video():
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2 - colors[...,None]
     blob_data = blobs.find_blobs(colors, depth, const['min_area'])
-    for size, row, col, d in blob_data:
-        cv.Circle(cv.fromarray(image), (int(col[0]), int(row[0])),
-                  int((size / 3.14)**0.5), [255, 255, 255])
+    for blob in blob_data:
+        cv.Circle(cv.fromarray(image), (int(blob['col'][0]), int(blob['row'][0])),
+                  int((blob['size'] / 3.14)**0.5), [255, 255, 255])
     for i in range(image.shape[1]):
         cv.Line(cv.fromarray(image), (i,wall[i]+const['wall_pixel_height']), (i,wall[i]), [255,255,255])
     cv.ShowImage('Video', cv.fromarray(image))

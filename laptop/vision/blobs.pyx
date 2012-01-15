@@ -21,14 +21,13 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None,
     cdef DTYPE_t size
     cdef int r, c, maxr = arr.shape[0], maxc = arr.shape[1]
     cdef list blobs = []
-    cdef tuple blob_data
+    cdef dict blob_data
     cdef np.ndarray[np.uint8_t, ndim=2] vis = np.zeros_like(arr, dtype=np.uint8)
     for r in range(maxr):
         for c in range(maxc):
             if not vis[r,c] and arr[r,c] != 0xFF:
                 blob_data = flood_fill(arr, vis, depth, r, c, arr[r,c])
-                size = blob_data[0]
-                if size >= min_size:
+                if blob_data['size'] >= min_size:
                     blobs.append(blob_data)
     return blobs
 
@@ -57,8 +56,10 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                 c_data = update_data_tuple(c_data, <float>nc, size)
                 if depth[nr,nc] != 0:
                     d_data = update_data_tuple(d_data, depth[nr,nc], size)
-    return (size, get_data(r_data, size), get_data(c_data, size),
-            get_data(d_data, size))
+    return {'size': size,
+            'row': get_data(r_data, size),
+            'col': get_data(c_data, size),
+            'depth': get_data(d_data, size)}
 
 # tuple of (sum, M_k, S_k)
 cdef inline tuple make_data_tuple(float x): return (x, x, <float>0.)
