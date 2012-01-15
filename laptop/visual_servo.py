@@ -1,3 +1,5 @@
+#!/usr/bin/python2.7
+
 import arduino, freenect, cv
 import numpy as np
 import freenect
