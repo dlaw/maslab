@@ -15,7 +15,7 @@ DTYPE = np.uint32
 ctypedef np.uint32_t DTYPE_t
 
 @cython.boundscheck(False)
-def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=2] depth not None, int min_size):
+def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[unsigned short, ndim=2] depth not None, int min_size):
     assert arr.dtype == DTYPE
     cdef DTYPE_t next_color = 1
     cdef int maxr = arr.shape[0]
@@ -35,7 +35,7 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=
     return blobs
 
 @cython.boundscheck(False)
-def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[float, ndim=2] depth not None, int r, int c, DTYPE_t color):
+def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None, np.ndarray[unsigned short, ndim=2] depth not None, int r, int c, DTYPE_t color):
     cdef int maxr = arr.shape[0]
     cdef int maxc = arr.shape[1]
     cdef int dr, dc, nr, nc
