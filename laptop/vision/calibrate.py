@@ -1,30 +1,54 @@
 #!/usr/bin/python
 
-import kinect, cv, numpy as np, color, blobs
+import cv, numpy as np, color, blobs#, kinect
 
 maxv = {'target_hue': 180,
         'hue_c': 50,
         'sat_c': 400,
         'val_c': 400,
-        'min_area': 300}
+        'min_area': 300,
+        'wall_target_hue': 180,
+        'wall_hue_c': 50,
+        'wall_sat_c': 400,
+        'wall_val_c': 400,
+        'wall_pixel_height': 30,
+        }
 const = {'target_hue': 175,
          'hue_c': 15,
          'sat_c': 150,
          'val_c': 200,
-         'min_area': 100}
+         'min_area': 100,
+         'wall_target_hue': 105,
+         'wall_hue_c': 15,
+         'wall_sat_c': 150,
+         'wall_val_c': 200,
+         'wall_pixel_height': 5,
+         }
+
 def updater(name):
     def update(value):
         const[name] = value
     return update
 
 def show_video():
-    t, image, depth = kinect.get_images()
-    good = (color.select(image, [const['target_hue'], 255, 255],
-                        [const['hue_c'], const['sat_c'],
-                         const['val_c']]).astype('uint32'))
+    #t, image, depth = kinect.get_images()
+    image = np.empty((480,640,3), dtype='uint8')
+    cv.CvtColor(cv.LoadImage("rb.png"), cv.fromarray(image), cv.CV_BGR2HSV)
+    depth = np.random.randint(0,2047,(480, 640)).astype('uint16')
+
+    targets = np.array([
+        [const['target_hue'], 255, 255],
+        [const['wall_target_hue'], 255, 255]
+        ], dtype=np.uint8)
+    scalers = np.array([
+        [const['hue_c'], const['sat_c'], const['val_c']],
+        [const['wall_hue_c'], const['wall_sat_c'], const['wall_val_c']],
+        ], dtype=np.uint16)
+    colors = color.select(image, targets, scalers)
+    colors = (color.filter_by_column(colors, 1, 2, const['wall_pixel_height'], -1)).astype('uint32')
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
-    image /= 2 - good[...,None]
-    blob_data = blobs.find_blobs(good, depth, const['min_area'])
+    image /= 2 - colors[...,None]
+    blob_data = blobs.find_blobs(colors, depth, const['min_area'])
     for size, blob_color, row, col, depth in blob_data:
         cv.Circle(cv.fromarray(image), (int(col[0]), int(row[0])),
                   int((size / 3.14)**0.5), [255, 255, 255])
