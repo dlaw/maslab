@@ -49,12 +49,14 @@ def show_video():
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2 - colors[...,None]
     blob_data = blobs.find_blobs(colors, depth, const['min_area'])
-    for size, blob_color, row, col, depth in blob_data:
+    for size, blob_color, row, col, d in blob_data:
         cv.Circle(cv.fromarray(image), (int(col[0]), int(row[0])),
                   int((size / 3.14)**0.5), [255, 255, 255])
     cv.ShowImage('Video', cv.fromarray(image))
+    cv.ShowImage('Depth', cv.fromarray(depth << 5))
         
 cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
+cv.NamedWindow('Depth', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Constants')
 for c in const:
     cv.CreateTrackbar(c, 'Constants', const[c], maxv[c], updater(c))
