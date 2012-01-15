@@ -58,7 +58,8 @@ def filter_by_column(np.ndarray[DTYPE_t, ndim=2] img not None, int color_to_keep
     direction=1, scan starting at row 0; if direction=-1, scan the other way.
     """
 
-    cdef int i, j, c, count
+    cdef int i, j, count
+    cdef np.ndarray[np.uint16_t, ndim=1] markers = np.empty((img.shape[1],), dtype=np.uint16)
     for j in range(img.shape[1]):
         count = 0
         for i in range(img.shape[0])[::direction]:
@@ -69,7 +70,8 @@ def filter_by_column(np.ndarray[DTYPE_t, ndim=2] img not None, int color_to_keep
                     break
             else:
                 count = 0
+        markers[j] = i
         for i in range(img.shape[0])[i::direction]:
             img[i,j] = 0
-    return img
+    return markers
 

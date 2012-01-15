@@ -45,13 +45,16 @@ def show_video():
         [const['wall_hue_c'], const['wall_sat_c'], const['wall_val_c']],
         ], dtype=np.uint16)
     colors = color.select(image, targets, scalers)
-    colors = (color.filter_by_column(colors, 1, 2, const['wall_pixel_height'], -1)).astype('uint32')
+    wall = color.filter_by_column(colors, 1, 2, const['wall_pixel_height'], -1)
+    colors = colors.astype(np.uint32)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2 - colors[...,None]
     blob_data = blobs.find_blobs(colors, depth, const['min_area'])
     for size, blob_color, row, col, d in blob_data:
         cv.Circle(cv.fromarray(image), (int(col[0]), int(row[0])),
                   int((size / 3.14)**0.5), [255, 255, 255])
+    for i in range(image.shape[1]):
+        cv.Line(cv.fromarray(image), (i,wall[i]+const['wall_pixel_height']), (i,wall[i]), [255,255,255])
     cv.ShowImage('Video', cv.fromarray(image))
     cv.ShowImage('Depth', cv.fromarray(depth << 5))
         
