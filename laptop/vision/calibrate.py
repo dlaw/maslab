@@ -29,11 +29,7 @@ def updater(name):
     return update
 
 def show_video():
-    #t, image, depth = kinect.get_images()
-    image = np.empty((480,640,3), dtype='uint8')
-    cv.CvtColor(cv.LoadImage("rb.png"), cv.fromarray(image), cv.CV_BGR2HSV)
-    depth = np.random.randint(0,2047,(480, 640)).astype('uint16')
-
+    t, image, depth = kinect.get_images()
     targets = np.array([
         [const['target_hue'], 255, 255],
         [const['wall_target_hue'], 255, 255]
