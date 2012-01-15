@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python2.7
 
 """
 Simple code to test the Kinect's LED indicator and tilt functionality by

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2.7
 
 import cv, numpy as np, color, blobs, kinect
 
