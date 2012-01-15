@@ -1,6 +1,6 @@
 import freenect, numpy, cv
 
-shape = (240, 320)
+shape = (120, 160)
 video = numpy.empty(shape + (3,), dtype='uint8')
 depth = numpy.empty(shape, dtype='uint16')
 
@@ -19,7 +19,7 @@ def get_images():
     """
     raw_video, timestamp = freenect.sync_get_video()
     raw_depth = freenect.sync_get_depth()[0]
-    cv.Resize(cv.fromarray(raw_video), cv.fromarray(video))
+    cv.Resize(cv.fromarray(raw_video), cv.fromarray(video), cv.CV_INTER_AREA)
     cv.CvtColor(cv.fromarray(video), cv.fromarray(video), cv.CV_RGB2HSV)
     # Must use nearest-neighbor for depth because of 2047 values
     cv.Resize(cv.fromarray(raw_depth), cv.fromarray(depth), cv.CV_INTER_NN)
