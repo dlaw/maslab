@@ -18,13 +18,13 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None,
                np.ndarray[unsigned short, ndim=2] depth not None,
                int min_size):
     assert arr.dtype == DTYPE
-    cdef DTYPE_t size, next_color = 1
+    cdef DTYPE_t size, next_color = 0
     cdef int r, c, maxr = arr.shape[0], maxc = arr.shape[1]
     cdef list blobs = []
     cdef tuple blob_data
     for r in range(maxr):
         for c in range(maxc):
-            if arr[r,c] == 1:
+            if arr[r,c] != 0xFF:
                 next_color = next_color + 1
                 blob_data = flood_fill(arr, depth, r, c, next_color)
                 size = blob_data[0]
@@ -48,7 +48,7 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
         for dr, dc in [(-1,-1), (-1,0), (-1,1), (0,1),
                        (1,1), (1,0), (1,-1), (0,-1)]:
             nr, nc = r + dr, c + dc
-            if nr>=0 and nr<maxr and nc>=0 and nc<maxc and arr[nr,nc]==1:
+            if nr>=0 and nr<maxr and nc>=0 and nc<maxc and arr[nr,nc] == arr[r,c]:
                 arr[nr,nc] = color
                 to_visit.append((nr,nc))
                 size = size + 1

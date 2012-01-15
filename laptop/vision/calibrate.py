@@ -11,8 +11,7 @@ maxv = {'target_hue': 180,
         'wall_hue_c': 50,
         'wall_sat_c': 400,
         'wall_val_c': 400,
-        'wall_pixel_height': 30,
-        }
+        'wall_pixel_height': 30}
 const = {'target_hue': 175,
          'hue_c': 15,
          'sat_c': 150,
@@ -22,8 +21,7 @@ const = {'target_hue': 175,
          'wall_hue_c': 15,
          'wall_sat_c': 150,
          'wall_val_c': 200,
-         'wall_pixel_height': 5,
-         }
+         'wall_pixel_height': 5}
 
 def updater(name):
     def update(value):
@@ -42,7 +40,7 @@ def show_video():
         [const['wall_hue_c'], const['wall_sat_c'], const['wall_val_c']],
         ], dtype=np.uint16)
     colors = color.select(image, targets, scalers)
-    wall = color.filter_by_column(colors, 1, 2, const['wall_pixel_height'], -1)
+    wall = color.filter_by_column(colors, 0, 1, const['wall_pixel_height'], -1)
     colors = colors.astype(np.uint32)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2 - colors[...,None]
