@@ -45,9 +45,12 @@ def process_video():
     for i in range(image.shape[1]):
         cv.Line(cv.fromarray(image), (i,wall[i]+const['wall_pixel_height']), (i,wall[i]), [255,255,255])
 
-if __name__ == '__main__':
-    while True:
+def spin():
+    for i in range(10):
         t = time.time()
         for i in range(20):
             process_video()
         print(20 / (time.time() - t))
+
+import cProfile
+cProfile.run('spin()')
