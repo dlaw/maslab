@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "test_motors.h"
 #define baud0 1  //500k baud rate
-#define baud2 25 //38.4k baud rate
+#define baud2 1 //38.4k baud rate
 
 volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command

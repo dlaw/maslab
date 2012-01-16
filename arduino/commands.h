@@ -32,7 +32,7 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analog[data[0]]);
+  usart0_tx(analogRead(data[0]);
 }
 
 // command 0x03
