@@ -31,13 +31,13 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
     result.shape = image.shape[:-1]
     """
     cdef int i, x, y, num_colors = len(colors)
-    cdef float hue, sat, val,
+    cdef double hue, sat, val,
     for x in range(image.shape[0]):
         for y in range(image.shape[1]):
             result[x, y] = -1
             for i in range(num_colors):
                 hue, sat, val = image[x, y, 0], image[x, y, 1], image[x, y, 2]
-                hue -= colors[i, 0]; hue += 90; hue %= 180; hue -= 90
+                hue -= colors[i, 0]; hue += 90; np.mod(hue, 180); hue -= 90
                 hue /= colors[i, 1]
                 sat -= colors[i, 2]
                 sat /= colors[i, 3]
