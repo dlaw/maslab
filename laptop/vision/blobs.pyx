@@ -10,8 +10,8 @@ to compile, run:
 
 import numpy as np
 cimport cython, numpy as np
-DTYPE = np.uint32
-ctypedef np.uint32_t DTYPE_t
+DTYPE = np.int32
+ctypedef np.int32_t DTYPE_t
 
 @cython.boundscheck(False)
 def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, 
@@ -25,7 +25,7 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None,
     cdef np.ndarray[np.uint8_t, ndim=2] vis = np.zeros_like(arr, dtype=np.uint8)
     for r in range(maxr):
         for c in range(maxc):
-            if not vis[r,c] and arr[r,c] != 0xFF:
+            if not vis[r,c] and arr[r,c] != -1:
                 blob_data = flood_fill(arr, vis, depth, r, c, arr[r,c])
                 if blob_data['size'] >= min_size:
                     blobs.append(blob_data)
