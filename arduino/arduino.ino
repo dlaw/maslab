@@ -48,12 +48,11 @@ void loop(){
   if (control_semaphore) {
     int rot_speed;
     int vel;
+            
+    control_semaphore = false;  // disable the semaphore
     
-    // disable the semaphore
-    control_semaphore = false;
-    
-    // update the distance/angle to target from how much we've moved in the last 500 uS
-    // this is commented out until some bugs are fixed
+           // update the distance/angle to target from how much we've moved in the last 500 uS
+           // this is commented out until some bugs are fixed
     update_state(&tickl, &tickr);
     
     switch (navstate) {

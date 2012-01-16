@@ -67,7 +67,7 @@ void getangle(serdata data) {
 
 // command 0x06
 void getdistance(serdata data) {
-  SEND_INT32(distance_to_target);
+  SEND_INT32(dist_to_target);
 }
 
 // command 0x07
