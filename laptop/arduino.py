@@ -7,7 +7,7 @@ def raw_command(response_fmt, data_fmt, *data):
     port.flushInput() # clear out old crap
     port.write(struct.pack('>' + data_fmt, *data))
     response_data = port.read(struct.calcsize(response_fmt))
-    try: return struct.unpack('<' + response_fmt, response_data)
+    try: return struct.unpack('>' + response_fmt, response_data)
     except: return None
 
 def is_alive():
