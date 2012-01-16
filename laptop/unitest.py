@@ -3,7 +3,7 @@ import numpy
 import time
 
 ticks = [0,0]
-
+time.sleep(1)
 if (not arduino.is_alive()):
 	print "Arduino's dead!"
 else:
