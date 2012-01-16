@@ -51,4 +51,5 @@ def spin():
         print(20 / (time.time() - t))
 
 import cProfile
+process_video()
 cProfile.run('spin()')
