@@ -37,7 +37,7 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
             result[x, y] = -1
             for i in range(num_colors):
                 hue, sat, val = image[x, y, 0], image[x, y, 1], image[x, y, 2]
-                hue -= colors[i, 0]; hue += 90; hue %= 180; hue -= 90
+                hue -= colors[i, 0]; hue += 90; np.mod(hue, 180); hue -= 90
                 hue /= colors[i, 1]
                 sat -= colors[i, 2]
                 sat /= colors[i, 3]
