@@ -15,7 +15,7 @@ cimport cython, numpy as np
 #cython: wraparound=False
 
 def identify(np.ndarray[np.uint8_t, ndim=3] image,
-             np.ndarray[np.double_t, ndim=2] colors,
+             np.ndarray[np.int32_t, ndim=2] colors,
              np.ndarray[np.int32_t, ndim=2] result):
     """
     targets = [[target_hue, hue_c, target_sat, sat_c, target_val, val_c], ...]
@@ -36,12 +36,11 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
         for y in range(image.shape[1]):
             result[x, y] = -1
             for i in range(num_colors):
-                hue, sat, val = image[x, y, 0], image[x, y, 1], image[x, y, 2]
-                hue -= colors[i, 0]; hue += 90; np.mod(hue, 180); hue -= 90
+                hue = ((image[x, y, 0] - colors[i, 0] + 90) % 180) - 90
+                sat = (image[x, y, 1] - colors[i, 2])
+                val = (image[x, y, 2] - colors[i, 4])
                 hue /= colors[i, 1]
-                sat -= colors[i, 2]
                 sat /= colors[i, 3]
-                val -= colors[i, 4]
                 val /= colors[i, 5]
                 if (hue * hue + sat * sat + val * val) < 1:
                     result[x, y] = i

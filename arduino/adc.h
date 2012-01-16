@@ -1,7 +1,7 @@
 #include <avr/interrupt.h>
 #include "usart.h"
 
-volatile unsigned char adcmap[5] = {2,3,4,5,6};
+volatile unsigned char adcmap[5] = {2,5,4,3,9};
 volatile unsigned char analog[15];
 volatile unsigned char adchan=0;
 
@@ -16,8 +16,8 @@ void adc_init(char prescaler){
 inline void adc_select(char channel){
   ADMUX &= 0xE0;
   ADMUX |= channel&0x07;
-  //ADCSRB &= 0xF7;
-  //ADCSRB |= channel&0x08;
+  ADCSRB &= 0xF7;
+  ADCSRB |= channel&0x08;
   ADCSRA |=(1<<ADSC);
 }
 
