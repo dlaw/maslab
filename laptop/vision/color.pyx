@@ -31,7 +31,7 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
     result.shape = image.shape[:-1]
     """
     cdef int i, x, y, num_colors = len(colors)
-    cdef float hue, sat, val,
+    cdef double hue, sat, val,
     for x in range(image.shape[0]):
         for y in range(image.shape[1]):
             result[x, y] = -1
