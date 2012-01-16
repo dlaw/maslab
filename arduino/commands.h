@@ -2,6 +2,16 @@
 #include "nav.h"
 #include "external_interrupt.h"
 
+inline void SEND_INT32(uint32_t val){
+  usart0_tx((unsigned char) (val >> 24) & 0xFF);
+  usart0_tx((unsigned char) (val >> 16) & 0xFF);
+  usart0_tx((unsigned char) (val >> 8) & 0xFF);
+  usart0_tx((unsigned char) val & 0xFF);
+}
+inline void SEND_INT16(uint16_t val){
+  usart0_tx((unsigned char) (val >> 8) & 0xFF);
+  usart0_tx((unsigned char) val & 0xFF);
+}
 #define TO_INT32(arr,i) (arr[i] + ((uint32_t) arr[i+1]) << 8 + \
     ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
 #define TO_INT16(arr,i) (arr[i] + ((uint16_t) arr[i+1] << 8))
@@ -52,18 +62,12 @@ void gotopoint(serdata data) {
 
 // command 0x05
 void getangle(serdata data) {
-	usart0_tx((unsigned char) (theta_to_target >> 24) & 0xFF);
-	usart0_tx((unsigned char) (theta_to_target >> 16) & 0xFF);
-	usart0_tx((unsigned char) (theta_to_target >> 8) & 0xFF);
-	usart0_tx((unsigned char) (theta_to_target) & 0xFF);
+  SEND_INT32(theta_to_target);
 }
 
 // command 0x06
 void getdistance(serdata data) {
-	usart0_tx((unsigned char) (dist_to_target >> 24) & 0xFF);
-	usart0_tx((unsigned char) (dist_to_target >> 16) & 0xFF);
-	usart0_tx((unsigned char) (dist_to_target >> 8) & 0xFF);
-	usart0_tx((unsigned char) (dist_to_target) & 0xFF);
+  SEND_INT32(dist_to_target);
 }
 
 // command 0x07
@@ -75,16 +79,14 @@ void changeparam(serdata data) {
 
 // command 0x08
 void sendticks(serdata data) {
-  usart0_tx((unsigned char) (tickl>>8) &0xFF);
-  usart0_tx((unsigned char) (tickl) &0xFF);
-  usart0_tx((unsigned char) (tickr>>8) &0xFF);
-  usart0_tx((unsigned char) (tickr) &0xFF);
+  SEND_INT16(tickl);
+  SEND_INT16(tickr);
 }  
 
+// command 0x09
 void sendbattvoltage(serdata data) {
   int battvoltage = analogRead(9);
-  usart0_tx((battvoltage >> 8) & 0xFF);
-  usart0_tx(battvoltage & 0xFF);
+  SEND_INT16(battvoltage);
 }
 
 // How many bytes of data will follow each command?
