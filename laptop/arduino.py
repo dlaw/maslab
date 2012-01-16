@@ -5,7 +5,7 @@ port = serial.Serial('/dev/ttyACM0', 500000, timeout=.01) # 500k baud
 def raw_command(response_fmt, data_fmt, *data):
     """Send a command to the arduino and receive a response."""
     port.flushInput() # clear out old crap
-    port.write(struct.pack('<' + data_fmt, *data))
+    port.write(struct.pack('>' + data_fmt, *data))
     response_data = port.read(struct.calcsize(response_fmt))
     try: return struct.unpack('<' + response_fmt, response_data)
     except: return None
@@ -38,7 +38,7 @@ def change_param(param, newval):
     pass
 
 def get_ticks():
-    pass
+    return raw_command('hh', 'B', 8)
 
 def ask_voltage():
     return raw_command('H', 'B', 9)[0] * 15 / 2**10

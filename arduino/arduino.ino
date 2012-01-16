@@ -1,5 +1,6 @@
 #include "commands.h"
 #include "test_motors.h"
+
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
@@ -17,7 +18,7 @@ void setup(){
   DDRG &= ~0x20;  //digital pin 4, right 
   DDRF &= ~0x04;  //adc 2
   
-    // load all of the parameters from their default values
+  // load all of the parameters from their default values
   for (int i = 0; i < 6; i ++) {
     parameters[i] = PARAMETERS[i];
   }
