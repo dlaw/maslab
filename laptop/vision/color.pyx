@@ -40,7 +40,7 @@ def select(np.ndarray[DTYPE_t, ndim=3] hsv not None,
         for j in range(hsv.shape[1]):
             arr[i,j] = 0xFF
             for c in range(num_colors):
-                hue = (((<float>hsv[i,j,0] - targets[c,0] + 90) % 180) - 90) / scalers[c,0]
+                hue = (((<float>hsv[i,j,0] - targets[c,0]+90)%180)-90) / scalers[c,0]
                 sat = (<float>hsv[i,j,1] - targets[c,1]) / scalers[c,1]
                 val = (<float>hsv[i,j,2] - targets[c,2]) / scalers[c,2]
                 if (hue*hue + sat*sat + val*val) < 1:
@@ -49,19 +49,19 @@ def select(np.ndarray[DTYPE_t, ndim=3] hsv not None,
     return arr
 
 @cython.boundscheck(False)
-def filter_by_column(np.ndarray[DTYPE_t, ndim=2] img not None,
-                     int color_to_keep, int marker_color,
+def filter_by_column(np.ndarray[DTYPE_t, ndim=2] img not None, int marker_color,
                      int marker_width, int direction):
     """
-    Scan through img one column at a time, where img is the result of running
-    color.select. Keep all pixels of color color_to_keep and discard all of
-    color marker_color, until you see marker_width pixels of marker_color in
-    a row. After that, discard all pixels (meaning set them to 0xFF). If
-    direction=1, scan starting at row 0; if direction=-1, scan the other way.
+    Scan through img one column at a time, where img is the result of
+    running color.select.  Discard all of color marker_color, until
+    you see marker_width pixels of marker_color in a row. After that,
+    discard all pixels (meaning set them to 0xFF). If direction=1,
+    scan starting at row 0; if direction=-1, scan the other way.
     """
 
     cdef int i, j, count
-    cdef np.ndarray[np.uint16_t, ndim=1] markers = np.empty(img.shape[1], dtype=np.uint16)
+    cdef np.ndarray[np.uint16_t, ndim=1] markers = np.empty(img.shape[1],
+                                                            dtype=np.uint16)
     for j in range(img.shape[1]):
         count = 0
         for i in range(img.shape[0])[::direction]:
