@@ -52,3 +52,7 @@ Command 0x07: change a parameters
 				5 - proportional gain for velocity
 			2 bytes for the parameter value (signed)
 		arduino responds with 1 byte, echoing the parameter number
+
+Command 0x09: ask for battery voltage,
+		0 bytes
+		arduino responds with 2 bytes, containing the 10bit battery voltage
