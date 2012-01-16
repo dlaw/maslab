@@ -42,7 +42,7 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analogRead(data[0]);
+  usart0_tx(analog[adcmap[data[0]]]);
 }
 
 // command 0x03
@@ -85,8 +85,7 @@ void sendticks(serdata data) {
 
 // command 0x09
 void sendbattvoltage(serdata data) {
-  int battvoltage = analogRead(9);
-  SEND_INT16(battvoltage);
+  usart0_tx(analog[9]);
 }
 
 // How many bytes of data will follow each command?
