@@ -38,7 +38,7 @@ def process_video():
                         0, 1./const['white_val_c']]], 'float64')
     result = color.identify(image, colors)
     top, bottom, c = walls.identify(result, 1)
-    blob_data = blobs.find_blobs(result, depth, const['min_area'])
+    blob_data = blobs.find_blobs(result, depth, const['min_area'], 0)
 
 def spin():
     for i in range(10):
