@@ -1,6 +1,8 @@
 import numpy as np
 cimport cython, numpy as np
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def identify(np.ndarray[np.int32_t, ndim=2] img,
              top_color, wall_colors, min_height = 4, max_skip = 2):
     cdef np.ndarray[np.int32_t] top = np.empty(img.shape[1], np.int32)
