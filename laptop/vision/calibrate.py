@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import cv, numpy as np, color, blobs, kinect, walls
+import cv, numpy as np, color, blobs, kinect, walls, prefs
 
 color_defs = [('red', 175, 1./15, 1./150, 1./250),
               ('yellow', 30, 1./15, 1./150, 1./250),
@@ -9,7 +9,8 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
 
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
-print constants
+trackbars = []
+
 cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Depth', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Constants')
@@ -17,9 +18,11 @@ cv.NamedWindow('Constants')
 def trackbar(index, color, prop, maxval, invert=False, window='Constants'):
     def update(value):
         constants[index] = 1./value if invert else value
-    cv.CreateTrackbar('{0}_{1}'.format(color, prop), window,
+    trackbar_name = '{0}_{1}'.format(color, prop)
+    cv.CreateTrackbar(trackbar_name, window,
                       int(1./constants[index] if invert else constants[index]),
                       maxval, update)
+    trackbars.append((trackbar_name, window))
 
 for i, (name, hue, hue_c, sat_c, val_c) in enumerate(color_defs):
     trackbar((i, 0), name, 'hue', 180)
@@ -43,6 +46,5 @@ def show_video():
 if __name__ == '__main__':
     while True:
         show_video()
-        if cv.WaitKey(10) == 27:
-            break
+        prefs.process(cv.WaitKey(10), trackbars, "calibrate.pkl")
 
