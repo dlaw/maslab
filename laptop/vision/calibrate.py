@@ -9,7 +9,7 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
 
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
-print constants
+
 cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Depth', cv.CV_WINDOW_NORMAL)
 cv.NamedWindow('Constants')

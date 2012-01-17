@@ -45,7 +45,6 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
                 sat *= constants[i, 4]
                 val *= constants[i, 5]
                 if (hue * hue + sat * sat + val * val) < 1.0:
-                    print("set")
                     colors[x, y] = i
                     break
     return colors
