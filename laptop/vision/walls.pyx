@@ -1,8 +1,38 @@
 import numpy as np
 cimport cython, numpy as np
 
-#cython: boundscheck=False
-#cython: wraparound=False
+def identify(np.ndarray[np.int32_t, ndim=2] img,
+             top_color, wall_colors, min_height = 4):
+    cdef np.ndarray[np.int32_t] top = np.empty(img.shape[1], np.int32)
+    cdef np.ndarray[np.int32_t] bottom = np.empty(img.shape[1], np.int32)
+    cdef np.ndarray[np.int32_t] color = np.empty(img.shape[1], np.int32)
+    cdef int count, mark, col, row
+    for col in range(img.shape[1]):
+        count = 0
+        for row in range(img.shape[0] - 1, -1, -1): # scan up to top of blue
+            if img[row, col] == top_color:
+                if count == 0:
+                    mark = row
+                count += 1
+            elif count < min_height:
+                count = 0
+            else:
+                top[col] = row + 1
+                break
+        else:
+            top[col] = -1
+            bottom[col] = -1
+            color[col] = -1
+            continue
+        bottom[col] = img.shape[0] - 1
+        color[col] = -1
+        for row in range(mark, img.shape[0]): # scan down to bottom of wall
+            if img[row, col] in wall_colors:
+                color[col] = img[row, col]
+            else:
+                bottom[col] = row - 1
+                break
+    return top, bottom, color
 
 def filter_by_column(np.ndarray[np.int32_t, ndim=2] img, int marker_color,
                      int marker_width, int direction):
