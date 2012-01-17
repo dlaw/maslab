@@ -42,20 +42,25 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analogRead(data[0]);
+  usart0_tx(analogRead(data[0]));
 }
 
 // command 0x03
 void rotate(serdata data) {
-  theta_to_target = TO_INT32(data,0);
+  theta_to_target = data[0] + (data[1] << 8) + ((int32_t) data[2] << 16) + ((int32_t) data[3] << 24);
+  
+  //theta_to_target = 0x0006487E;
+  rotate_speed = data[4]; 
+  //rotate_speed = 127;
   navstate = 1; // start rotating
   usart0_tx(0x00);
 }
 
 // command 0x04
 void gotopoint(serdata data) {
-  dist_to_target = TO_INT32(data,0);
-  theta_to_target = TO_INT32(data,4);
+  dist_to_target = data[4] + (data[5] << 8) + ((int32_t) data[6] << 16) + ((int32_t) data[7] << 24);
+  theta_to_target = data[0] + (data[1] << 8) + ((int32_t) data[2] << 16) + ((int32_t) data[3] << 24);
+
   navstate = 2;
   usart0_tx(0x00);
 }
@@ -91,7 +96,7 @@ void sendbattvoltage(serdata data) {
 
 // How many bytes of data will follow each command?
 unsigned char commands[10]={
-  0,2,1,4,8,0,0,3,0,0
+  0,2,1,5,8,0,0,3,0,0
 };
 
 // What function shall be called to respond to each command?

@@ -1,8 +1,8 @@
 #include "commands.h"
 #include "test_motors.h"
 
-#define baud0 1  //500k baud rate
-#define baud2 1 //38.4k baud rate
+#define baud0 103  //500k baud rate
+#define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
@@ -13,13 +13,18 @@ volatile boolean control_semaphore;
 volatile int dl;
 volatile int dr;
 
+int32_t last_theta = 0;
+int32_t accumulated_error = 0;
+int32_t delta;
+int32_t delta_error;
+
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
   DDRG &= ~0x20;  //digital pin 4, right 
   DDRF &= ~0x04;  //adc 2
   
   // load all of the parameters from their default values
-  for (int i = 0; i < 6; i ++) {
+  for (int i = 0; i < 8; i ++) {
     parameters[i] = PARAMETERS[i];
   }
 
@@ -53,7 +58,18 @@ void loop(){
     
            // update the distance/angle to target from how much we've moved in the last 500 uS
            // this is commented out until some bugs are fixed
-    update_state(&tickl, &tickr);
+           
+    //if (dist_to_target > 0) {
+      update_state(&tickl, &tickr);
+    //  if (dist_to_target < 0) {
+    //    theta_to_target += 205887;
+    //  }
+    //} else {
+    //  update_state(&tickl, &tickr);
+    //  if (dist_to_target > 0) {
+      //  theta_to_target -= 205887;
+    //  }
+    //}
     
     switch (navstate) {
       case 0: // waiting for command
@@ -62,21 +78,40 @@ void loop(){
           timeout = 0;
         }
         
+        drive(0,0);
+        
         timeout++;
         break;
         
       case 1: // rotate in place
+        accumulated_error += theta_to_target;
+        delta = (theta_to_target - last_theta);
+        
+        if (accumulated_error > 40000000) { accumulated_error = 40000000; }
+        
         rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
+        //rot_speed += ((((theta_to_target - last_theta)) * parameters[ROT_K_D]) >> 14);
+        rot_speed += ((accumulated_error * parameters[ROT_K_I]) >> 18);
+        
         dl = 0 + rot_speed;
         dr = 0 - rot_speed;
-  
-        if (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD]) { // close enough
+      
+        
+        if (dl > rotate_speed) dl = rotate_speed;
+        if (dr > rotate_speed) dr = rotate_speed;
+        if (dl < -rotate_speed) dl = -rotate_speed;
+        if (dr < -rotate_speed) dr = -rotate_speed;
+        
+        
+        if ((delta < 2000) & (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD])) { // close enough
           navstate = 0;   // go back to waiting for commands
           dl = 0;
           dr = 0;
         }
         
+        
         drive(dl, -dr);
+        last_theta = theta_to_target;
         break;
         
       case 2: // move towards target
@@ -92,14 +127,14 @@ void loop(){
   
         vel = parameters[VEL_K] * dist_to_target;
         rot_speed = theta_to_target * parameters[ROT_MOVE_K];
-        
+        //rot_speed = 0;
         dl = vel + rot_speed;
         dr = vel - rot_speed;
-     
-        if (dl > 127) dl = 127;
-        if (dr > 127) dr = 127;
-        if (dl < -127) dl = -127;
-        if (dr < -127) dr = -127;
+
+        if (dl > 40) dl = 40;
+        if (dr > 40) dr = 40;
+        if (dl < -40) dl = -40;
+        if (dr < -40) dr = -40;
         
         if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
           navstate = 0; // go back to waiting for commands
@@ -108,6 +143,13 @@ void loop(){
         }
 
         drive(dl, -dr);
+        
+        usart0_tx(0x00);
+        usart0_tx(0x00);
+        SEND_INT32(dist_to_target);
+        usart0_tx(0x00);
+        usart0_tx(0x00);
+        //usart0_tx(vel);
         break;   
     }
   }
