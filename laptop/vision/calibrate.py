@@ -10,8 +10,7 @@ maxv = {'target_hue': 180,
         'wall_target_hue': 180,
         'wall_hue_c': 50,
         'wall_sat_c': 400,
-        'wall_val_c': 400,
-        'wall_pixel_height': 15}
+        'wall_val_c': 400}
 const = {'target_hue': 175,
          'hue_c': 15,
          'sat_c': 150,
@@ -20,8 +19,7 @@ const = {'target_hue': 175,
          'wall_target_hue': 114,
          'wall_hue_c': 15,
          'wall_sat_c': 150,
-         'wall_val_c': 200,
-         'wall_pixel_height': 4}
+         'wall_val_c': 200}
 
 def updater(name):
     def update(value):
@@ -37,7 +35,6 @@ def show_video():
                         255,  1./const['wall_sat_c'],
                         255, 1./const['wall_val_c']]], 'float64')
     result = color.identify(image, colors)
-    # wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
     top, bottom, c = walls.identify(result, 1, [])
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2

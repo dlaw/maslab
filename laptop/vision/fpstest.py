@@ -32,7 +32,7 @@ def process_video():
                         255,  1./const['wall_sat_c'],
                         255, 1./const['wall_val_c']]], dtype=np.float64)
     result = color.identify(image, colors)
-    wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
+    top, bottom, c = walls.identify(result, 1, [])
     blob_data = blobs.find_blobs(result, depth, const['min_area'])
 
 def spin():
