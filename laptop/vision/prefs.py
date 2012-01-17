@@ -9,8 +9,8 @@ def process(key, trackbars, filename):
     elif key==1048680: #h(elp)
         print "Help: commands are h(elp), q(uit), s(ave), l(oad), and p(rint)\n"
     elif key==1048691: #s(ave)
-        print "Enter a filename, or press enter to accept the default"
-        s = raw_input("<{0}>: ".format(filename))
+        print "Enter a filename, or press enter to accept the default [ ]:" % filename
+        s = raw_input("> ")
         if s == "":
             s = filename
         d = {}
@@ -21,8 +21,8 @@ def process(key, trackbars, filename):
         f.close()
         print "Saved to %s\n" % s
     elif key==1048684: #l(oad)
-        print "Enter a filename, or press enter to accept the default"
-        s = raw_input("<{0}>: ".format(filename))
+        print "Enter a filename, or press enter to accept the default [ ]:" % filename
+        s = raw_input("> ")
         if s == "":
             s = filename
         f = open(s, "rb")
