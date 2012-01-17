@@ -34,14 +34,9 @@ def get_images():
     cv.Resize(cv.fromarray(raw_video), cv.fromarray(video), cv.CV_INTER_AREA)
     cv.CvtColor(cv.fromarray(video), cv.fromarray(video), cv.CV_RGB2HSV)
     
-    # Depth downsampling is tricky.  We replace invalid pixels with
-    # 2^15.  After 4x4 downsampling, every invalid pixel contributes
-    # 2^11 to the average.  Since valid pixel values are always less
-    # than 2^11, we can just mod out by 2^11 to ignore invalid pixels.
-    # Downsampled regions with no valid depth pixels now have the
-    # value zero.
-    raw_depth[:] = numpy.where(raw_depth == 2047, 2**15, raw_depth)
-    cv.Resize(cv.fromarray(raw_depth), cv.fromarray(depth), cv.CV_INTER_AREA)
+    # Downsample the depth frame using nearest-neighbor to make sure 
+    # invalid pixels are handled properly.
+    cv.Resize(cv.fromarray(raw_depth), cv.fromarray(depth), cv.CV_INTER_NN)
     
     # Convert timestamp from Kinect processor cycles to seconds
-    return timestamp / 60008625., video, depth % (2**11)
+    return timestamp / 60008625., video, depth
