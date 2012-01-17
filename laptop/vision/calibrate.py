@@ -2,28 +2,21 @@
 
 import cv, numpy as np, color, blobs, kinect, walls
 
-maxv = {'target_hue': 180,
-        'hue_c': 50,
-        'sat_c': 400,
-        'val_c': 400,
-        'min_area': 300,
-        'wall_target_hue': 180,
-        'wall_hue_c': 50,
-        'wall_sat_c': 400,
-        'wall_val_c': 400,
-        'white_sat_c': 400,
-        'white_val_c': 400}
-const = {'target_hue': 175,
-         'hue_c': 15,
-         'sat_c': 150,
-         'val_c': 200,
-         'min_area': 100,
-         'wall_target_hue': 114,
-         'wall_hue_c': 15,
-         'wall_sat_c': 150,
-         'wall_val_c': 200,
-         'white_sat_c': 100,
-         'white_val_c': 100}
+color_defs = {'red': (175, 15, 150, 250),
+              'yellow': (30, 15, 150, 250),
+              'green': (60, 15, 150, 250),
+              'blue': (114, 15, 150, 250)}
+maxv = {}
+const = {}
+for c in color_defs:
+    maxv[c + '_hue'] = 180
+    const[c + '_hue'] = color_defs[c][0]
+    maxv[c + '_hue_c'] = 100
+    const[c + '_hue_c'] = color_defs[c][1]
+    maxv[c + '_sat_c'] = 400
+    const[c + '_sat_c'] = color_defs[c][2]
+    maxv[c + '_val_c'] = 400
+    const[c + '_val_c'] = color_defs[c][3]
 
 def updater(name):
     def update(value):
@@ -32,26 +25,30 @@ def updater(name):
 
 def show_video():
     t, image, depth = kinect.get_images()
-    colors = np.array([[const['target_hue'], 1./const['hue_c'],
-                        255, 1./const['sat_c'],
-                        255, 1./const['val_c']],
-                       [const['wall_target_hue'], 1./const['wall_hue_c'],
-                        255,  1./const['wall_sat_c'],
-                        255, 1./const['wall_val_c']],
-                       [0, 0,
-                        0, 1./const['white_sat_c'],
-                        0, 1./const['white_val_c']]], 'float64')
+    colors = np.array([[const['red_hue'], 1./const['red_hue_c'],
+                        255, 1./const['red_sat_c'],
+                        255, 1./const['red_val_c']],
+                       [const['yellow_hue'], 1./const['yellow_hue_c'],
+                        255, 1./const['yellow_sat_c'],
+                        255, 1./const['yellow_val_c']],
+                       [const['green_hue'], 1./const['green_hue_c'],
+                        255, 1./const['green_sat_c'],
+                        255, 1./const['green_val_c']],
+                       [const['blue_hue'], 1./const['blue_hue_c'],
+                        255, 1./const['blue_sat_c'],
+                        255, 1./const['blue_val_c']]], 'float64')
     result = color.identify(image, colors)
-    top, bottom, c = walls.identify(result, 1)
+    top, bottom, wallcolor = walls.identify(result, 3)
+    blob_data = blobs.find_blobs(result, depth, 10, 0)
+    image[...,0] = np.select([result==-1,result==0,result==1,result==2,result==3],
+                             [image[...,0], const['red_hue'], const['yellow_hue'],
+                              const['green_hue'], const['blue_hue']])
+    image[...,1] = np.where(result==-1, image[...,1], 255)
+    image[...,2] = np.where(result==-1, image[...,2] / 2, 255)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
-    image /= 2
-    blob_data = blobs.find_blobs(result, depth, const['min_area'], 0)
     for blob in blob_data:
         cv.Circle(cv.fromarray(image), (int(blob['col'][0]), int(blob['row'][0])),
                   int((blob['size'] / 3.14)**0.5), [255, 255, 255])
-    for i in range(image.shape[1]):
-        if top[i] != -1:
-            cv.Line(cv.fromarray(image), (i, top[i]), (i, bottom[i]), [255,255,255])
     cv.ShowImage('Video', cv.fromarray(image))
     cv.ShowImage('Depth', cv.fromarray(depth << 5))
         
