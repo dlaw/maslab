@@ -32,7 +32,7 @@ def move():
     else: #track blob closest to center
         cycles_since_lost_sight = 0
         blob_to_track = min(blob_data, key = lambda blob: abs(80-blob['col'][0]))
-        angle = const['kinect_fov'] / 320. * (160 - blob_to_track['col'][0])
+        angle = const['kinect_fov'] / 160. * (80 - blob_to_track['col'][0])
         if abs(angle) < const['small_angle']: #move towards it
             dist = const['depth_scaler'] * blob_to_track['depth'][0]
             arduino.drive(max(dist, 100), angle)
