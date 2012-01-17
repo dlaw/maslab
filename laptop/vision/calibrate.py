@@ -3,9 +3,9 @@
 import cv, numpy as np, color, blobs, kinect, walls
 
 color_defs = [('red', 175, 1./15, 1./150, 1./250),
-              ('yellow', 30, 1./15, 1./150, 1./250),
-              ('green', 52, 1./15, 1./150, 1./250),
-              ('blue', 114, 1./15, 1./150, 1./250)]
+              ('yellow', 23, 1./10, 1./100, 1./140),
+              ('green', 50, 1./15, 1./250, 1./350),
+              ('blue', 114, 1./15, 1./400, 1./400)]
 
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
@@ -24,19 +24,22 @@ def trackbar(index, color, prop, maxval, invert=False, window='Constants'):
 for i, (name, hue, hue_c, sat_c, val_c) in enumerate(color_defs):
     trackbar((i, 0), name, 'hue', 180)
     trackbar((i, 3), name, 'hue_c', 40, True)
-    trackbar((i, 4), name, 'sat_c', 500, True)
-    trackbar((i, 5), name, 'val_c', 500, True)
+    trackbar((i, 4), name, 'sat_c', 600, True)
+    trackbar((i, 5), name, 'val_c', 600, True)
 
 def show_video():
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
-    top, bottom, wallcolor = walls.identify(colors, 3)
-    blob_data = blobs.find_blobs(colors, depth, 10, 0)
+    top, bottom, wallcolor = walls.identify(colors, 3, 2, 2)
+    blob_data = blobs.find_blobs(colors, depth, 0)
     color.colorize(image, constants, colors)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     for blob in blob_data:
         cv.Circle(cv.fromarray(image), (int(blob['col'][0]), int(blob['row'][0])),
-                  int((blob['size'] / 3.14)**0.5), [255, 255, 255])
+                  int((blob['size'] / 3.14)**0.5) + 1, [255, 255, 255])
+    for i, (t, b) in enumerate(zip(top, bottom)):
+        if t != -1:
+            cv.Line(cv.fromarray(image), (i,t), (i,b), (255, 255, 255))
     cv.ShowImage('Video', cv.fromarray(image))
     cv.ShowImage('Depth', cv.fromarray(depth << 5))
 

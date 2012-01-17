@@ -17,7 +17,7 @@ ctypedef np.int32_t DTYPE_t
 @cython.wraparound(False)
 def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, 
                np.ndarray[unsigned short, ndim=2] depth not None,
-               int min_size, int color):
+               int color, int min_size = 2):
     assert arr.dtype == DTYPE
     cdef DTYPE_t size
     cdef int r, c, maxr = arr.shape[0], maxc = arr.shape[1]

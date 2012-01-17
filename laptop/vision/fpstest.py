@@ -14,7 +14,7 @@ def process_video():
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
     top, bottom, wallcolor = walls.identify(colors, 1)
-    blob_data = blobs.find_blobs(colors, depth, 10, 0)
+    blob_data = blobs.find_blobs(colors, depth, 0)
 
 def spin():
     for i in range(10):

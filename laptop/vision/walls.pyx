@@ -4,14 +4,14 @@ cimport cython, numpy as np
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def identify(np.ndarray[np.int32_t, ndim=2] img,
-             top_color, min_height = 4, max_skip = 2):
+             top_color, min_height = 4, max_skip = 2, start_offset = 60):
     cdef np.ndarray[np.int32_t] top = np.empty(img.shape[1], np.int32)
     cdef np.ndarray[np.int32_t] bottom = np.empty(img.shape[1], np.int32)
     cdef np.ndarray[np.int32_t] color = np.empty(img.shape[1], np.int32)
     cdef int good_count, skip_count, start_mark, end_mark, col, row
     for col in range(img.shape[1]):
         good_count = skip_count = 0
-        for row in range(img.shape[0] - 1, -1, -1): # scan up to top of blue
+        for row in range(img.shape[0] - 1 - start_offset, -1, -1): # scan up to top of blue
             if img[row, col] == top_color:
                 skip_count = 0
                 if good_count == 0:
