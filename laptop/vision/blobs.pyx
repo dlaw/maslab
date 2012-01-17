@@ -10,13 +10,14 @@ to compile, run:
 
 import numpy as np
 cimport cython, numpy as np
-DTYPE = np.uint32
-ctypedef np.uint32_t DTYPE_t
+DTYPE = np.int32
+ctypedef np.int32_t DTYPE_t
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, 
                np.ndarray[unsigned short, ndim=2] depth not None,
-               int min_size):
+               int min_size, int color):
     assert arr.dtype == DTYPE
     cdef DTYPE_t size
     cdef int r, c, maxr = arr.shape[0], maxc = arr.shape[1]
@@ -25,13 +26,14 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None,
     cdef np.ndarray[np.uint8_t, ndim=2] vis = np.zeros_like(arr, dtype=np.uint8)
     for r in range(maxr):
         for c in range(maxc):
-            if not vis[r,c] and arr[r,c] != 0xFF:
+            if not vis[r,c] and arr[r,c] == color:
                 blob_data = flood_fill(arr, vis, depth, r, c, arr[r,c])
                 if blob_data['size'] >= min_size:
                     blobs.append(blob_data)
     return blobs
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                np.ndarray[np.uint8_t, ndim=2] vis not None,
                np.ndarray[unsigned short, ndim=2] depth not None,
@@ -54,9 +56,10 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                 size = size + 1
                 r_data = update_data_tuple(r_data, <float>nr, size)
                 c_data = update_data_tuple(c_data, <float>nc, size)
-                if depth[nr,nc] != 0:
+                if depth[nr,nc] != 2047:
                     d_data = update_data_tuple(d_data, depth[nr,nc], size)
     return {'size': size,
+            'color': color,
             'row': get_data(r_data, size),
             'col': get_data(c_data, size),
             'depth': get_data(d_data, size)}
