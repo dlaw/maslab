@@ -11,7 +11,8 @@ maxv = {'target_hue': 180,
         'wall_hue_c': 50,
         'wall_sat_c': 400,
         'wall_val_c': 400,
-        'wall_pixel_height': 15}
+        'white_sat_c': 400,
+        'white_val_c': 400}
 const = {'target_hue': 175,
          'hue_c': 15,
          'sat_c': 150,
@@ -21,7 +22,8 @@ const = {'target_hue': 175,
          'wall_hue_c': 15,
          'wall_sat_c': 150,
          'wall_val_c': 200,
-         'wall_pixel_height': 4}
+         'white_sat_c': 100,
+         'white_val_c': 100}
 
 def process_video():
     t, image, depth = kinect.get_images()
@@ -30,9 +32,12 @@ def process_video():
                         255, 1./const['val_c']],
                        [const['wall_target_hue'], 1./const['wall_hue_c'],
                         255,  1./const['wall_sat_c'],
-                        255, 1./const['wall_val_c']]], dtype=np.float64)
+                        255, 1./const['wall_val_c']],
+                       [0, 0,
+                        0, 1./const['white_sat_c'],
+                        0, 1./const['white_val_c']]], 'float64')
     result = color.identify(image, colors)
-    top, bottom, c = walls.identify(result, 1, [])
+    top, bottom, c = walls.identify(result, 1)
     blob_data = blobs.find_blobs(result, depth, const['min_area'])
 
 def spin():
