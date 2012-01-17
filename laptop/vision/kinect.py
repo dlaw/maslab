@@ -6,12 +6,16 @@ initialized = False
 
 # Work around an initialization bug for synchronous video
 try:
-    dev = freenect.open_device(freenect.init(), 0)
+    ctx = freenect.init()
+    dev = freenect.open_device(ctx, 0)
     if not dev:
         raise Exception
     freenect.start_video(dev) # sync_get_video hangs if we don't do this
     freenect.start_depth(dev) # sync_get_depth hangs if we don't do this
+    freenect.stop_depth(dev)
+    freenect.stop_video(dev)
     freenect.close_device(dev) # close the device so that c_sync can open it
+    freenect.shutdown(ctx)
     initialized = True
 except:
     print "Error initializing Kinect"

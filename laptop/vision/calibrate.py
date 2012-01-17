@@ -30,12 +30,12 @@ def updater(name):
 
 def show_video():
     t, image, depth = kinect.get_images()
-    colors = np.array([[const['target_hue'],const['hue_c'],
-                        255, const['sat_c'],
-                        255, const['val_c']],
-                       [const['wall_target_hue'], const['wall_hue_c'],
-                        255,  const['wall_sat_c'],
-                        255, const['wall_val_c']]], 'int32')
+    colors = np.array([[const['target_hue'], 1./const['hue_c'],
+                        255, 1./const['sat_c'],
+                        255, 1./const['val_c']],
+                       [const['wall_target_hue'], 1./const['wall_hue_c'],
+                        255,  1./const['wall_sat_c'],
+                        255, 1./const['wall_val_c']]], 'float64')
     result = color.identify(image, colors)
     # wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
     top, bottom, c = walls.identify(result, 1, [])
