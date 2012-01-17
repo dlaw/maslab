@@ -14,6 +14,7 @@ DTYPE = np.int32
 ctypedef np.int32_t DTYPE_t
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None, 
                np.ndarray[unsigned short, ndim=2] depth not None,
                int min_size):
@@ -32,6 +33,7 @@ def find_blobs(np.ndarray[DTYPE_t, ndim=2] arr not None,
     return blobs
 
 @cython.boundscheck(False)
+@cython.wraparound(False)
 def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                np.ndarray[np.uint8_t, ndim=2] vis not None,
                np.ndarray[unsigned short, ndim=2] depth not None,

@@ -11,9 +11,8 @@ to compile, run:
 import numpy as np
 cimport cython, numpy as np
 
-#cython: boundscheck=False
-#cython: wraparound=False
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def identify(np.ndarray[np.uint8_t, ndim=3] image,
              np.ndarray[np.int32_t, ndim=2] colors):
     """
