@@ -8,7 +8,7 @@ def identify(np.ndarray[np.int32_t, ndim=2] img,
     cdef np.ndarray[np.int32_t] color = np.empty(img.shape[1], np.int32)
     cdef int good_count, skip_count, start_mark, end_mark, col, row
     for col in range(img.shape[1]):
-        good_count = 0
+        good_count = skip_count = 0
         for row in range(img.shape[0] - 1, -1, -1): # scan up to top of blue
             if img[row, col] == top_color:
                 skip_count = 0
@@ -28,12 +28,16 @@ def identify(np.ndarray[np.int32_t, ndim=2] img,
             continue
         bottom[col] = img.shape[0] - 1
         color[col] = -1
+        skip_count = 0
         for row in range(start_mark, img.shape[0]): # scan down to bottom of wall
             if img[row, col] in wall_colors:
+                skip_count = 0
                 color[col] = img[row, col]
             else:
-                bottom[col] = row - 1
-                break
+                skip_count += 1
+                if skip_count == max_skip:
+                    bottom[col] = row - 1
+                    break
     return top, bottom, color
 
 @cython.boundscheck(False)

@@ -35,10 +35,13 @@ def show_video():
                         255, 1./const['val_c']],
                        [const['wall_target_hue'], 1./const['wall_hue_c'],
                         255,  1./const['wall_sat_c'],
-                        255, 1./const['wall_val_c']]], 'float64')
+                        255, 1./const['wall_val_c']],
+                       [0, 0,
+                        0, .01,
+                        0, .01], 'float64')
     result = color.identify(image, colors)
     # wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
-    top, bottom, c = walls.identify(result, 1, [])
+    top, bottom, c = walls.identify(result, 1, [2])
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2
     blob_data = blobs.find_blobs(result, depth, const['min_area'])
