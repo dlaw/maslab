@@ -68,7 +68,7 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
         for y in range(image.shape[1]):
             result[x, y] = -1
             for i in range(num_colors):
-                hue = (image[x, y, 0] - colors[i, 0] + 90) % 180) - 90
+                hue = ((image[x, y, 0] - colors[i, 0] + 90) % 180) - 90
                 sat = (image[x, y, 1] - colors[i, 2])
                 val = (image[x, y, 2] - colors[i, 4])
                 if hue < colors[i, 1] and sat < colors[i, 3] and val < colors[i, 5]:
