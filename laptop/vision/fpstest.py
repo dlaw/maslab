@@ -33,14 +33,7 @@ def process_video():
                         255, const['wall_val_c']]], dtype=np.int32)
     result = color.identify(image, colors)
     wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
-    cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
-    image /= 2
     blob_data = blobs.find_blobs(result, depth, const['min_area'])
-    for blob in blob_data:
-        cv.Circle(cv.fromarray(image), (int(blob['col'][0]), int(blob['row'][0])),
-                  int((blob['size'] / 3.14)**0.5), [255, 255, 255])
-    for i in range(image.shape[1]):
-        cv.Line(cv.fromarray(image), (i,wall[i]+const['wall_pixel_height']), (i,wall[i]), [255,255,255])
 
 def spin():
     for i in range(10):
