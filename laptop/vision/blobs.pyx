@@ -59,6 +59,7 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                 if depth[nr,nc] != 2047:
                     d_data = update_data_tuple(d_data, depth[nr,nc], size)
     return {'size': size,
+            'color': color,
             'row': get_data(r_data, size),
             'col': get_data(c_data, size),
             'depth': get_data(d_data, size)}
