@@ -31,8 +31,7 @@ def process_video():
                        [const['wall_target_hue'], const['wall_hue_c'],
                         255,  const['wall_sat_c'],
                         255, const['wall_val_c']]], dtype=np.int32)
-    result = np.empty_like(image[...,0], 'int32')
-    color.identify(image, colors, result)
+    result = color.identify(image, colors)
     wall = walls.filter_by_column(result, 1, const['wall_pixel_height'], -1)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2
