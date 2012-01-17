@@ -1,9 +1,8 @@
 import numpy as np
 cimport cython, numpy as np
 
-#cython: boundscheck=False
-#cython: wraparound=False
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
 def filter_by_column(np.ndarray[np.int32_t, ndim=2] img, int marker_color,
                      int marker_width, int direction):
     """
