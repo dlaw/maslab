@@ -10,7 +10,9 @@ maxv = {'target_hue': 180,
         'wall_target_hue': 180,
         'wall_hue_c': 50,
         'wall_sat_c': 400,
-        'wall_val_c': 400}
+        'wall_val_c': 400,
+        'white_sat_c': 400,
+        'white_val_c': 400}
 const = {'target_hue': 175,
          'hue_c': 15,
          'sat_c': 150,
@@ -19,7 +21,9 @@ const = {'target_hue': 175,
          'wall_target_hue': 114,
          'wall_hue_c': 15,
          'wall_sat_c': 150,
-         'wall_val_c': 200}
+         'wall_val_c': 200,
+         'white_sat_c': 100,
+         'white_val_c': 100}
 
 def updater(name):
     def update(value):
@@ -35,13 +39,13 @@ def show_video():
                         255,  1./const['wall_sat_c'],
                         255, 1./const['wall_val_c']],
                        [0, 0,
-                        0, .01,
-                        0, .01]], 'float64')
+                        0, 1./const['white_sat_c'],
+                        0, 1./const['white_val_c']]], 'float64')
     result = color.identify(image, colors)
-    top, bottom, c = walls.identify(result, 1, [2])
+    top, bottom, c = walls.identify(result, 1)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     image /= 2
-    blob_data = blobs.find_blobs(result, depth, const['min_area'])
+    blob_data = blobs.find_blobs(result, depth, const['min_area'], 0)
     for blob in blob_data:
         cv.Circle(cv.fromarray(image), (int(blob['col'][0]), int(blob['row'][0])),
                   int((blob['size'] / 3.14)**0.5), [255, 255, 255])
