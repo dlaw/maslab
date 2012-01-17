@@ -59,10 +59,10 @@ void rotate(serdata data) {
 // command 0x04
 void gotopoint(serdata data) {
   dist_to_target = data[4] + (data[5] << 8) + ((int32_t) data[6] << 16) + ((int32_t) data[7] << 24);
-  theta_to_target = data[0] + (data[1] << 8) + ((int32_t) data[2] << 16) + ((int32_t) data[3] << 24);
+  theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
 
   navstate = 2;
-  usart0_tx(0x00);
+  //usart0_tx(0x00);
 }
 
 // command 0x05

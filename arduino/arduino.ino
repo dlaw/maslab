@@ -8,7 +8,7 @@ volatile unsigned char com=0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
 volatile char frame=0;
 
-volatile boolean control_semaphore;
+volatile unsigned char control_semaphore;
 
 volatile int dl;
 volatile int dr;
@@ -17,6 +17,9 @@ int32_t last_theta = 0;
 int32_t accumulated_error = 0;
 int32_t delta;
 int32_t delta_error;
+
+char lvel;
+char rvel;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -36,7 +39,7 @@ void setup(){
   usart0_init(baud0);
   usart1_init(baud2);
   //adchan=2;           //adc channel selection 
-  timer0_init(156); // period in milliseconds = val * .064 
+  timer0_init(10); // period in milliseconds = val * .064 
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
   
@@ -48,28 +51,57 @@ void loop(){
   if (digitalRead(53) == LOW) {
     test_motors();
   }
+  
+  // deal with driving stuff
+  
+  if (lvel > target_lvel) {
+    if (lvel > target_lvel + MAX_DIFF) {
+      lvel -= MAX_DIFF;
+    } else {
+      lvel = target_lvel;
+    }
+  }
+  
+  if (lvel < target_lvel) {
+    if (lvel < target_lvel - MAX_DIFF) {
+      lvel += MAX_DIFF;
+    } else {
+      lvel = target_lvel;
+    }
+  }
+  
+  if (rvel > target_rvel) {
+    if (rvel > target_rvel + MAX_DIFF) {
+      rvel -= MAX_DIFF;
+    } else {
+      rvel = target_rvel;
+    }
+  }
+  
+  if (rvel < target_rvel) {
+    if (rvel < target_rvel - MAX_DIFF) {
+      rvel += MAX_DIFF;
+    } else {
+      rvel = target_rvel;
+    }
+  }
+  
+  usart1_tx((lvel<0 ? 0x8a : 0x88)); //direction
+  usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
+  usart1_tx((rvel<0 ? 0x8e : 0x8c)); //direction
+  usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
 
   // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore) {
+  if (control_semaphore > 20) {
     int rot_speed;
     int vel;
             
-    control_semaphore = false;  // disable the semaphore
+    control_semaphore = 0;  // disable the semaphore
     
            // update the distance/angle to target from how much we've moved in the last 500 uS
            // this is commented out until some bugs are fixed
            
-    //if (dist_to_target > 0) {
-      update_state(&tickl, &tickr);
-    //  if (dist_to_target < 0) {
-    //    theta_to_target += 205887;
-    //  }
-    //} else {
-    //  update_state(&tickl, &tickr);
-    //  if (dist_to_target > 0) {
-      //  theta_to_target -= 205887;
-    //  }
-    //}
+    update_state(&tickl, &tickr);
     
     switch (navstate) {
       case 0: // waiting for command
@@ -78,7 +110,7 @@ void loop(){
           timeout = 0;
         }
         
-        drive(0,0);
+        //drive(0,0);
         
         timeout++;
         break;
@@ -126,29 +158,46 @@ void loop(){
         }
   
         vel = parameters[VEL_K] * dist_to_target;
-        rot_speed = theta_to_target * parameters[ROT_MOVE_K];
-        //rot_speed = 0;
-        dl = vel + rot_speed;
-        dr = vel - rot_speed;
-
-        if (dl > 40) dl = 40;
-        if (dr > 40) dr = 40;
-        if (dl < -40) dl = -40;
-        if (dr < -40) dr = -40;
+        rot_speed = ((theta_to_target) >> 12) + ((theta_to_target) >> 13);
         
-        if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD]) {
+        dl = vel;
+        dr = vel;
+
+        if (dl > 127) dl = 127;
+        if (dr > 127) dr = 127;
+        if (dl < -127) dl = -127;
+        if (dr < -127) dr = -127;
+        
+        dl -= rot_speed;
+        dr += rot_speed;
+        
+        if (dl > 127) dl = 127;
+        if (dr > 127) dr = 127;
+        if (dl < -127) dl = -127;
+        if (dr < -127) dr = -127;
+        
+        if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD] | dist_to_target < 0) {
           navstate = 0; // go back to waiting for commands
           dl = 0;
           dr = 0;
         }
 
-        drive(dl, -dr);
-        
+        drive((char) dl, (char) -dr);
+      
+
+        // send a bunch of debug stuff
+        /*usart0_tx((char) dl);
+        usart0_tx(0x00);
+        SEND_INT22(dist_to_target);
+        usart0_tx(0x00);
+        usart0_tx((char) dr);
         usart0_tx(0x00);
         usart0_tx(0x00);
-        SEND_INT32(dist_to_target);
         usart0_tx(0x00);
         usart0_tx(0x00);
+        SEND_INT22(theta_to_target);
+*/
+
         //usart0_tx(vel);
         break;   
     }
@@ -207,6 +256,6 @@ ISR(INT5_vect){            //Pin Change interrupt handler
 
 // the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
-  control_semaphore = true;
+  control_semaphore++;
 }
 
