@@ -11,34 +11,31 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
 
-const = {'min_area': 100,
-         'kinect_fov': np.pi/2,
+const = {'kinect_fov': np.pi/2,
          'depth_scaler': 0.001,
-         'small_angle': 0.1,
-         'after_losing_sight': 30}
+         'small_angle': 0.3,
+         'after_losing_sight': 20}
 
 cycles_since_lost_sight = 0
 start_time = time.time()
 
 def move():
-    global just_lost_sight
+    global cycles_since_lost_sight
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
-    top, bottom, wallcolor = walls.identify(colors, 3, 2, 2)
-    blob_data = blobs.find_blobs(colors, depth, const['min_area'])
+    top, bottom, wallcolor = walls.identify(colors, 3, 3, 2)
+    blob_data = blobs.find_blobs(colors, depth, 0)
     if not len(blob_data): #no blobs found
         cycles_since_lost_sight += 1
-        if cycles_since_lost_sight < const['after_losing_sight']: #drive straight
-            arduino.drive(100, 0)
-        else: #rotate (search for more balls)
+        if cycles_since_lost_sight >= const['after_losing_sight']:
             arduino.rotate(2*np.pi)
     else: #track blob closest to center
         cycles_since_lost_sight = 0
-        blob_to_track = max(blob_data, key = lambda blob: abs(160-blob['col'][0]))
+        blob_to_track = min(blob_data, key = lambda blob: abs(80-blob['col'][0]))
         angle = const['kinect_fov'] / 320. * (160 - blob_to_track['col'][0])
         if abs(angle) < const['small_angle']: #move towards it
             dist = const['depth_scaler'] * blob_to_track['depth'][0]
-            arduino.drive(dist, angle)
+            arduino.drive(max(dist, 100), angle)
         else: #rotate only (don't drive)
             arduino.rotate(angle)
 
