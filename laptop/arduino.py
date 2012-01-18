@@ -1,14 +1,24 @@
 import serial, struct
 
 port = serial.Serial('/dev/ttyACM0', 500000, timeout=.01) # 500k baud
+debug = False
+
+def format_bytes(bytes):
+    return ' '.join([hex(ord(b)) for b in bytes])
 
 def raw_command(response_fmt, data_fmt, *data):
     """Send a command to the arduino and receive a response."""
     port.flushInput() # clear out old crap
-    port.write(struct.pack('>' + data_fmt, *data))
+    output = struct.pack('>' + data_fmt, *data)
+    if debug: print('Sending {0}'.format(format_bytes(output)))
+    port.write(output)
     response_data = port.read(struct.calcsize(response_fmt))
-    try: return struct.unpack('>' + response_fmt, response_data)
-    except: return None
+    if debug: print('Received {0}'.format(format_bytes(response_data)))
+    try:
+        return struct.unpack('>' + response_fmt, response_data)
+    except:
+        if debug: print("Invalid response")
+        return None
 
 def is_alive():
     """Check whether the arduino is responding to commands."""
