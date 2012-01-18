@@ -14,10 +14,14 @@ constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
 const = {'kinect_fov': np.pi/2,
          'depth_scaler': 0.001,
          'small_angle': 0.3,
-         'after_losing_sight': 20}
+         'after_losing_sight': 20,
+         'drive_dist': 100}
 
 cycles_since_lost_sight = 0
 start_time = time.time()
+
+time.sleep(.1)
+assert arduino.is_alive()
 
 def move():
     global cycles_since_lost_sight
