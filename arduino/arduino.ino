@@ -1,7 +1,6 @@
 #include "commands.h"
 #include "test_motors.h"
 
-
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
@@ -21,6 +20,21 @@ int32_t delta_error;
 
 char lvel;
 char rvel;
+
+uint32_t rtime;
+uint32_t ltime;
+
+uint32_t ldif;
+uint32_t rdif;
+
+uint32_t target_ltime;
+uint32_t target_rtime;
+int32_t a_lerror;
+int32_t a_rerror;
+int32_t d_lerror;
+int32_t d_rerror;
+int32_t last_lerror;
+int32_t last_rerror;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -53,7 +67,7 @@ void loop(){
     test_motors();
   }
   
-  // deal with driving stuff
+  // provide some protection against sudden acceleration
   
   if (lvel > target_lvel) {
     if (lvel > target_lvel + MAX_DIFF) {
@@ -143,64 +157,31 @@ void loop(){
         }
         
         
-        drive(dl, -dr);
+        drive(dl, dr);
         last_theta = theta_to_target;
         break;
         
-      case 2: // move towards target
-        // in this mode, theta_to_target should be in the range [-pi, pi]
-  
-        while (theta_to_target > 205887) { // while theta > pi
-          theta_to_target -= 411775; // subtract 2 pi
-        }
-  
-        while (theta_to_target < -205887) { // while theta < pi
-          theta_to_target += 411775;
-        }
-  
-        vel = parameters[VEL_K] * dist_to_target;
-        rot_speed = ((theta_to_target) >> 12) + ((theta_to_target) >> 13);
-        
-        dl = vel;
-        dr = vel;
+      case 2: // velocity feedback on motors
+        int lerror = target_ltime - ldif;
+        int rerror = target_rtime - rdif;
+        a_lerror += lerror;
+        a_rerror += rerror;
+        d_lerror = lerror - last_lerror;
+        d_rerror = rerror - last_rerror;
+        last_lerror = lerror;
+        last_rerror = rerror;
 
-        if (dl > 127) dl = 127;
-        if (dr > 127) dr = 127;
-        if (dl < -127) dl = -127;
-        if (dr < -127) dr = -127;
-        
-        dl -= rot_speed;
-        dr += rot_speed;
-        
-        if (dl > 127) dl = 127;
-        if (dr > 127) dr = 127;
-        if (dl < -127) dl = -127;
-        if (dr < -127) dr = -127;
-        
-        if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD] | dist_to_target < 0) {
-          navstate = 0; // go back to waiting for commands
-          dl = 0;
-          dr = 0;
-        }
+        dl = target_lvel - (lerror >> 1) - a_lerror * 0 - d_lerror * 0;
+        dr = target_rvel - (rerror >> 1) - a_rerror * 0 - d_lerror * 0;
 
-        drive((char) dl, (char) -dr);
-      
+        // stalled
+        if (micros() - ltime > 1000) dl = (target_ltime < 0) ? -127 : 127;
+        if (micros() - rtime > 1000) dr = (target_rtime < 0) ? -127 : 127;
 
-        // send a bunch of debug stuff
-        /*usart0_tx((char) dl);
-        usart0_tx(0x00);
-        SEND_INT22(dist_to_target);
-        usart0_tx(0x00);
-        usart0_tx((char) dr);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        SEND_INT22(theta_to_target);
-*/
+        drive(dl, dr);
 
-        //usart0_tx(vel);
-        break;   
+        break;
+        
     }
   }
 }
@@ -231,18 +212,26 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 }
 
 ISR(INT4_vect){            //Pin Change interrupt handler
+  rdif = micros() - rtime;
+  rtime = micros();
+
   if(((PINE>>4)^(PING>>5))&1){ // Used for detecting encoder ticks
     tickr++;                  // if they are different, we are rotating one direction
   }else{
     tickr--;                  // otherwise, the other direction
+    rdif = rdif * -1;
   }
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
+  ldif = micros() - ltime;
+  ltime = micros();
+
   if(((PINE>>5)^(PINE>>3))&1){ // Used for detecting encoder ticks
     tickl++;                  // if they are different, we are rotating one direction
   }else{
     tickl--;                  // otherwise, the other direction
+    rdif = rdif * -1;
   }
 }
 

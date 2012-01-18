@@ -42,12 +42,12 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analog[adcmap[data[0]]]);
+  usart0_tx(analogRead(data[0]));
 }
 
 // command 0x03
 void rotate(serdata data) {
-  theta_to_target = data[0] + (data[1] << 8) + ((int32_t) data[2] << 16) + ((int32_t) data[3] << 24);
+  theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
   
   //theta_to_target = 0x0006487E;
   rotate_speed = data[4]; 
@@ -62,7 +62,7 @@ void gotopoint(serdata data) {
   theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
 
   navstate = 2;
-  //usart0_tx(0x00);
+  usart0_tx(0x00);
 }
 
 // command 0x05
@@ -90,7 +90,8 @@ void sendticks(serdata data) {
 
 // command 0x09
 void sendbattvoltage(serdata data) {
-  usart0_tx(analog[9]);
+  int battvoltage = analogRead(9);
+  SEND_INT16(battvoltage);
 }
 
 // How many bytes of data will follow each command?
@@ -99,7 +100,7 @@ unsigned char commands[10]={
 };
 
 // What function shall be called to respond to each command?
-responder responses[10]={
+responder responses[11]={
   &ack,
   &setmotors,
   &sendir,
@@ -109,5 +110,6 @@ responder responses[10]={
   &getdistance,
   &changeparam,
   &sendticks,
-  &sendbattvoltage
+  &sendbattvoltage,
+  &setmotorspeed
 };
