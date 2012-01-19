@@ -16,8 +16,12 @@ inline void SEND_INT16(uint16_t val){
     ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
 #define TO_INT16(arr,i) (arr[i] + ((uint16_t) arr[i+1] << 8))
 
-uint32_t target_ltime;
-uint32_t target_rtime;
+int32_t target_ltime;
+int32_t target_rtime;
+
+volatile int dl;
+volatile int dr;
+
 
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
@@ -98,16 +102,23 @@ void sendbattvoltage(serdata data) {
 }
 
 void setmotorspeed(serdata data) {
-  target_ltime = TO_INT32(data, 0);
-  target_rtime = TO_INT32(data, 4);
+  int32_t new_ltime = data[4] + (data[5] << 8) + ((int32_t) data[6] << 16) + ((int32_t) data[7] << 24);
+  int32_t new_rtime = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
+
   navstate = 2;
-  char sl, sr;
   
-  sl = (target_ltime > 0) ? 64 : -64;
-  sr = (target_rtime > 0) ? 64 : -64;
   
-  drive(sl,sr);
+  if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
+    dl = (new_ltime > 0) ? 64 : -64;
+  }
     
+  if ((new_rtime < 0 & target_rtime > 0) | (new_rtime > 0 & target_rtime < 0)) {
+    dr = (new_rtime > 0) ? 64 : -64;
+  }
+  
+  target_ltime = new_ltime;
+  target_rtime = new_rtime;
+  
   usart0_tx(0x00);
 }
 

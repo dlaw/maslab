@@ -10,8 +10,6 @@ volatile char frame=0;
 
 volatile unsigned char control_semaphore;
 
-volatile int dl;
-volatile int dr;
 
 int32_t last_theta = 0;
 int32_t accumulated_error = 0;
@@ -21,11 +19,8 @@ int32_t delta_error;
 char lvel;
 char rvel;
 
-volatile unsigned int rtime;
-uint32_t ltime;
-
-volatile unsigned int ldif;
-uint32_t rdif;
+volatile uint32_t ldif;
+volatile uint32_t rdif;
 
 
 int32_t a_lerror;
@@ -57,10 +52,18 @@ void setup(){
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
   
+  pinMode(48, INPUT);
+  pinMode(49, INPUT);
+  pinMode(5, INPUT);
+  pinMode(4, INPUT);
+  
   TCCR4B |= B00000001;
   TIMSK4 |= B00100000;
+  TCCR4A = 0x00;
   
-  
+  TCCR5B |= B00000001;
+  TIMSK5 |= B00100000;
+  TCCR5A = 0x00;
   
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
@@ -111,16 +114,19 @@ void loop(){
   usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
 
   // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore > 10) {
+  if (control_semaphore > 20) {
     int rot_speed;
     int vel;
             
     control_semaphore = 0;  // disable the semaphore
     
+    //    ldif = ldif / tickl;
+    //  rdif = rdif / tickr;
+    
            // update the distance/angle to target from how much we've moved in the last 500 uS
            // this is commented out until some bugs are fixed
-           
-    update_state(&tickl, &tickr);
+       
+    //update_state(&tickl, &tickr);
     
     switch (navstate) {
       case 0: // waiting for command
@@ -128,8 +134,6 @@ void loop(){
           drive(0,0);
           timeout = 0;
         }
-        
-        //drive(0,0);
         
         timeout++;
         break;
@@ -165,36 +169,56 @@ void loop(){
         last_theta = theta_to_target;
         break;
         
-      case 2: // velocity feedback on motors
-        int lerror = target_ltime - ldif;
-        int rerror = target_rtime - rdif;
-        a_lerror += lerror;
-        a_rerror += rerror;
-        d_lerror = lerror - last_lerror;
-        d_rerror = rerror - last_rerror;
-        last_lerror = lerror;
-        last_rerror = rerror;
+      case 2: // velocity feedback on motors 
 
-        dl = target_lvel - (lerror >> 1) - a_lerror * 0 - d_lerror * 0;
-        dr = target_rvel - (rerror >> 1) - a_rerror * 0 - d_lerror * 0;
+      
+        int lerror = abs(target_ltime - ldif);
+        int rerror = abs(target_rtime - rdif);
+
+        rerror = rerror >> 2;
+        
+        if (rerror > 4) {
+          rerror = 4;
+        }
+        
+        
+        if (rdif == 0) {
+          if (dr == 0) {
+            dr = (target_rtime > 0) ? 64 : -64;
+          }
+        } else {
+          if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
+            dr +=  (target_rtime > 0) ? 1 : -1;
+          } else if (rdif < (abs(target_rtime) - ((unsigned char) abs(target_rtime) >> 7))) {
+            dr +=  (target_rtime > 0) ? -1 : 1;
+          }
+        }
+        
+        if (dr > 127) dr = 127;
+        if (dr < -127) dr = -127;
+        
+        if ((target_rtime < 0) && (dr > 0)) dr = 0;
+        if ((target_rtime > 0) && (dr < 0)) dr = 0;
 
         // stalled
-        if (micros() - ltime > 100000) dl = (target_ltime < 0) ? -127 : 127;
-        if (micros() - rtime > 100000) dr = (target_rtime < 0) ? -127 : 127;
+        // insert stall recovery code here
 
-        drive(5, 5);
-
-        usart0_tx(ldif >> 8);
-        usart0_tx(ldif);
-        //SEND_INT32(rt);
-        /*        usart0_tx((rtime >> 24) & 0xFF);
-                usart0_tx((rtime >> 16) & 0xFF);
-        usart0_tx((rtime >> 8) & 0xFF);
-        usart0_tx(rtime & 0xFF);*/
-        
+        drive(dr, 0);
 
 
+        usart0_tx(rdif >> 8);
+        usart0_tx(rdif & 0xFF);
+                usart0_tx(0x00);
+        usart0_tx(0x00);
+                usart0_tx(0x00);
+        usart0_tx(0x00);
+        usart0_tx(dr);
+                usart0_tx(0x00);
+        //usart0_tx(target_rtime >> 8);
+        //usart0_tx(target_rtime);
 
+        ldif = 0;
+        rdif = 0;
         break;
         
     }
@@ -227,14 +251,10 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 }
 
 ISR(INT4_vect){            //Pin Change interrupt handler
-  rdif = micros() - rtime;
-  rtime = millis();
-
   if(((PINE>>4)^(PING>>5))&1){ // Used for detecting encoder ticks
     tickr++;                  // if they are different, we are rotating one direction
   }else{
     tickr--;                  // otherwise, the other direction
-    rdif = rdif * -1;
   }
 }
 
@@ -243,7 +263,6 @@ ISR(INT5_vect){            //Pin Change interrupt handler
     tickl++;                  // if they are different, we are rotating one direction
   }else{
     tickl--;                  // otherwise, the other direction
-    rdif = rdif * -1;
   }
 }
 
@@ -253,8 +272,15 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 ISR(TIMER4_CAPT_vect) {
-  ldif = ICR4H;
-  //ldif += ICR4L;
-  TCNT4H &= 0x00;
-  TCNT4L &= 0x00;
+  ldif = ICR4;
+  __asm__("nop");
+  TCNT4H = 0x00;
+  TCNT4L = 0x00;
+}
+
+ISR(TIMER5_CAPT_vect) {
+  rdif = ICR5;
+  __asm__("nop");
+  TCNT5H = 0x00;
+  TCNT5L = 0x00;
 }
