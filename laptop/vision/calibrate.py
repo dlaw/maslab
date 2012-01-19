@@ -8,7 +8,8 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
               ('blue', 114, 1./15, 1./400, 1./400)]
 
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
-                       for name, hue, hue_c, sat_c, val_c in color_defs])
+                       for name, hue, hue_c, sat_c, val_c in color_defs] +
+                      [[0, 0, 255, 0, 1./300, 1./300]])
 trackbars = []
 
 cv.NamedWindow('Video', cv.CV_WINDOW_NORMAL)
@@ -29,12 +30,14 @@ for i, (name, hue, hue_c, sat_c, val_c) in enumerate(color_defs):
     trackbar((i, 3), name, 'hue_c', 40, True)
     trackbar((i, 4), name, 'sat_c', 600, True)
     trackbar((i, 5), name, 'val_c', 600, True)
+trackbar((4, 4), 'white', 'sat_c', 800, True)
+trackbar((4, 5), 'white', 'val_c', 800, True)
 
 def show_video():
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
     top, bottom, wallcolor = walls.identify(colors, 3, 2, 2)
-    blob_data = blobs.find_blobs(colors, depth, 0)
+    blob_data = blobs.find_blobs(colors, depth, color=0)
     color.colorize(image, constants, colors)
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     for blob in blob_data:
@@ -49,5 +52,6 @@ def show_video():
 if __name__ == '__main__':
     while True:
         show_video()
+        cv.WaitKey(10)
         prefs.process(cv.WaitKey(10), trackbars, "calibrate.pkl")
 
