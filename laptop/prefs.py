@@ -3,14 +3,14 @@
 import cv, pickle
 
 def process(key, trackbars, filename):
-    if key==1048603 or key==1048689: #escape, q(uit)
+    if key==27 or key==ord('q') or key==1048603 or key==1048689: #escape, q(uit)
         print "Quitting"
         exit()
-    elif key==1048680: #h(elp)
+    elif key==ord('h') or key==1048680: #h(elp)
         print "Help: commands are h(elp), q(uit), s(ave), l(oad), and p(rint)\n"
-    elif key==1048691: #s(ave)
-        print "Enter a filename, or press enter to accept the default [ ]:" % filename
-        s = raw_input("> ")
+    elif key==ord('s') or key==1048691: #s(ave)
+        print "Enter a filename, or press enter to accept the default"
+        s = raw_input("[%s]: " % filename)
         if s == "":
             s = filename
         d = {}
@@ -20,9 +20,9 @@ def process(key, trackbars, filename):
         pickle.dump(d, f)
         f.close()
         print "Saved to %s\n" % s
-    elif key==1048684: #l(oad)
-        print "Enter a filename, or press enter to accept the default [ ]:" % filename
-        s = raw_input("> ")
+    elif key==ord('l') or key==1048684: #l(oad)
+        print "Enter a filename, or press enter to accept the default"
+        s = raw_input("[%s]: " % filename)
         if s == "":
             s = filename
         f = open(s, "rb")
@@ -32,7 +32,7 @@ def process(key, trackbars, filename):
             name, window, pos = d[k]
             cv.SetTrackbarPos(name, window, pos)
         print "Loaded from %s\n" % s
-    elif key==1048688: #p(rint)
+    elif key==ord('p') or key==1048688: #p(rint)
         print "Current variables:"
         for t in trackbars:
             print "%s = %s" % (t[0], cv.GetTrackbarPos(t[0], t[1]))
