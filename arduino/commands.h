@@ -16,6 +16,9 @@ inline void SEND_INT16(uint16_t val){
     ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
 #define TO_INT16(arr,i) (arr[i] + ((uint16_t) arr[i+1] << 8))
 
+uint32_t target_ltime;
+uint32_t target_rtime;
+
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
 
@@ -94,9 +97,23 @@ void sendbattvoltage(serdata data) {
   SEND_INT16(battvoltage);
 }
 
+void setmotorspeed(serdata data) {
+  target_ltime = TO_INT32(data, 0);
+  target_rtime = TO_INT32(data, 4);
+  navstate = 2;
+  char sl, sr;
+  
+  sl = (target_ltime > 0) ? 64 : -64;
+  sr = (target_rtime > 0) ? 64 : -64;
+  
+  drive(sl,sr);
+    
+  usart0_tx(0x00);
+}
+
 // How many bytes of data will follow each command?
-unsigned char commands[10]={
-  0,2,1,5,8,0,0,3,0,0
+unsigned char commands[11]={
+  0,2,1,5,8,0,0,3,0,0,8
 };
 
 // What function shall be called to respond to each command?

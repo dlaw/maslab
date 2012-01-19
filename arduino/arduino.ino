@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "test_motors.h"
 
-#define baud0 1  //500k baud rate
+#define baud0 103  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
@@ -21,14 +21,13 @@ int32_t delta_error;
 char lvel;
 char rvel;
 
-uint32_t rtime;
+volatile unsigned int rtime;
 uint32_t ltime;
 
-uint32_t ldif;
+volatile unsigned int ldif;
 uint32_t rdif;
 
-uint32_t target_ltime;
-uint32_t target_rtime;
+
 int32_t a_lerror;
 int32_t a_rerror;
 int32_t d_lerror;
@@ -57,6 +56,11 @@ void setup(){
   timer0_init(10); // period in milliseconds = val * .064 
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
+  
+  TCCR4B |= B00000001;
+  TIMSK4 |= B00100000;
+  
+  
   
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
@@ -107,7 +111,7 @@ void loop(){
   usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
 
   // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore > 20) {
+  if (control_semaphore > 10) {
     int rot_speed;
     int vel;
             
@@ -175,10 +179,21 @@ void loop(){
         dr = target_rvel - (rerror >> 1) - a_rerror * 0 - d_lerror * 0;
 
         // stalled
-        if (micros() - ltime > 1000) dl = (target_ltime < 0) ? -127 : 127;
-        if (micros() - rtime > 1000) dr = (target_rtime < 0) ? -127 : 127;
+        if (micros() - ltime > 100000) dl = (target_ltime < 0) ? -127 : 127;
+        if (micros() - rtime > 100000) dr = (target_rtime < 0) ? -127 : 127;
 
-        drive(dl, dr);
+        drive(5, 5);
+
+        usart0_tx(ldif >> 8);
+        usart0_tx(ldif);
+        //SEND_INT32(rt);
+        /*        usart0_tx((rtime >> 24) & 0xFF);
+                usart0_tx((rtime >> 16) & 0xFF);
+        usart0_tx((rtime >> 8) & 0xFF);
+        usart0_tx(rtime & 0xFF);*/
+        
+
+
 
         break;
         
@@ -213,7 +228,7 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 
 ISR(INT4_vect){            //Pin Change interrupt handler
   rdif = micros() - rtime;
-  rtime = micros();
+  rtime = millis();
 
   if(((PINE>>4)^(PING>>5))&1){ // Used for detecting encoder ticks
     tickr++;                  // if they are different, we are rotating one direction
@@ -224,9 +239,6 @@ ISR(INT4_vect){            //Pin Change interrupt handler
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
-  ldif = micros() - ltime;
-  ltime = micros();
-
   if(((PINE>>5)^(PINE>>3))&1){ // Used for detecting encoder ticks
     tickl++;                  // if they are different, we are rotating one direction
   }else{
@@ -240,3 +252,9 @@ ISR(TIMER0_COMPA_vect) {
   control_semaphore++;
 }
 
+ISR(TIMER4_CAPT_vect) {
+  ldif = ICR4H;
+  //ldif += ICR4L;
+  TCNT4H &= 0x00;
+  TCNT4L &= 0x00;
+}
