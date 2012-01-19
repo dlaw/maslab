@@ -42,5 +42,6 @@ Command 0x09: ask for battery voltage,
 
 Command 0x0A: set motor velocity (closed loop)
 		8 bytes total
-		4 bytes for left motor velocity 		|period between encoder ticks
-		4 bytes for right motor velocity 		|valid from ~0x00 00 02 50 -- 0x00 00 40 00
+		4 bytes for left motor velocity (signed int)	|period between encoder ticks
+		4 bytes for right motor velocity (signed int)	|valid from ~0x00 00 02 50 -- 0x00 00 40 00
+		responds with 0x00
