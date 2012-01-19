@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import cv, numpy as np, color, blobs, kinect, walls#, prefs
+import cv, numpy as np, color, blobs, kinect#, prefs
 
 color_defs = [('red', 175, 1./15, 1./150, 1./250),
               ('yellow', 23, 1./10, 1./100, 1./140),
