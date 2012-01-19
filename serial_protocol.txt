@@ -16,7 +16,7 @@ Command 0x00: are you awake?
 	      0 bytes data
 	      arduino responds with 0x00
 
-Command 0x01: set motor speeds
+Command 0x01: set motor speeds (open loop)
 	      2 bytes data: left motor speed and right motor speed
               arduino responds with 0x00
 
@@ -39,3 +39,8 @@ Command 0x07: change a parameters
 Command 0x09: ask for battery voltage,
 		0 bytes
 		arduino responds with 2 bytes, containing the 10bit battery voltage
+
+Command 0x0A: set motor velocity (closed loop)
+		8 bytes total
+		4 bytes for left motor velocity 		|period between encoder ticks
+		4 bytes for right motor velocity 		|valid from ~0x00 00 02 50 -- 0x00 00 40 00

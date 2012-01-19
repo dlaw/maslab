@@ -104,11 +104,11 @@ void setmotorspeed(serdata data) {
   
   
   if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
-    dl = (new_ltime > 0) ? 64 : -64;
+    dl = (new_ltime > 0) ? 16 : -16;
   }
     
   if ((new_rtime < 0 & target_rtime > 0) | (new_rtime > 0 & target_rtime < 0)) {
-    dr = (new_rtime > 0) ? 64 : -64;
+    dr = (new_rtime > 0) ? 16 : -16;
   }
   
   target_ltime = new_ltime;

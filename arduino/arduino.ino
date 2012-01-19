@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "test_motors.h"
 
-#define baud0 103  //500k baud rate
+#define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
@@ -28,6 +28,9 @@ int32_t d_lerror;
 int32_t d_rerror;
 int32_t last_lerror;
 int32_t last_rerror;
+
+int stall_countl = 0;
+int stall_countr = 0;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -166,7 +169,7 @@ void loop(){
         last_theta = theta_to_target;
         break;
         
-      case 2: // velocity feedback on motors         
+      case 2: // velocity feedback on motors  
         if (rdif == 0) {
           if (dr == 0) {
             dr = (target_rtime > 0) ? 64 : -64;
@@ -184,11 +187,31 @@ void loop(){
             dl = (target_ltime > 0) ? 64 : -64;
           }
         } else {
-          if (ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7))) {
+          if ((ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7)))) {
             dl += (target_ltime > 0) ? 1 : -1;
           } else if (ldif < (abs(target_ltime) - ((unsigned char) abs(target_ltime) >> 7))) {
             dl += (target_ltime > 0) ? -1 : 1;
           }
+        }
+        
+        if (tickl == 0) {
+          stall_countl++;
+        } else {
+          stall_countl = 0;
+        }
+        
+        if (tickr == 0) {
+          stall_countr++;
+        } else {
+          stall_countr = 0;
+        }
+        
+        if (stall_countl > 10) {
+          dl += (target_ltime > 0) ? 1 : -1;
+        }
+        
+        if (stall_countr > 10) {
+          dr += (target_rtime > 0) ? 1 : -1;
         }
         
         if (dr > 127) dr = 127;
@@ -205,6 +228,8 @@ void loop(){
 
         ldif = 0;
         rdif = 0;
+        tickl = 0;
+        tickr = 0;
         break;
         
     }
