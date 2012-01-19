@@ -1,7 +1,6 @@
 *.pyc
 *.so
-laptop/vision/blobs.c
-laptop/vision/color.c
-laptop/vision/walls.c
+laptop/blobs.c
+laptop/color.c
 .#*
 *#

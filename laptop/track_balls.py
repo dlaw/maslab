@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 
-import arduino, freenect, cv, numpy as np, time
-from vision import color, blobs, kinect, walls
+import arduino, freenect, cv, numpy as np, time, color, blobs, kinect
 
 color_defs = [('red', 175, 1./15, 1./150, 1./250),
               ('yellow', 23, 1./10, 1./100, 1./140),
