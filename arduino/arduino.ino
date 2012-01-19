@@ -10,7 +10,6 @@ volatile char frame=0;
 
 volatile unsigned char control_semaphore;
 
-
 int32_t last_theta = 0;
 int32_t accumulated_error = 0;
 int32_t delta;
@@ -48,7 +47,7 @@ void setup(){
   usart0_init(baud0);
   usart1_init(baud2);
   //adchan=2;           //adc channel selection 
-  timer0_init(10); // period in milliseconds = val * .064 
+  timer0_init(20); // period in milliseconds = val * .064 
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
   
@@ -57,6 +56,7 @@ void setup(){
   pinMode(5, INPUT);
   pinMode(4, INPUT);
   
+  // enable timers 4 + 5
   TCCR4B |= B00000001;
   TIMSK4 |= B00100000;
   TCCR4A = 0x00;
@@ -114,19 +114,12 @@ void loop(){
   usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
 
   // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore > 20) {
+  if (control_semaphore > 10) {
     int rot_speed;
     int vel;
             
     control_semaphore = 0;  // disable the semaphore
     
-    //    ldif = ldif / tickl;
-    //  rdif = rdif / tickr;
-    
-           // update the distance/angle to target from how much we've moved in the last 500 uS
-           // this is commented out until some bugs are fixed
-       
-    //update_state(&tickl, &tickr);
     
     switch (navstate) {
       case 0: // waiting for command
@@ -139,6 +132,10 @@ void loop(){
         break;
         
       case 1: // rotate in place
+        update_state(&tickl, &tickr);
+        // update the distance/angle to target from how much we've moved in the last 500 uS
+        // this is commented out until some bugs are fixed
+      
         accumulated_error += theta_to_target;
         delta = (theta_to_target - last_theta);
         
@@ -169,19 +166,7 @@ void loop(){
         last_theta = theta_to_target;
         break;
         
-      case 2: // velocity feedback on motors 
-
-      
-        int lerror = abs(target_ltime - ldif);
-        int rerror = abs(target_rtime - rdif);
-
-        rerror = rerror >> 2;
-        
-        if (rerror > 4) {
-          rerror = 4;
-        }
-        
-        
+      case 2: // velocity feedback on motors         
         if (rdif == 0) {
           if (dr == 0) {
             dr = (target_rtime > 0) ? 64 : -64;
@@ -194,28 +179,29 @@ void loop(){
           }
         }
         
+        if (ldif == 0) {
+          if (dl == 0) {
+            dl = (target_ltime > 0) ? 64 : -64;
+          }
+        } else {
+          if (ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7))) {
+            dl += (target_ltime > 0) ? 1 : -1;
+          } else if (ldif < (abs(target_ltime) - ((unsigned char) abs(target_ltime) >> 7))) {
+            dl += (target_ltime > 0) ? -1 : 1;
+          }
+        }
+        
         if (dr > 127) dr = 127;
         if (dr < -127) dr = -127;
+        if (dl > 127) dl = 127;
+        if (dl < -127) dl = -127;
         
         if ((target_rtime < 0) && (dr > 0)) dr = 0;
         if ((target_rtime > 0) && (dr < 0)) dr = 0;
+        if ((target_ltime < 0) && (dl > 0)) dl = 0;
+        if ((target_ltime > 0) && (dl < 0)) dl = 0;
 
-        // stalled
-        // insert stall recovery code here
-
-        drive(dr, 0);
-
-
-        usart0_tx(rdif >> 8);
-        usart0_tx(rdif & 0xFF);
-                usart0_tx(0x00);
-        usart0_tx(0x00);
-                usart0_tx(0x00);
-        usart0_tx(0x00);
-        usart0_tx(dr);
-                usart0_tx(0x00);
-        //usart0_tx(target_rtime >> 8);
-        //usart0_tx(target_rtime);
+        drive(dl, dr);
 
         ldif = 0;
         rdif = 0;
@@ -256,6 +242,8 @@ ISR(INT4_vect){            //Pin Change interrupt handler
   }else{
     tickr--;                  // otherwise, the other direction
   }
+  
+
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
@@ -272,14 +260,14 @@ ISR(TIMER0_COMPA_vect) {
 }
 
 ISR(TIMER4_CAPT_vect) {
-  ldif = ICR4;
+  rdif = ICR4;
   __asm__("nop");
   TCNT4H = 0x00;
   TCNT4L = 0x00;
 }
 
 ISR(TIMER5_CAPT_vect) {
-  rdif = ICR5;
+  ldif = ICR5;
   __asm__("nop");
   TCNT5H = 0x00;
   TCNT5L = 0x00;
