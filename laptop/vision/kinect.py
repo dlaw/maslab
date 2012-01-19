@@ -24,8 +24,8 @@ def get_images():
     """
     Returns the tuple (timestamp, video, depth) from the Kinect.
     timestamp is in seconds relative to an arbitrary zero time.
-    video is a (320,240,3)-array of uint8s in HSV format.
-    depth is a (320,240)-array of uint16s.
+    video is a (120,160,3)-array of uint8s in HSV format.
+    depth is a (120,160)-array of uint16s.
     """
     if not initialized:
         raise Exception

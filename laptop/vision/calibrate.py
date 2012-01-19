@@ -34,6 +34,25 @@ def show_video():
     # top, bottom, wallcolor = walls.identify(colors, 3, 2, 2)
     ball_data = blobs.find_blobs(colors, depth, color=0)
     color.colorize(image, constants, colors)
+    """
+    temporary -- fix this up later!
+    """
+    green_data = blobs.find_blobs(colors, depth, color=2)
+    for g in green_data:
+        #formula: length = sqrt( 1 + 12 * variance )
+        w = np.sqrt(1+12*g['col'][1])
+        h = np.sqrt(1+12*g['row'][1])
+        x = g['col'][0]
+        y = g['row'][0]
+        ul = (int(x-w/2), int(y-h/2))
+        ur = (int(x+w/2), int(y-h/2))
+        lr = (int(x+w/2), int(y+h/2))
+        ll = (int(x-w/2), int(y+h/2))
+        cv.FillPoly(cv.fromarray(image), [[ul, ur, lr, ll]], [45,200,200])
+            #make the rectangle a different shade of green so we can see it in the output
+    """
+    end temporary section
+    """
     cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_HSV2BGR)
     cv.ShowImage('Video', cv.fromarray(image))
     cv.ShowImage('Depth', cv.fromarray(depth << 5))
