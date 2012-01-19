@@ -59,7 +59,6 @@ def flood_fill(np.ndarray[DTYPE_t, ndim=2] arr not None,
                 if depth[nr,nc] != 2047:
                     d_data = update_data_tuple(d_data, depth[nr,nc], size)
     return {'size': size,
-            'color': color,
             'row': get_data(r_data, size),
             'col': get_data(c_data, size),
             'depth': get_data(d_data, size)}
@@ -71,7 +70,7 @@ cdef inline tuple update_data_tuple(tuple data, float x, DTYPE_t size):
     return (data[0]+x,
             data[1]+(x-data[1])/size,
             data[2]+(x-data[1])*(x-data[1]-(x-data[1])/size))
-# tuple of (average/mean, variance)
+# tuple of (average, variance)
 cdef inline tuple get_data(tuple data, DTYPE_t size):
     return (data[0]/size,
             data[2]/(size-1) if size>1 else 0.0)
