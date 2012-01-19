@@ -32,16 +32,23 @@ def move():
     if not len(blob_data): #no blobs found
         cycles_since_lost_sight += 1
         if cycles_since_lost_sight >= const['after_losing_sight']:
-            arduino.rotate(2*np.pi)
+            #arduino.rotate(2*np.pi)
+            arduino.set_motors(.6, .6)
+        else: #drive straight
+            arduino.set_motors(.6, -.6)
     else: #track blob closest to center
         cycles_since_lost_sight = 0
         blob_to_track = min(blob_data, key = lambda blob: abs(80-blob['col'][0]))
         angle = const['kinect_fov'] / 160. * (80 - blob_to_track['col'][0])
         if abs(angle) < const['small_angle']: #move towards it
             dist = const['depth_scaler'] * blob_to_track['depth'][0]
-            arduino.drive(max(dist, const['drive_dist']), angle)
+            #arduino.drive(max(dist, 100), angle)
+            arduino.set_motors(.6, -.6)
         else: #rotate only (don't drive)
-            arduino.rotate(angle)
+            if angle > 0:
+                arduino.set_motors(-.6, -.6)
+            else:
+                arduino.set_motors(.6, .6)
 
 if __name__ == '__main__':
     while time.time() < start_time + 179:
