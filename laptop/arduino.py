@@ -30,8 +30,9 @@ def set_motors(left, right):
 
 def set_speeds(left, right):
     """Set motor speeds in rotations per second."""
-    left_period = int(1e6 / (140.76 * left)) # usecs between encoder ticks
-    right_period = int(1e6 / (140.76 * right))
+    # usecs between motor ticks, or 0 to halt rotation
+    left_period = left and int(1e6 / (4 * 140.76 * left))
+    right_period = right and int(1e6 / (4 * 140.76 * right))
     return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
 
 def get_ir(channel):
