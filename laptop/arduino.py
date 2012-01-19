@@ -38,5 +38,5 @@ def change_param(param, newval):
 def get_ticks():
     return raw_command('hh', 'B', 8)
 
-def ask_voltage():
-    return raw_command('H', 'B', 9)[0] * 15 / 2**10
+def get_voltage():
+    return raw_command('B', 'B', 9)[0] * 15 / 2**10
