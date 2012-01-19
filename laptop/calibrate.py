@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import cv, numpy as np, color, blobs, kinect#, prefs
+import cv, numpy as np, color, blobs, kinect, prefs
 
 color_defs = [('red', 175, 1./15, 1./150, 1./250),
               ('yellow', 23, 1./10, 1./100, 1./140),
@@ -40,12 +40,12 @@ def show_video():
     color.colorize(image, constants, colors)
     for ball in balls:
         cv.Circle(cv.fromarray(image),
-                  (int(ball['row'][0] + .5), int(ball['col'][0] + .5)),
-                  int(1.5 + np.sqrt(ball['area'] / 3.14)),
+                  (int(ball['col'][0] + .5), int(ball['row'][0] + .5)),
+                  int(1.5 + np.sqrt(ball['size'] / 3.14)),
                   (0, 0, 255))
     for wall in yellow_walls:
-        cx, wx = ball['row'][0], width(ball['row'][1])/2
-        cy, wy = ball['col'][0], width(ball['col'][1])/2
+        cx, wx = wall['col'][0], width(wall['col'][1])/2
+        cy, wy = wall['row'][0], width(wall['row'][1])/2
         cv.Rectangle(cv.fromarray(image),
                      (int(cx - wx + .5), int(cy - wy + .5)),
                      (int(cx + wx + .5), int(cy + wy + .5)),
@@ -57,6 +57,5 @@ def show_video():
 if __name__ == '__main__':
     while True:
         show_video()
-        cv.WaitKey(10)
-        #prefs.process(cv.WaitKey(10), trackbars, "calibrate.pkl")
+        prefs.process(cv.WaitKey(10), trackbars, "calibrate.pkl")
 
