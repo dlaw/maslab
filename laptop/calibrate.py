@@ -31,8 +31,9 @@ for i, (name, hue, hue_c, sat_c, val_c) in enumerate(color_defs):
 def show_video():
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
-    # top, bottom, wallcolor = walls.identify(colors, 3, 2, 2)
-    ball_data = blobs.find_blobs(colors, depth, color=0)
+    balls = blobs.find_blobs(colors, depth, color=0)
+    yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=10)
+    green_walls = blobs.find_blobs(colors, depth, color=2, min_size=10)
     color.colorize(image, constants, colors)
     """
     temporary -- fix this up later!
