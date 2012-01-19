@@ -28,6 +28,12 @@ def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
     return raw_command('B', 'Bbb', 1, int(127*left), int(127*right)) == (0,)
 
+def set_speeds(left, right):
+    """Set motor speeds in rotations per second."""
+    left_period = int(1e6 / (140.76 * left)) # usecs between encoder ticks
+    right_period = int(1e6 / (140.76 * right))
+    return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
+
 def get_ir(channel):
     """Ask for an ir reading from CHANNEL"""
     return raw_command('B', 'Bb', 2, channel)[0]
