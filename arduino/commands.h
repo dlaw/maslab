@@ -16,6 +16,13 @@ inline void SEND_INT16(uint16_t val){
     ((uint32_t) arr[i+2]) << 16 + ((uint32_t) arr[i+3]) << 24)
 #define TO_INT16(arr,i) (arr[i] + ((uint16_t) arr[i+1] << 8))
 
+int32_t target_ltime;
+int32_t target_rtime;
+
+volatile int dl;
+volatile int dr;
+
+
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
 
@@ -42,27 +49,22 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analog[adcmap[data[0]]]);
+  usart0_tx(analogRead(data[0]));
 }
 
 // command 0x03
 void rotate(serdata data) {
-  theta_to_target = data[0] + (data[1] << 8) + ((int32_t) data[2] << 16) + ((int32_t) data[3] << 24);
-  
-  //theta_to_target = 0x0006487E;
+  theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
+ 
   rotate_speed = data[4]; 
-  //rotate_speed = 127;
+
   navstate = 1; // start rotating
   usart0_tx(0x00);
 }
 
 // command 0x04
 void gotopoint(serdata data) {
-  dist_to_target = data[4] + (data[5] << 8) + ((int32_t) data[6] << 16) + ((int32_t) data[7] << 24);
-  theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
-
-  navstate = 2;
-  //usart0_tx(0x00);
+  //deprecated
 }
 
 // command 0x05
@@ -90,16 +92,38 @@ void sendticks(serdata data) {
 
 // command 0x09
 void sendbattvoltage(serdata data) {
-  usart0_tx(analog[9]);
+  int battvoltage = analogRead(9);
+  SEND_INT16(battvoltage);
+}
+
+void setmotorspeed(serdata data) {
+  int32_t new_ltime = data[4] + (data[5] << 8) + ((int32_t) data[6] << 16) + ((int32_t) data[7] << 24);
+  int32_t new_rtime = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
+
+  navstate = 2;
+  
+  
+  if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
+    dl = (new_ltime > 0) ? 64 : -64;
+  }
+    
+  if ((new_rtime < 0 & target_rtime > 0) | (new_rtime > 0 & target_rtime < 0)) {
+    dr = (new_rtime > 0) ? 64 : -64;
+  }
+  
+  target_ltime = new_ltime;
+  target_rtime = new_rtime;
+  
+  usart0_tx(0x00);
 }
 
 // How many bytes of data will follow each command?
-unsigned char commands[10]={
-  0,2,1,5,8,0,0,3,0,0
+unsigned char commands[11]={
+  0,2,1,5,8,0,0,3,0,0,8
 };
 
 // What function shall be called to respond to each command?
-responder responses[10]={
+responder responses[11]={
   &ack,
   &setmotors,
   &sendir,
@@ -109,5 +133,6 @@ responder responses[10]={
   &getdistance,
   &changeparam,
   &sendticks,
-  &sendbattvoltage
+  &sendbattvoltage,
+  &setmotorspeed
 };

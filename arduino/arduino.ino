@@ -1,7 +1,6 @@
 #include "commands.h"
 #include "test_motors.h"
 
-
 #define baud0 103  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
@@ -11,9 +10,6 @@ volatile char frame=0;
 
 volatile unsigned char control_semaphore;
 
-volatile int dl;
-volatile int dr;
-
 int32_t last_theta = 0;
 int32_t accumulated_error = 0;
 int32_t delta;
@@ -21,6 +17,17 @@ int32_t delta_error;
 
 char lvel;
 char rvel;
+
+volatile uint32_t ldif;
+volatile uint32_t rdif;
+
+
+int32_t a_lerror;
+int32_t a_rerror;
+int32_t d_lerror;
+int32_t d_rerror;
+int32_t last_lerror;
+int32_t last_rerror;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -40,9 +47,23 @@ void setup(){
   usart0_init(baud0);
   usart1_init(baud2);
   //adchan=2;           //adc channel selection 
-  timer0_init(10); // period in milliseconds = val * .064 
+  timer0_init(20); // period in milliseconds = val * .064 
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
+  
+  pinMode(48, INPUT);
+  pinMode(49, INPUT);
+  pinMode(5, INPUT);
+  pinMode(4, INPUT);
+  
+  // enable timers 4 + 5
+  TCCR4B |= B00000001;
+  TIMSK4 |= B00100000;
+  TCCR4A = 0x00;
+  
+  TCCR5B |= B00000001;
+  TIMSK5 |= B00100000;
+  TCCR5A = 0x00;
   
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
@@ -53,7 +74,7 @@ void loop(){
     test_motors();
   }
   
-  // deal with driving stuff
+  // provide some protection against sudden acceleration
   
   if (lvel > target_lvel) {
     if (lvel > target_lvel + MAX_DIFF) {
@@ -93,16 +114,12 @@ void loop(){
   usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
 
   // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore > 20) {
+  if (control_semaphore > 10) {
     int rot_speed;
     int vel;
             
     control_semaphore = 0;  // disable the semaphore
     
-           // update the distance/angle to target from how much we've moved in the last 500 uS
-           // this is commented out until some bugs are fixed
-           
-    update_state(&tickl, &tickr);
     
     switch (navstate) {
       case 0: // waiting for command
@@ -111,12 +128,14 @@ void loop(){
           timeout = 0;
         }
         
-        //drive(0,0);
-        
         timeout++;
         break;
         
       case 1: // rotate in place
+        update_state(&tickl, &tickr);
+        // update the distance/angle to target from how much we've moved in the last 500 uS
+        // this is commented out until some bugs are fixed
+      
         accumulated_error += theta_to_target;
         delta = (theta_to_target - last_theta);
         
@@ -143,64 +162,51 @@ void loop(){
         }
         
         
-        drive(dl, -dr);
+        drive(dl, dr);
         last_theta = theta_to_target;
         break;
         
-      case 2: // move towards target
-        // in this mode, theta_to_target should be in the range [-pi, pi]
-  
-        while (theta_to_target > 205887) { // while theta > pi
-          theta_to_target -= 411775; // subtract 2 pi
+      case 2: // velocity feedback on motors         
+        if (rdif == 0) {
+          if (dr == 0) {
+            dr = (target_rtime > 0) ? 64 : -64;
+          }
+        } else {
+          if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
+            dr +=  (target_rtime > 0) ? 1 : -1;
+          } else if (rdif < (abs(target_rtime) - ((unsigned char) abs(target_rtime) >> 7))) {
+            dr +=  (target_rtime > 0) ? -1 : 1;
+          }
         }
-  
-        while (theta_to_target < -205887) { // while theta < pi
-          theta_to_target += 411775;
-        }
-  
-        vel = parameters[VEL_K] * dist_to_target;
-        rot_speed = ((theta_to_target) >> 12) + ((theta_to_target) >> 13);
         
-        dl = vel;
-        dr = vel;
-
-        if (dl > 127) dl = 127;
+        if (ldif == 0) {
+          if (dl == 0) {
+            dl = (target_ltime > 0) ? 64 : -64;
+          }
+        } else {
+          if (ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7))) {
+            dl += (target_ltime > 0) ? 1 : -1;
+          } else if (ldif < (abs(target_ltime) - ((unsigned char) abs(target_ltime) >> 7))) {
+            dl += (target_ltime > 0) ? -1 : 1;
+          }
+        }
+        
         if (dr > 127) dr = 127;
-        if (dl < -127) dl = -127;
         if (dr < -127) dr = -127;
-        
-        dl -= rot_speed;
-        dr += rot_speed;
-        
         if (dl > 127) dl = 127;
-        if (dr > 127) dr = 127;
         if (dl < -127) dl = -127;
-        if (dr < -127) dr = -127;
         
-        if (dist_to_target < parameters[DIST_ACCURACY_THRESHOLD] | dist_to_target < 0) {
-          navstate = 0; // go back to waiting for commands
-          dl = 0;
-          dr = 0;
-        }
+        if ((target_rtime < 0) && (dr > 0)) dr = 0;
+        if ((target_rtime > 0) && (dr < 0)) dr = 0;
+        if ((target_ltime < 0) && (dl > 0)) dl = 0;
+        if ((target_ltime > 0) && (dl < 0)) dl = 0;
 
-        drive((char) dl, (char) -dr);
-      
+        drive(dl, dr);
 
-        // send a bunch of debug stuff
-        /*usart0_tx((char) dl);
-        usart0_tx(0x00);
-        SEND_INT22(dist_to_target);
-        usart0_tx(0x00);
-        usart0_tx((char) dr);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        usart0_tx(0x00);
-        SEND_INT22(theta_to_target);
-*/
-
-        //usart0_tx(vel);
-        break;   
+        ldif = 0;
+        rdif = 0;
+        break;
+        
     }
   }
 }
@@ -236,6 +242,8 @@ ISR(INT4_vect){            //Pin Change interrupt handler
   }else{
     tickr--;                  // otherwise, the other direction
   }
+  
+
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
@@ -251,3 +259,16 @@ ISR(TIMER0_COMPA_vect) {
   control_semaphore++;
 }
 
+ISR(TIMER4_CAPT_vect) {
+  rdif = ICR4;
+  __asm__("nop");
+  TCNT4H = 0x00;
+  TCNT4L = 0x00;
+}
+
+ISR(TIMER5_CAPT_vect) {
+  ldif = ICR5;
+  __asm__("nop");
+  TCNT5H = 0x00;
+  TCNT5L = 0x00;
+}
