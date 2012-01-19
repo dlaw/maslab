@@ -1,6 +1,6 @@
 #!/bin/sh
 # list all cython files here
-cython_files="laptop/vision/blobs laptop/vision/color"
+cython_files="laptop/blobs laptop/color"
 for f in $cython_files
 do
 	cython $f.pyx
