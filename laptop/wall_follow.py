@@ -35,8 +35,8 @@ def pid(err, kp=-.003, ki=0, kd=0):
     accum_err += err
     p, i, d, last_err = err, accum_err, err-last_err, err
     turn = kp*p + ki*i + kd*d
-    left = np.clip(speed + turn, -1, 1)
-    right = np.clip(speed - turn, -1, 1)
+    left = np.clip(drive_speed + turn, -1, 1)
+    right = np.clip(drive_speed - turn, -1, 1)
     arduino.set_motors(left, -right)
 
 while True:
