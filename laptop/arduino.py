@@ -1,6 +1,12 @@
 import serial, struct
 
-port = serial.Serial('/dev/ttyACM0', 500000, timeout=.01) # 500k baud
+names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
+for name in names:
+    try:
+        port = serial.Serial(name, 500000, timeout=.01) # 500k baud
+        break
+    except:
+        continue
 debug = False
 
 def format_bytes(bytes):
