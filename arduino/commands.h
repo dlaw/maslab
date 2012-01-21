@@ -49,7 +49,7 @@ void setmotors(serdata data){
 // command 0x02
 //Send an IR sensor reading
 void sendir(serdata data){
-  usart0_tx(analogRead(data[0]));
+  usart0_tx(analog[adcmap[data[0]]]);
 }
 
 // command 0x03
@@ -102,7 +102,6 @@ void setmotorspeed(serdata data) {
 
   navstate = 2;
   
-  
   if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
     dl = (new_ltime > 0) ? 16 : -16;
   }
@@ -113,6 +112,8 @@ void setmotorspeed(serdata data) {
   
   target_ltime = new_ltime;
   target_rtime = new_rtime;
+  
+  drive(dl, dr);
   
   usart0_tx(0x00);
 }

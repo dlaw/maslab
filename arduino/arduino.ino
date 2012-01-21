@@ -21,7 +21,6 @@ char rvel;
 volatile uint32_t ldif;
 volatile uint32_t rdif;
 
-
 int32_t a_lerror;
 int32_t a_rerror;
 int32_t d_lerror;
@@ -31,6 +30,7 @@ int32_t last_rerror;
 
 int stall_countl = 0;
 int stall_countr = 0;
+unsigned char ramp_counter;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -70,6 +70,9 @@ void setup(){
   
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
+  
+  pinMode(6, OUTPUT);
+  digitalWrite(6, LOW);
 }
 
 void loop(){
@@ -77,56 +80,65 @@ void loop(){
     test_motors();
   }
   
-  // provide some protection against sudden acceleration
+
+  if (ramp_counter == 1) {
+    ramp_counter = 0;
+    // provide some protection against sudden acceleration
   
-  if (lvel > target_lvel) {
-    if (lvel > target_lvel + MAX_DIFF) {
-      lvel -= MAX_DIFF;
-    } else {
-      lvel = target_lvel;
+    if (lvel > target_lvel) {
+      if (lvel > target_lvel + MAX_DIFF) {
+        lvel -= MAX_DIFF;
+      } else {
+        lvel = target_lvel;
+      }
     }
-  }
-  
-  if (lvel < target_lvel) {
-    if (lvel < target_lvel - MAX_DIFF) {
-      lvel += MAX_DIFF;
-    } else {
-      lvel = target_lvel;
+    
+    if (lvel < target_lvel) {
+      if (lvel < target_lvel - MAX_DIFF) {
+        lvel += MAX_DIFF;
+      } else {
+        lvel = target_lvel;
+      }
     }
-  }
-  
-  if (rvel > target_rvel) {
-    if (rvel > target_rvel + MAX_DIFF) {
-      rvel -= MAX_DIFF;
-    } else {
-      rvel = target_rvel;
+    
+    if (rvel > target_rvel) {
+      if (rvel > target_rvel + MAX_DIFF) {
+        rvel -= MAX_DIFF;
+      } else {
+        rvel = target_rvel;
+      }
     }
-  }
-  
-  if (rvel < target_rvel) {
-    if (rvel < target_rvel - MAX_DIFF) {
-      rvel += MAX_DIFF;
-    } else {
-      rvel = target_rvel;
+    
+    if (rvel < target_rvel) {
+      if (rvel < target_rvel - MAX_DIFF) {
+        rvel += MAX_DIFF;
+      } else {
+        rvel = target_rvel;
+      }
     }
-  }
+    
+    usart1_tx((lvel<0 ? 0x8a : 0x88)); //direction
+    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
+    usart1_tx((rvel<0 ? 0x8e : 0x8c)); //direction
+    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   
-  usart1_tx((lvel<0 ? 0x8a : 0x88)); //direction
-  usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-  usart1_tx((rvel<0 ? 0x8e : 0x8c)); //direction
-  usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
+  }
+
+  if (control_semaphore == 5) ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
+    
+    ramp_counter++;
             
     control_semaphore = 0;  // disable the semaphore
     
     
     switch (navstate) {
       case 0: // waiting for command
-        if (timeout > 100) {
+        if (timeout > 500) {
           drive(0,0);
           timeout = 0;
         }
@@ -223,6 +235,8 @@ void loop(){
         if ((target_rtime > 0) && (dr < 0)) dr = 0;
         if ((target_ltime < 0) && (dl > 0)) dl = 0;
         if ((target_ltime > 0) && (dl < 0)) dl = 0;
+        if ((target_ltime == 0)) dl = 0;
+        if ((target_rtime == 0)) dr = 0;
 
         drive(dl, dr);
 
