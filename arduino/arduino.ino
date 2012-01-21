@@ -81,7 +81,7 @@ void loop(){
   }
   
 
-  if (ramp_counter == 1) {
+  if (ramp_counter > 2) {
     ramp_counter = 0;
     // provide some protection against sudden acceleration
   
@@ -124,15 +124,13 @@ void loop(){
   
   }
 
-  if (control_semaphore == 5) ramp_counter++;
+  ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
     
-    ramp_counter++;
-            
     control_semaphore = 0;  // disable the semaphore
     
     
@@ -184,7 +182,7 @@ void loop(){
       case 2: // velocity feedback on motors  
         if (rdif == 0) {
           if (dr == 0) {
-            dr = (target_rtime > 0) ? 64 : -64;
+            dr = (target_rtime > 0) ? 16 : -16;
           }
         } else {
           if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
@@ -218,11 +216,11 @@ void loop(){
           stall_countr = 0;
         }
         
-        if (stall_countl > 10) {
+        if (stall_countl > 20) {
           dl += (target_ltime > 0) ? 1 : -1;
         }
         
-        if (stall_countr > 10) {
+        if (stall_countr > 20) {
           dr += (target_rtime > 0) ? 1 : -1;
         }
         
