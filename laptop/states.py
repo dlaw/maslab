@@ -3,7 +3,7 @@ import time, arduino, random
 # Bounce around the field.  For now, just turn around.            
 class FieldBounce:
     def __init__(self):
-        self.direction = random.choice([[.5, -5], [-.5, .5]])
+        self.direction = random.choice([[.5, -.5], [-.5, .5]])
     def next(self, balls, yellow_walls, green_walls):
         arduino.set_speeds(*self.direction)
         if balls:

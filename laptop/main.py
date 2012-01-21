@@ -20,4 +20,6 @@ while True:
     yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=10)
     green_walls = blobs.find_blobs(colors, depth, color=2, min_size=10)
     new_state = state.next(balls, yellow_walls, green_walls)
-    
+    if state.__class__ != new_state.__class__:
+        print new_state.__class__
+    state = new_state
