@@ -12,10 +12,10 @@ class FieldBounce:
         return self
 
 class SuckBalls:
-    kp = .006
+    kp = .01
     snarfing = False # have we just lost sight of a ball?
     def next(self, balls, yellow_walls, green_walls):
-        if snarfing:
+        if self.snarfing:
             if time.time() > self.snarf_stop:
                 arduino.set_speeds(0, 0)
                 print("bouncing")
@@ -24,13 +24,16 @@ class SuckBalls:
                 arduino.set_speeds(1, 1)
                 return self
         else:
-            ball = max(balls[0], key = lambda ball: ball['size'])
+            if not balls:
+                print("bouncing")
+                return FieldBounce()
+            ball = max(balls, key = lambda ball: ball['size'])
             offset = self.kp * (ball['col'][0] - 80)
-            arduino.set_speeds(1 - offset, 1 + offset)
+            arduino.set_speeds(1 + offset, 1 - offset)
             if ball['row'][0] > 90:
                 print("snarfing")
                 self.snarfing = True
-                self.snarf_time = time.time() + 2
+                self.snarf_stop = time.time() + 2
             return self
 
 class DumpBalls:

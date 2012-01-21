@@ -9,10 +9,16 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
 
+time.sleep(.1)
 assert arduino.is_alive()
 state = FieldBounce()
 
-while time.time() < stop_time:
+i, st = 0, time.time()
+while True:
+    i += 1
+    if i == 30:
+        print('{0} fps'.format(30 / (time.time() - st)))
+        i, st = 0, time.time()
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
     balls = blobs.find_blobs(colors, depth, color=0)
