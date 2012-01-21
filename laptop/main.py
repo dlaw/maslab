@@ -13,16 +13,11 @@ time.sleep(.1)
 assert arduino.is_alive()
 state = FieldBounce()
 
-i, st = 0, time.time()
 while True:
-    i += 1
-    if i == 30:
-        print('{0} fps'.format(30 / (time.time() - st)))
-        i, st = 0, time.time()
     t, image, depth = kinect.get_images()
     colors = color.identify(image, constants)
     balls = blobs.find_blobs(colors, depth, color=0)
     yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=10)
     green_walls = blobs.find_blobs(colors, depth, color=2, min_size=10)
-    state = state.next(balls, yellow_walls, green_walls)
+    new_state = state.next(balls, yellow_walls, green_walls)
     
