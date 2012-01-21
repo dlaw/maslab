@@ -9,31 +9,33 @@ class FieldBounce:
     def next(self, balls, yellow_walls, green_walls):
         arduino.set_speeds(*self.direction)
         if balls:
-            return SuckBalls()
+            return BallFollow()
         return self
 
-class SuckBalls:
+class BallFollow:
     kp = .005
-    snarfing = False # have we just lost sight of a ball?
     def next(self, balls, yellow_walls, green_walls):
-        if self.snarfing:
-            if time.time() > self.snarf_stop:
-                arduino.set_speeds(0, 0)
-                return FieldBounce()
-            else:
-                arduino.set_speeds(s, s)
-                return self
+        if not balls:
+            return FieldBounce()
+        ball = max(balls, key = lambda ball: ball['size'])
+        offset = self.kp * (ball['col'][0] - 80)
+        arduino.set_speeds(s + offset - abs(offset),
+                           s - offset - abs(offset))
+        80 - abs(offset)
+        if ball['row'][0] > 90:
+            return BallSnarf()
         else:
-            if not balls:
-                return FieldBounce()
-            ball = max(balls, key = lambda ball: ball['size'])
-            offset = self.kp * (ball['col'][0] - 80)
-            arduino.set_speeds(s + offset - abs(offset),
-                               s - offset - abs(offset))
-            80 - abs(offset)
-            if ball['row'][0] > 90:
-                self.snarfing = True
-                self.snarf_stop = time.time() + 2
+            return self
+
+class BallSnarf:
+    def __init__(self):
+        self.stop_time = time.time() + 2
+    def next(self, balls, yellow_walls, green_walls):
+        if time.time() > self.stop_time:
+            arduino.set_speeds(0, 0)
+            return FieldBounce()
+        else:
+            arduino.set_speeds(s, s)
             return self
 
 class DumpBalls:
