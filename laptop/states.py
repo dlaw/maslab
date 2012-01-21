@@ -1,9 +1,11 @@
 import time, arduino, random
 
+s = .8
+
 # Bounce around the field.  For now, just turn around.            
 class FieldBounce:
     def __init__(self):
-        self.direction = random.choice([[.5, -.5], [-.5, .5]])
+        self.direction = random.choice([[s, -s], [-s, s]])
     def next(self, balls, yellow_walls, green_walls):
         arduino.set_speeds(*self.direction)
         if balls:
@@ -19,15 +21,15 @@ class SuckBalls:
                 arduino.set_speeds(0, 0)
                 return FieldBounce()
             else:
-                arduino.set_speeds(.5, .5)
+                arduino.set_speeds(s, s)
                 return self
         else:
             if not balls:
                 return FieldBounce()
             ball = max(balls, key = lambda ball: ball['size'])
             offset = self.kp * (ball['col'][0] - 80)
-            arduino.set_speeds(.5 + offset - abs(offset),
-                               .5 - offset - abs(offset))
+            arduino.set_speeds(s + offset - abs(offset),
+                               s - offset - abs(offset))
             80 - abs(offset)
             if ball['row'][0] > 90:
                 self.snarfing = True
