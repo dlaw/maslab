@@ -5,21 +5,25 @@ s = .8
 # Bounce around the field.  For now, just turn around.            
 class FieldBounce:
     def __init__(self):
-        self.direction = random.choice([[.6, -.6], [-.6, .6]])
+        self.direction = random.choice([[.4, -.4], [-.4, .4]])
     def next(self, balls, yellow_walls, green_walls):
         arduino.set_speeds(*self.direction)
         if balls:
-            return BallFollow()
+            return BallCenter()
         return self
 
-<<<<<<< HEAD
+class BallCenter:
+    def __init__(self):
+        self.stop_time = time.time() + 1
+    def next(self, balls, yellow_walls, green_walls):
+        arduino.set_speeds(0, 0)
+        if time.time() > self.stop_time:
+            return BallFollow()
+        else:
+            return self
+
 class BallFollow:
-    kp = .005
-=======
-class SuckBalls:
-    kp = .002
-    snarfing = False # have we just lost sight of a ball?
->>>>>>> 04663fe5300f89d1fe2e46f6dd84d3d075e6ce82
+    kp = .004
     def next(self, balls, yellow_walls, green_walls):
         if not balls:
             return FieldBounce()
@@ -35,7 +39,7 @@ class SuckBalls:
 
 class BallSnarf:
     def __init__(self):
-        self.stop_time = time.time() + 2
+        self.stop_time = time.time() + 1
     def next(self, balls, yellow_walls, green_walls):
         if time.time() > self.stop_time:
             arduino.set_speeds(0, 0)

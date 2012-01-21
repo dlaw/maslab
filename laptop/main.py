@@ -9,7 +9,7 @@ color_defs = [('red', 175, 1./15, 1./150, 1./250),
 constants = np.vstack([[hue, 255., 255., hue_c, sat_c, val_c]
                        for name, hue, hue_c, sat_c, val_c in color_defs])
 
-time.sleep(.1)
+time.sleep(1)
 assert arduino.is_alive()
 state = FieldBounce()
 
