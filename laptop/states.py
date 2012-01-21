@@ -24,11 +24,7 @@ class SuckBalls:
                 arduino.set_speeds(1, 1)
                 return self
         else:
-            def score_ball(ball):
-                horiz = abs(ball['col'][0] - 80) # smaller better, 0 to 80
-                vert = 120 - ball['row'] # smaller better, 0 to 120
-                return 3 * vert + horiz
-            ball = min(balls[0], key = score_ball)
+            ball = max(balls[0], key = lambda ball: ball['size'])
             offset = self.kp * (ball['col'][0] - 80)
             arduino.set_speeds(1 - offset, 1 + offset)
             if ball['row'][0] > 90:
