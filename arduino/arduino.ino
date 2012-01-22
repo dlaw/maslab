@@ -179,10 +179,13 @@ void loop(){
         last_theta = theta_to_target;
         break;
         
-      case 2: // velocity feedback on motors  
+      case 2: // velocity feedback on motors
+        int rerror = abs(abs(target_rtime) - rdif);
+        int lerror = abs(abs(target_ltime) - ldif);
+      
         if (rdif == 0) {
           if (dr == 0) {
-            dr = (target_rtime > 0) ? 16 : -16;
+            dr = (target_rtime > 0) ? 24 : -24;
           }
         } else {
           if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
@@ -194,7 +197,7 @@ void loop(){
         
         if (ldif == 0) {
           if (dl == 0) {
-            dl = (target_ltime > 0) ? 64 : -64;
+            dl = (target_ltime > 0) ? 24 : -24;
           }
         } else {
           if ((ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7)))) {

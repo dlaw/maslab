@@ -2,6 +2,8 @@
 #include "nav.h"
 #include "external_interrupt.h"
 
+const int button_pin = 0;
+
 inline void SEND_INT32(uint32_t val){
   usart0_tx((unsigned char) (val >> 24) & 0xFF);
   usart0_tx((unsigned char) (val >> 16) & 0xFF);
@@ -118,13 +120,21 @@ void setmotorspeed(serdata data) {
   usart0_tx(0x00);
 }
 
+void buttonpressed(serdata data) {
+  if (digitalRead(button_pin)) {
+    usart0_tx(0xFF);
+  } else {
+    usart0_tx(0x00);
+  }
+}
+
 // How many bytes of data will follow each command?
-unsigned char commands[11]={
-  0,2,1,5,8,0,0,3,0,0,8
+unsigned char commands[12]={
+  0,2,1,5,8,0,0,3,0,0,8,0
 };
 
 // What function shall be called to respond to each command?
-responder responses[11]={
+responder responses[12]={
   &ack,
   &setmotors,
   &sendir,
@@ -135,5 +145,6 @@ responder responses[11]={
   &changeparam,
   &sendticks,
   &sendbattvoltage,
-  &setmotorspeed
+  &setmotorspeed,
+  &buttonpressed
 };
