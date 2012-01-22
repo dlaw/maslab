@@ -42,15 +42,15 @@ def set_speeds(left, right):
     right_period = right and int(1e6 / (4 * 140.76 * right))
     return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
 
-def get_ir(channel):
-    """Ask for an ir reading from CHANNEL"""
+def get_analog(channel):
+    """Ask for an analog reading."""
     return raw_command('B', 'Bb', 2, channel)[0]
-
-def change_param(param, newval):
-    pass
 
 def get_ticks():
     return raw_command('hh', 'B', 8)
 
+def get_ir():
+    return [get_analog(i) for i in [0, 1, 2, 3]]
+
 def get_voltage():
-    return raw_command('B', 'B', 9)[0] * 15 / 2**10
+    return get_analog(4) * 0.0693
