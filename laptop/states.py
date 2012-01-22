@@ -60,5 +60,6 @@ class WallHumper:
         if left > self.ir_stop and right > self.ir_stop:
             return self.successor()
         else:
-            arduino.set_speeds(magic_ir_feedback)
+            arduino.set_speeds(.2 + (self.ir_stop - left) * self.kp,
+                               .2 + (self.ir_stop - right) * self.kp)
             return self

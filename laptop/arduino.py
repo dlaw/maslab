@@ -4,7 +4,8 @@ names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
     try:
         port = serial.Serial(name, 500000, timeout=.01) # 500k baud
-        subprocess.call(['stty', '-F', name, '-clocal'])
+        if port != name[-1]: # if we're on Linux
+            subprocess.call(['stty', '-F', name, '-clocal'])
         break
     except:
         continue
@@ -54,3 +55,15 @@ def get_ir():
 
 def get_voltage():
     return get_analog(4) * 0.0693
+
+def get_switch():
+    return bool(raw_command('B', 'B', 11)[0])
+
+def set_sucker(value):
+    return raw_command('B', 'BB', 12, value) == (0,)
+
+def set_helix(value):
+    return raw_command('B', 'BB', 13, value) == (0,)
+
+def set_door(value):
+    return raw_command('B', 'BB', 14, value) == (0,)

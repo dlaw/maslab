@@ -36,10 +36,6 @@ Command 0x07: change a parameters
 			2 bytes for the parameter value (signed)
 		arduino responds with 1 byte, echoing the parameter number
 
-Command 0x09: ask for battery voltage,
-		0 bytes
-		arduino responds with 2 bytes, containing the 10bit battery voltage
-
 Command 0x0A: set motor velocity (closed loop)
 		8 bytes total
 		4 bytes for left motor velocity (signed int)	|period between encoder ticks
@@ -53,11 +49,14 @@ Command 0x0B: has the switch been switched?
 Command 0x0C: set sucker
 		1 bytes sent
 		if a zero is sent, sucker is turned off. otherwise, sucker is turned on
-	
+		responds with 0x00
+
 Command 0x0D: set helix
 		1 bytes sent
 		if a zero is sent, helix is turned off. otherwise, helix is turned on
+		responds with 0x00
 
 Command 0x0E: set door
 		1 bytes sent
 		if a zero is sent, door is closed. otherwise, door is open
+		responds with 0x00
