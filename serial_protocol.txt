@@ -45,3 +45,7 @@ Command 0x0A: set motor velocity (closed loop)
 		4 bytes for left motor velocity (signed int)	|period between encoder ticks
 		4 bytes for right motor velocity (signed int)	|valid from ~0x00 00 02 50 -- 0x00 00 40 00
 		responds with 0x00
+
+Command 0x0B: has the switch been switched?
+		0 bytes sent
+		arduino responds with 0xFF if the switch is on, 0x00 otherwise.
