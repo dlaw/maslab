@@ -124,17 +124,17 @@ void buttonpressed(serdata data) {
 
 void setsucker(serdata data) {
   if (data[0] == 0x00) {
-    digitalWrite(6, HIGH);
-  } else {
     digitalWrite(6, LOW);
+  } else {
+    digitalWrite(6, HIGH);
   }
 }
 
 void sethelix(serdata data) {
   if (data[0] == 0x00) {
-    digitalWrite(7, HIGH);
-  } else {
     digitalWrite(7, LOW);
+  } else {
+    digitalWrite(7, HIGH);
   }
 }
 

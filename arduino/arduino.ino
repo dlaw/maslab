@@ -83,13 +83,13 @@ void setup(){
   digitalWrite(53, HIGH);
   
   pinMode(6, OUTPUT); // sucker
-  digitalWrite(6, HIGH);
+  digitalWrite(6, LOW);
   
   pinMode(7, OUTPUT); // helix
-  digitalWrite(7, HIGH);
+  digitalWrite(7, LOW);
   
   pinMode(8, OUTPUT); // shooter
-  digitalWrite(8, HIGH);
+  digitalWrite(8, LOW);
   
   pinMode(63, INPUT); // start switch
   digitalWrite(63, HIGH); // turn on internal pullup
