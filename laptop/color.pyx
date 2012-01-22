@@ -14,7 +14,8 @@ cimport cython, numpy as np
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def identify(np.ndarray[np.uint8_t, ndim=3] image,
-             np.ndarray[np.float64_t, ndim=2] constants):
+             np.ndarray[np.float64_t, ndim=2] constants,
+	     np.ndarray[np.int32_t, ndim=2] colors):
     """
     targets = [[target_hue, target_sat, target_val, hue_c, sat_c, val_c], ...]
     (each row represents one color, highest priority colors first)
@@ -29,8 +30,6 @@ def identify(np.ndarray[np.uint8_t, ndim=3] image,
     result.shape = image.shape[:-1]
     """
     cdef int i, x, y, num_colors = len(constants)
-    cdef np.ndarray[np.int32_t, ndim=2] colors = \
-        np.empty_like(image[...,0], 'int32')
     cdef double hue, sat, val
     for x in range(image.shape[0]):
         for y in range(image.shape[1]):

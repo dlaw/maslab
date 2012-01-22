@@ -1,10 +1,34 @@
-import freenect, numpy, cv
+import freenect, numpy, cv, color, blobs
 
-video = numpy.empty((120, 160, 3), dtype='uint8')
+image = numpy.empty((120, 160, 3), dtype='uint8')
 depth = numpy.empty((120, 160), dtype='uint16')
+colors = numpy.empty((120, 160), dtype='int32')
+
 initialized = False
 
-# Work around an initialization bug for synchronous video
+constants = numpy.load('color_defs.npy')
+
+def process_frame():
+    # Get the raw frames
+    raw_image = freenect.sync_get_video()[0]
+    raw_depth = freenect.sync_get_depth()[0]
+
+    # Downsample and convert the image frame
+    cv.Resize(cv.fromarray(raw_image), cv.fromarray(image), cv.CV_INTER_AREA)
+    cv.CvtColor(cv.fromarray(image), cv.fromarray(image), cv.CV_RGB2HSV)
+    
+    # Downsample the depth frame using nearest-neighbor to make sure 
+    # invalid pixels are handled properly.
+    cv.Resize(cv.fromarray(raw_depth), cv.fromarray(depth), cv.CV_INTER_NN)
+    
+    # Do the object recognition
+    color.identify(image, constants, colors)
+    global balls, yellow_walls, green_walls
+    balls = blobs.find_blobs(colors, depth, color=0)
+    yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=10)
+    green_walls = blobs.find_blobs(colors, depth, color=2, min_size=10)
+
+# Work around an initialization bug for synchronous image
 try:
     ctx = freenect.init()
     dev = freenect.open_device(ctx, 0)
@@ -16,31 +40,7 @@ try:
     freenect.stop_video(dev)
     freenect.close_device(dev) # close the device so that c_sync can open it
     freenect.shutdown(ctx)
+    process_frame()
     initialized = True
 except:
-    print "Error initializing Kinect"
-
-def get_images():
-    """
-    Returns the tuple (timestamp, video, depth) from the Kinect.
-    timestamp is in seconds relative to an arbitrary zero time.
-    video is a (120,160,3)-array of uint8s in HSV format.
-    depth is a (120,160)-array of uint16s.
-    """
-    if not initialized:
-        raise Exception
-
-    # Get the raw frames
-    raw_video, timestamp = freenect.sync_get_video()
-    raw_depth = freenect.sync_get_depth()[0]
-
-    # Downsample and convert the video frame
-    cv.Resize(cv.fromarray(raw_video), cv.fromarray(video), cv.CV_INTER_AREA)
-    cv.CvtColor(cv.fromarray(video), cv.fromarray(video), cv.CV_RGB2HSV)
-    
-    # Downsample the depth frame using nearest-neighbor to make sure 
-    # invalid pixels are handled properly.
-    cv.Resize(cv.fromarray(raw_depth), cv.fromarray(depth), cv.CV_INTER_NN)
-    
-    # Convert timestamp from Kinect processor cycles to seconds
-    return timestamp / 60008625., video, depth
+    pass
