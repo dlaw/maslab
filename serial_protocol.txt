@@ -48,4 +48,16 @@ Command 0x0A: set motor velocity (closed loop)
 
 Command 0x0B: has the switch been switched?
 		0 bytes sent
-		arduino responds with 0xFF if the switch is on, 0x00 otherwise.
+		arduino responds with 0x01 if the switch is on, 0x00 otherwise.
+
+Command 0x0C: set sucker
+		1 bytes sent
+		if a zero is sent, sucker is turned off. otherwise, sucker is turned on
+	
+Command 0x0D: set helix
+		1 bytes sent
+		if a zero is sent, helix is turned off. otherwise, helix is turned on
+
+Command 0x0E: set door
+		1 bytes sent
+		if a zero is sent, door is closed. otherwise, door is open

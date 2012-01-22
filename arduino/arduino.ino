@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "test_motors.h"
 
-#define baud0 1  //500k baud rate
+#define baud0 103  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com=0;
@@ -31,6 +31,8 @@ int32_t last_rerror;
 int stall_countl = 0;
 int stall_countr = 0;
 unsigned char ramp_counter;
+
+const int SERVO_PIN = 0;
 
 void setup(){
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
@@ -68,18 +70,35 @@ void setup(){
   TIMSK5 |= B00100000;
   TCCR5A = 0x00;
   
+  //init servo timer
+  // servo output pin is 11
+  TCCR1A = B10100010;
+  TCCR1B = B00011011;
+  ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
+  OCR1A=97;
+   
+  pinMode(11, OUTPUT);
+  
   pinMode(53, INPUT);
   digitalWrite(53, HIGH);
   
-  pinMode(6, OUTPUT);
-  digitalWrite(6, LOW);
+  pinMode(6, OUTPUT); // sucker
+  digitalWrite(6, HIGH);
+  
+  pinMode(7, OUTPUT); // helix
+  digitalWrite(7, HIGH);
+  
+  pinMode(8, OUTPUT); // shooter
+  digitalWrite(8, HIGH);
+  
+  pinMode(63, INPUT); // start switch
+  digitalWrite(63, HIGH); // turn on internal pullup
 }
 
 void loop(){
   if (digitalRead(53) == LOW) {
     test_motors();
   }
-  
 
   if (ramp_counter > 2) {
     ramp_counter = 0;
