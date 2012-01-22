@@ -1,9 +1,10 @@
-import serial, struct
+import serial, subprocess, struct
 
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
     try:
         port = serial.Serial(name, 500000, timeout=.01) # 500k baud
+        subprocess.call(['stty', '-F', name, '-clocal'])
         break
     except:
         continue
