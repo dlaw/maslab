@@ -49,13 +49,16 @@ class BallSnarf:
             arduino.set_speeds(.7, .7)
             return self
 
+# Use the front IRs to nose in to a wall
 class WallHumper:
-    def __init__(self, successor=FieldBounce):
+    kp = .005
+    def __init__(self, successor=FieldBounce, ir_stop=60):
         self.successor = successor
+        self.ir_stop = ir_stop
     def next(self):
-        # do IR feedback
-        pass
-
-class DumpBalls:
-    # get real friendly with a yellow wall
-    pass
+        left, right = arduino.get_ir()[1:-1]
+        if left > self.ir_stop and right > self.ir_stop:
+            return self.successor()
+        else:
+            arduino.set_speeds(magic_ir_feedback)
+            return self
