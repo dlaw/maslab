@@ -23,6 +23,8 @@ class FieldBounce(State):
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
+    def __repr__(self):
+        return "{0} with turn {1} and stopping in no sooner than {2} seconds".format(self.__class__, self.turn, time.time()-self.min_stop_time)
 
 class Reverse(State):
     timeout = None
@@ -33,17 +35,21 @@ class Reverse(State):
             return FieldBounce()
         arduino.drive(-.8, 0)
         return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # no ball found, so try to drive
 class Explore(State):
     timeout = 7
     def __init__(self):
-        self.turn = random.choice(np.linspace(-.3, .3, 10))
+        self.turn = random.choice(np.linspace(-.1, .1, 10))
     def next(self):
         if max(arduino.get_ir()) > .8:
             return Reverse()
-        arduino.drive(.5, 0)
+        arduino.drive(.5, self.turn)
         return self
+    def __repr__(self):
+        return "{0} with turn {1}".format(self.__class__, self.turn)
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
@@ -56,6 +62,8 @@ class BallCenter(State):
             return BallFollow()
         else:
             return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # Visual servo to a ball
 class BallFollow(State):
@@ -75,6 +83,8 @@ class BallFollow(State):
             return BallSnarf()
         else:
             return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # Visual servo to a wall
 class WallFollow(State):
@@ -91,6 +101,8 @@ class WallFollow(State):
         arduino.drive(max(0, .8 - abs(offset)), offset)
         # slow down if you need to turn more, but never go backwards
         return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # Drive forward after losing sight of a ball
 class BallSnarf(State):
@@ -100,6 +112,8 @@ class BallSnarf(State):
         arduino.set_sucker(True)
         arduino.drive(.7 if max(arduino.get_ir()) < .95 else 0, 0)
         return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # Use the front IRs to nose in to a wall
 class WallHumper(State):
@@ -119,6 +133,8 @@ class WallHumper(State):
         else:
             arduino.drive(.5, 0)
             return self
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 # dump balls, assuming we're already lined up to the wall
 class DumpBalls:
@@ -134,3 +150,6 @@ class DumpBalls:
         return self
     def finish(self):
         arduino.set_door(False)
+    def __repr__(self):
+        return "{0}".format(self.__class__)
+

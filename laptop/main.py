@@ -17,7 +17,7 @@ stop_time = time.time() + 180
 arduino.set_helix(True)
 arduino.set_sucker(True)
 state = states.FieldBounce()
-print(state.__class__)
+print(state)
 last_change = time.time()
 while time.time() < stop_time - 40: #use last 40 secs for dump
     kinect.process_frame()
@@ -38,7 +38,7 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         except Exception, e:
             print(e)
         last_change = time.time()
-        print("{0} with {1} seconds to go".format(new_state.__class__, stop_time - time.time()))
+        print("{0} with {1} seconds to go".format(new_state, stop_time - time.time()))
         state = new_state
 print("transitioning to dump mode")
 state = states.FieldBounce()
@@ -56,7 +56,7 @@ while time.time() < stop_time:
         except Exception, e:
             print(e)
         last_change = time.time()
-        print("{0} with {1} seconds to go".format(new_state.__class__, stop_time - time.time()))
+        print("{0} with {1} seconds to go".format(new_state, stop_time - time.time()))
         state = new_state
 arduino.set_speeds(0, 0) #just in case
 arduino.set_sucker(False)
