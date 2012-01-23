@@ -41,11 +41,11 @@ class Reverse(State):
 # no ball found, so try to drive
 class Explore(State):
     timeout = 13
-    turn = time.time()
+    turn_after = time.time()
     def next(self):
         if max(arduino.get_ir()) > .8:
-            self.turn = time.time() + .7
-        if time.time() < self.turn:
+            self.turn_after = time.time() + .7
+        if time.time() < self.turn_after:
             arduino.drive(0, -.5)
         else:
             arduino.drive(.8, 0)
