@@ -4,11 +4,11 @@ import time, arduino, kinect, random
 class FieldBounce:
     def __init__(self, min_time = .5, want_dump = False):
         left, right = arduino.get_ir()
-        self.direction = [.4, -.4] if left > right else [-.4, .4]
+        self.turn = .4 if left > right else -.4
         self.min_stop_time = time.time() + min_time
     def next(self):
         # TODO: check IRs to determine if we're on a wall and must back up
-        arduino.set_speeds(*self.direction)
+        arduino.drive(0, self.turn)
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
@@ -18,7 +18,7 @@ class BallCenter:
     def __init__(self):
         self.stop_time = time.time() + .3
     def next(self):
-        arduino.set_speeds(0, 0)
+        arduino.drive(0, 0)
         if time.time() > self.stop_time:
             return BallFollow()
         else:
@@ -49,11 +49,11 @@ class BallSnarf:
     def next(self):
         if time.time() < self.stop_time:
             arduino.set_sucker(True)
-            arduino.set_speeds(.7, .7)
+            arduino.drive(.7, 0)
             return self
         else:
             arduino.set_sucker(False)
-            arduino.set_speeds(0, 0)
+            arduino.drive(0, 0)
             return FieldBounce()
 
 # Use the front IRs to nose in to a wall
@@ -75,6 +75,7 @@ class WallHumper:
 class DumpBalls:
     def __init__(self):
         self.stop_time = time.time() + 2
+        arduino.drive(0, 0)
         arduino.set_door(True)
     def next(self):
         if time.time() > self.stop_time:
