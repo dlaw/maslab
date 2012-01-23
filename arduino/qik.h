@@ -10,13 +10,6 @@ void coast(char motor){
 }
 
 void drive(char lvel, char rvel){
-
-	if (target_lvel > 127) target_lvel = 127;
-	if (target_lvel < -127) target_lvel = -127;
-	if (target_rvel > 127) target_rvel = 127;
-	if (target_rvel < -127) target_rvel = -127;
-  
   target_lvel = lvel;
   target_rvel = -rvel;
- 
 }
