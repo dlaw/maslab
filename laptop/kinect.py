@@ -25,7 +25,7 @@ def process_frame():
     color.identify(image, constants, colors)
     global balls, yellow_walls, green_walls
     balls = blobs.find_blobs(colors, depth, color=0)
-    yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=10)
+    yellow_walls = blobs.find_blobs(colors, depth, color=1, min_size=100)
     green_walls = blobs.find_blobs(colors, depth, color=2, min_size=10)
 
 # Work around an initialization bug for synchronous image
