@@ -1,4 +1,4 @@
-import time, arduino, kinect, random
+import time, arduino, kinect, random, numpy as np
 
 class State:
     def finish(self):
@@ -8,7 +8,7 @@ want_dump = False
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
-    timeout = 7
+    timeout = 5
     def __init__(self, min_time = 1):
         self.turn = random.choice([-.5, .5])
         self.min_stop_time = time.time() + min_time
@@ -39,7 +39,7 @@ class Reverse(State):
 class Explore(State):
     timeout = 7
     def __init__(self):
-        self.turn = random.choice([-.6, -.3, .3, .6])
+        self.turn = random.choice(np.linspace(-.3, .3, 10))
     def next(self):
         if max(arduino.get_ir()) > .8:
             return Reverse()
