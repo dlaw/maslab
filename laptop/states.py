@@ -46,7 +46,7 @@ class Explore(State):
             arduino.drive(0, -.5)
         else:
             arduino.drive(.8, 0)
-    return self
+        return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
