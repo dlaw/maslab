@@ -3,6 +3,8 @@ import time, arduino, kinect, random, numpy as np
 class State:
     def finish(self):
         pass
+    def __repr__(self):
+        return "{0}".format(self.__class__)
 
 want_dump = False
 
@@ -28,28 +30,26 @@ class FieldBounce(State):
 
 class Reverse(State):
     timeout = None
-    def __init__(self, duration=2):
+    def __init__(self, duration=1.1):
         self.stop_time = time.time() + duration
     def next(self):
         if time.time() > self.stop_time:
             return FieldBounce()
         arduino.drive(-.8, 0)
         return self
-    def __repr__(self):
-        return "{0}".format(self.__class__)
 
 # no ball found, so try to drive
 class Explore(State):
-    timeout = 7
-    def __init__(self):
-        self.turn = random.choice(np.linspace(-.1, .1, 10))
+    timeout = 13
+    turn = time.time()
     def next(self):
         if max(arduino.get_ir()) > .8:
-            return Reverse()
-        arduino.drive(.5, self.turn)
+            self.turn = time.time() + .7
+        if time.time() < self.turn:
+            arduino.drive(0, -.5)
+        else:
+            arduino.drive(.8, 0)
         return self
-    def __repr__(self):
-        return "{0} with turn {1}".format(self.__class__, self.turn)
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
@@ -62,8 +62,6 @@ class BallCenter(State):
             return BallFollow()
         else:
             return self
-    def __repr__(self):
-        return "{0}".format(self.__class__)
 
 # Visual servo to a ball
 class BallFollow(State):
@@ -112,8 +110,6 @@ class BallSnarf(State):
         arduino.set_sucker(True)
         arduino.drive(.7 if max(arduino.get_ir()) < .95 else 0, 0)
         return self
-    def __repr__(self):
-        return "{0}".format(self.__class__)
 
 # Use the front IRs to nose in to a wall
 class WallHumper(State):
@@ -133,8 +129,6 @@ class WallHumper(State):
         else:
             arduino.drive(.5, 0)
             return self
-    def __repr__(self):
-        return "{0}".format(self.__class__)
 
 # dump balls, assuming we're already lined up to the wall
 class DumpBalls:
@@ -150,6 +144,4 @@ class DumpBalls:
         return self
     def finish(self):
         arduino.set_door(False)
-    def __repr__(self):
-        return "{0}".format(self.__class__)
 
