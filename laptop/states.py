@@ -1,11 +1,13 @@
 import time, arduino, kinect, random
 
-# Bounce around the field.  For now, just turn around.  Eventually follow walls.
+# Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce:
-    def __init__(self, min_time = 0):
-        self.direction = random.choice([[.4, -.4], [-.4, .4]])
+    def __init__(self, min_time = .5, want_dump = False):
+        left, right = arduino.get_ir()
+        self.direction = [.4, -.4] if left > right else [-.4, .4]
         self.min_stop_time = time.time() + min_time
     def next(self):
+        # check IRs to determine if we must back up
         arduino.set_speeds(*self.direction)
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
@@ -25,14 +27,16 @@ class BallCenter:
 # Visual servo to a ball
 class BallFollow:
     kp = .004
+    def __init__(self, timeout=10):
+        self.stop_time = time.time() + timeout
     def next(self):
-        if not kinect.balls:
+        if time.time() > self.stop_time or not kinect.balls:
             return FieldBounce()
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = self.kp * (ball['col'][0] - 80)
         arduino.set_speeds(.8 + offset - abs(offset),
                            .8 - offset - abs(offset))
-        if ball['row'][0] > 90:
+        if ball['row'][0] > 80:
             return BallSnarf()
         else:
             return self
@@ -40,26 +44,28 @@ class BallFollow:
 # Drive forward after losing sight of a ball
 class BallSnarf:
     def __init__(self):
-        self.stop_time = time.time() + .8
+        self.stop_time = time.time() + 1
     def next(self):
-        if time.time() > self.stop_time:
-            arduino.set_speeds(0, 0)
-            return FieldBounce()
-        else:
+        if time.time() < self.stop_time:
+            arduino.set_sucker(True)
             arduino.set_speeds(.7, .7)
             return self
+        else:
+            arduino.set_sucker(False)
+            arduino.set_speeds(0, 0)
+            return FieldBounce()
 
 # Use the front IRs to nose in to a wall
 class WallHumper:
-    kp = .005
-    def __init__(self, successor=FieldBounce, ir_stop=60):
+    def __init__(self, successor=FieldBounce, ir_stop=130):
         self.successor = successor
         self.ir_stop = ir_stop
     def next(self):
-        left, right = arduino.get_ir()[1:-1]
-        if left > self.ir_stop and right > self.ir_stop:
-            return self.successor()
-        else:
-            arduino.set_speeds(.2 + (self.ir_stop - left) * self.kp,
-                               .2 + (self.ir_stop - right) * self.kp)
+        left_ir, right_ir = arduino.get_ir()
+        left = .4 if left_ir < self.ir_stop else 0
+        right = .4 if right_ir < self.ir_stop else 0
+        arduino.set_speeds(left, right)
+        if left < self.ir_stop or right < self.ir_stop:
             return self
+        else:
+            return self.successor()
