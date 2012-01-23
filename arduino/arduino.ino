@@ -1,5 +1,4 @@
 #include "commands.h"
-#include "test_motors.h"
 
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
@@ -96,10 +95,6 @@ void setup(){
 }
 
 void loop(){
-  if (digitalRead(53) == LOW) {
-    test_motors();
-  }
-
   if (ramp_counter > 2) {
     ramp_counter = 0;
     // provide some protection against sudden acceleration
