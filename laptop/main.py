@@ -24,6 +24,7 @@ while time.time() < stop_time - 20: #use last 20 secs for dump
     kinect.process_frame()
     try:
         new_state = state.next()
+        assert new_state is not None
     except Exception, e:
         print(e)
         new_state = state
