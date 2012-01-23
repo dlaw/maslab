@@ -2,13 +2,14 @@ import time, arduino, kinect, random
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce:
-    def __init__(self, min_time = .5, want_dump = False):
+    def __init__(self, min_time = .5, drive_time = 2, want_dump = False):
         left, right = arduino.get_ir()
         self.turn = .4 if left > right else -.4
         self.min_stop_time = time.time() + min_time
+        self.drive_time = time.time() + drive_time
     def next(self):
         # TODO: check IRs to determine if we're on a wall and must back up
-        arduino.drive(0, self.turn)
+        arduino.drive(.6 * (time.time() > self.drive_time), self.turn)
         if want_dump and kinect.yellow_walls:
             wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
             if wall['size'] > 100 #min size for something to be a wall
