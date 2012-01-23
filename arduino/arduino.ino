@@ -115,7 +115,6 @@ void loop(){
     usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
-  ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
@@ -123,7 +122,7 @@ void loop(){
     int vel;
     
     control_semaphore = 0;  // disable the semaphore
-    
+    ramp_counter++;
     
     switch (navstate) {
       case 0: // waiting for command
