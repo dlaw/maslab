@@ -31,7 +31,7 @@ class Explore(State):
     kp = 2
     def next(self):
         left, right = arduino.get_ir()
-        if max(left, right) < .2 or max(left, right) > .8:
+        if max(left, right) > .8:
             return FieldBounce()
         else:
             arduino.drive(.6, self.kp * (left - right))
