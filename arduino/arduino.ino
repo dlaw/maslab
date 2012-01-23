@@ -91,6 +91,32 @@ void setup(){
 }
 
 void loop(){
+  if (ramp_counter > 2) {
+    ramp_counter = 0;
+    // provide some protection against sudden acceleration
+  
+    if (lvel > target_lvel + MAX_DIFF)
+      lvel -= MAX_DIFF;
+    else if (lvel < target_lvel - MAX_DIFF)
+      lvel += MAX_DIFF;
+    else
+      lvel = target_lvel;
+    
+    if (rvel > target_rvel + MAX_DIFF)
+      rvel -= MAX_DIFF;
+    else if (rvel < target_rvel - MAX_DIFF)
+      rvel += MAX_DIFF;
+    else
+      rvel = target_rvel;
+        
+    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
+    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
+    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
+    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
+  }
+  
+  ramp_counter++;
+
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
@@ -203,6 +229,8 @@ void loop(){
         if ((target_rtime == 0)) dr = 0;
 
         drive(dl, dr);
+        usart0_tx(ldif >> 8);
+        usart0_tx(ldif);
 
         ldif = 0;
         rdif = 0;
@@ -271,6 +299,7 @@ ISR(INT5_vect){            //Pin Change interrupt handler
 // the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
   control_semaphore++;
+
 }
 
 ISR(TIMER4_CAPT_vect) {
@@ -278,6 +307,7 @@ ISR(TIMER4_CAPT_vect) {
   __asm__("nop");
   TCNT4H = 0x00;
   TCNT4L = 0x00;
+
 }
 
 ISR(TIMER5_CAPT_vect) {
@@ -285,4 +315,5 @@ ISR(TIMER5_CAPT_vect) {
   __asm__("nop");
   TCNT5H = 0x00;
   TCNT5L = 0x00;
+
 }
