@@ -128,6 +128,7 @@ void setsucker(serdata data) {
   } else {
     digitalWrite(6, HIGH);
   }
+  usart0_tx(0x00);
 }
 
 void sethelix(serdata data) {
@@ -136,6 +137,7 @@ void sethelix(serdata data) {
   } else {
     digitalWrite(7, HIGH);
   }
+  usart0_tx(0x00);
 }
 
 void setdoor(serdata data) {
@@ -144,6 +146,7 @@ void setdoor(serdata data) {
   } else {
     OCR1A=535;
   }
+  usart0_tx(0x00);
 }
 
 // How many bytes of data will follow each command?
