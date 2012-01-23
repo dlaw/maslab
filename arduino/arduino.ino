@@ -120,7 +120,6 @@ void loop(){
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
-    ramp_counter++;
     control_semaphore = 0;  // disable the semaphore
     ramp_counter++;
     
