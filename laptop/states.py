@@ -46,7 +46,7 @@ class Explore(State):
         if max(arduino.get_ir()) > .8:
             self.turn_after = time.time() + .7
         if time.time() < self.turn_after:
-            arduino.drive(0, -.5)
+            arduino.drive(0, .5)
         else:
             arduino.drive(.8, 0)
         return self
