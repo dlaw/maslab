@@ -115,6 +115,8 @@ void loop(){
     usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
+  
+  ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
@@ -122,7 +124,6 @@ void loop(){
     int vel;
     
     control_semaphore = 0;  // disable the semaphore
-    ramp_counter++;
     
     switch (navstate) {
       case 0: // waiting for command
@@ -230,6 +231,8 @@ void loop(){
         if ((target_rtime == 0)) dr = 0;
 
         drive(dl, dr);
+        usart0_tx(ldif >> 8);
+        usart0_tx(ldif);
 
         ldif = 0;
         rdif = 0;
@@ -279,6 +282,7 @@ ISR(INT5_vect){            //Pin Change interrupt handler
 // the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
   control_semaphore++;
+
 }
 
 ISR(TIMER4_CAPT_vect) {
@@ -286,6 +290,7 @@ ISR(TIMER4_CAPT_vect) {
   __asm__("nop");
   TCNT4H = 0x00;
   TCNT4L = 0x00;
+
 }
 
 ISR(TIMER5_CAPT_vect) {
@@ -293,4 +298,5 @@ ISR(TIMER5_CAPT_vect) {
   __asm__("nop");
   TCNT5H = 0x00;
   TCNT5L = 0x00;
+
 }
