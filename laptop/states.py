@@ -8,7 +8,7 @@ want_dump = False
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
-    timeout = 5
+    timeout = random.choice(np.linspace(4, 6, 5))
     def __init__(self, min_time = 1):
         self.turn = random.choice([-.5, .5])
         self.min_stop_time = time.time() + min_time
@@ -20,7 +20,6 @@ class FieldBounce(State):
         arduino.drive(0, self.turn)
         if want_dump and kinect.yellow_walls:
             return WallFollow()
-            #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
@@ -43,7 +42,7 @@ class Explore(State):
     def next(self):
         if max(arduino.get_ir()) > .8:
             return Reverse()
-        arduino.drive(.5, self.turn)
+        arduino.drive(.5, 0)
         return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
@@ -65,7 +64,7 @@ class BallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.balls:
-            return FieldBounce()
+            return Reverse()
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=BallSnarf)
         ball = max(kinect.balls, key = lambda ball: ball['size'])
@@ -84,7 +83,7 @@ class WallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.yellow_walls:
-            return FieldBounce()
+            return Reverse()()
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
         wall = max(kinect.yellow_walls, key = lambda w: w['size'])
@@ -105,7 +104,7 @@ class BallSnarf(State):
 # Use the front IRs to nose in to a wall
 class WallHumper(State):
     kp = 1
-    def __init__(self, successor=FieldBounce, ir_stop=.95):
+    def __init__(self, successor=Reverse, ir_stop=.95):
         self.successor = successor
         self.ir_stop = ir_stop
         self.timeout = 10
@@ -131,7 +130,7 @@ class DumpBalls:
     def next(self):
         if time.time() > self.stop_time:
             arduino.set_door(False)
-            return FieldBounce()
+            return Reverse()()
         return self
     def finish(self):
         arduino.set_door(False)
