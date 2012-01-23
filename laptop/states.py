@@ -1,27 +1,32 @@
 import time, arduino, kinect, random
 
+class State:
+    timeout = None
+    def finish(self):
+        pass
+
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
-class FieldBounce:
-    def __init__(self, min_time = .5, drive_time = 2, want_dump = False):
+class FieldBounce(State):
+    def __init__(self, min_time = 1, want_dump = False):
         left, right = arduino.get_ir()
-        self.turn = .4 if left > right else -.4
+        self.turn = .5 if left > right else -.5
         self.min_stop_time = time.time() + min_time
-        self.drive_time = time.time() + drive_time
-        self.timeout = None
+        self.want_dump = want_dump
     def next(self):
-        # TODO: check IRs to determine if we're on a wall and must back up
-        arduino.drive(.6 * (time.time() > self.drive_time), self.turn)
-        if want_dump and kinect.yellow_walls:
+        if max(arduino.get_ir()) > .75:
+            arduino.drive(-.8, 0)
+            self.min_stop_time = max(self.min_stop_time, time.time() + 1)
+            return self
+        arduino.drive(0, self.turn)
+        if self.want_dump and kinect.yellow_walls:
             return WallHumper(successor=DumpBalls)
             #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
-    def finish(self):
-        return
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
-class BallCenter:
+class BallCenter(State):
     def __init__(self):
         self.stop_time = time.time() + .3
         self.timeout = .5
@@ -31,18 +36,17 @@ class BallCenter:
             return BallFollow()
         else:
             return self
-    def finish(self):
-        return
 
 # Visual servo to a ball
-class BallFollow:
-    kp = .004
+class BallFollow(State):
+    kp = .003
     def __init__(self, timeout=10):
         self.timeout = timeout
     def next(self):
         if not kinect.balls:
             return FieldBounce()
-        # TODO: if IRs trigger, drive up to the wall and then FieldBounce
+        if max(arduino.get_ir()) > .75:
+            return WallHumper(BallSnarf)
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = self.kp * (ball['col'][0] - 80)
         arduino.drive(max(0, .8 - abs(offset)), offset)
@@ -51,44 +55,34 @@ class BallFollow:
             return BallSnarf()
         else:
             return self
-    def finish(self)
-        return
 
 # Drive forward after losing sight of a ball
-class BallSnarf:
+class BallSnarf(State):
     def __init__(self):
-        self.stop_time = time.time() + 1
-        self.timeout = 1.5
+        self.timeout = 2
     def next(self):
-        if time.time() < self.stop_time:
-            arduino.set_sucker(True)
-            arduino.drive(.7, 0)
-            return self
-        else:
-            arduino.set_sucker(False)
-            arduino.drive(0, 0)
-            return FieldBounce()
-    def finish(self):
-        arduino.set_sucker(False)
-        return
+        arduino.set_sucker(True)
+        arduino.drive(.7 if max(arduino.get_ir()) < .95 else 0, 0)
+        return self
 
 # Use the front IRs to nose in to a wall
-class WallHumper:
-    def __init__(self, successor=FieldBounce, ir_stop=130):
+class WallHumper(State):
+    kp = 1
+    def __init__(self, successor=FieldBounce, ir_stop=.95):
         self.successor = successor
         self.ir_stop = ir_stop
         self.timeout = 10
     def next(self):
         left_ir, right_ir = arduino.get_ir()
-        left = .4 if left_ir < self.ir_stop else 0
-        right = .4 if right_ir < self.ir_stop else 0
-        arduino.set_speeds(left, right)
-        if left < self.ir_stop or right < self.ir_stop:
+        if min(left_ir, right_ir) > self.ir_stop:
+            arduino.drive(0, 0)
+            return self.successor()
+        elif abs(left_ir - right_ir) > .1:
+            arduino.drive(.2, self.kp * (right_ir - left_ir))
             return self
         else:
-            return self.successor()
-    def finish(self):
-        return
+            arduino.drive(.5, 0)
+            return self
 
 # dump balls, assuming we're already lined up to the wall
 class DumpBalls:
@@ -103,5 +97,3 @@ class DumpBalls:
             return FieldBounce()
     def finish(self):
         arduino.set_door(False)
-        return
-

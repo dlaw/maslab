@@ -54,7 +54,7 @@ def get_ticks():
     return raw_command('hh', 'B', 8)
 
 def get_ir():
-    return [get_analog(i) for i in [0, 3]]
+    return [get_analog(0) / 170., get_analog(3) / 144.]
 
 def get_voltage():
     return get_analog(4) * 0.0693
