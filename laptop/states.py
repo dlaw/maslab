@@ -6,12 +6,12 @@ class State:
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
+    timeout = None
     def __init__(self, min_time = 1, want_dump = False):
         left, right = arduino.get_ir()
         self.turn = .5 if left > right else -.5
         self.min_stop_time = time.time() + min_time
         self.want_dump = want_dump
-        self.timeout = None
     def next(self):
         if max(arduino.get_ir()) > .75:
             arduino.drive(-.8, 0)
@@ -24,6 +24,18 @@ class FieldBounce(State):
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
+
+# no ball found, so try to drive
+class Explore(State):
+    timeout = 10
+    kp = 2
+    def next(self):
+        left, right = arduino.get_ir()
+        if max(left, right) < .2 or max(left, right) > .8:
+            return FieldBounce()
+        else:
+            arduino.drive(.6, self.kp * (left - right))
+            return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
