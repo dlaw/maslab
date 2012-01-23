@@ -85,6 +85,9 @@ class BallSnarf(State):
 class WallHumper(State):
     kp = 1
     def __init__(self, successor=FieldBounce, ir_stop=.95):
+        #NOTE: because we're specifying no arguments, this will default to
+        #FieldBounce with want_dump=False, meaning (essentially) that we can
+        #only dump *once* per game
         self.successor = successor
         self.ir_stop = ir_stop
         self.timeout = 10
