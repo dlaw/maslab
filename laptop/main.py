@@ -29,7 +29,10 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         print(e)
         new_state = state
     if (state.timeout is not None) and (time.time() > last_change + state.timeout):
-        new_state = FieldBounce()
+        if isinstance(state, FieldBounce):
+            new_state = Explore()
+        else:
+            new_state = FieldBounce()
     if state != new_state:
         try:
             state.finish()

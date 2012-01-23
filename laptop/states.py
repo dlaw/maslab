@@ -6,7 +6,7 @@ class State:
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
-    timeout = None
+    timeout = 7
     def __init__(self, min_time = 1, want_dump = False):
         left, right = arduino.get_ir()
         self.turn = .5 if left > right else -.5
@@ -27,7 +27,7 @@ class FieldBounce(State):
 
 # no ball found, so try to drive
 class Explore(State):
-    timeout = 10
+    timeout = 7
     kp = 2
     def next(self):
         left, right = arduino.get_ir()
