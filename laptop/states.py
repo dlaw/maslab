@@ -7,7 +7,7 @@ class FieldBounce:
         self.direction = [.4, -.4] if left > right else [-.4, .4]
         self.min_stop_time = time.time() + min_time
     def next(self):
-        # check IRs to determine if we must back up
+        # TODO: check IRs to determine if we're on a wall and must back up
         arduino.set_speeds(*self.direction)
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
@@ -32,6 +32,7 @@ class BallFollow:
     def next(self):
         if time.time() > self.stop_time or not kinect.balls:
             return FieldBounce()
+        # TODO: if IRs trigger, drive up to the wall and then FieldBounce
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = self.kp * (ball['col'][0] - 80)
         arduino.set_speeds(.8 + offset - abs(offset),
@@ -69,3 +70,13 @@ class WallHumper:
             return self
         else:
             return self.successor()
+
+# dump balls, assuming we're already lined up to the wall
+class DumpBalls:
+    def __init__(self):
+        self.stop_time = time.time() + 2
+        arduino.set_door(True)
+    def next(self):
+        if time.time() > self.stop_time:
+            arduino.set_door(False)
+            return FieldBounce()
