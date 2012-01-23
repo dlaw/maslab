@@ -6,12 +6,12 @@ class State:
 
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
+    timeout = 7
     def __init__(self, min_time = 1, want_dump = False):
         left, right = arduino.get_ir()
         self.turn = .5 if left > right else -.5
         self.min_stop_time = time.time() + min_time
         self.want_dump = want_dump
-        self.timeout = None
     def next(self):
         if max(arduino.get_ir()) > .75:
             arduino.drive(-.8, 0)
@@ -19,11 +19,23 @@ class FieldBounce(State):
             return self
         arduino.drive(0, self.turn)
         if self.want_dump and kinect.yellow_walls:
-            return WallFollow
+            return WallFollow()
             #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
+
+# no ball found, so try to drive
+class Explore(State):
+    timeout = 7
+    kp = 2
+    def next(self):
+        left, right = arduino.get_ir()
+        if max(left, right) < .2 or max(left, right) > .8:
+            return FieldBounce()
+        else:
+            arduino.drive(.6, self.kp * (left - right))
+            return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
@@ -66,7 +78,7 @@ class WallFollow(State):
             return FieldBounce(want_dump=True)
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
-        walls = max(kinect.yellow_walls, key = lambda wall: wall['size'])
+        wall = max(kinect.yellow_walls, key = lambda w: w['size'])
         offset = self.kp * (wall['col'][0] - 80)
         arduino.drive(max(0, .8 - abs(offset)), offset)
         # slow down if you need to turn more, but never go backwards
@@ -85,6 +97,9 @@ class BallSnarf(State):
 class WallHumper(State):
     kp = 1
     def __init__(self, successor=FieldBounce, ir_stop=.95):
+        #NOTE: because we're specifying no arguments, this will default to
+        #FieldBounce with want_dump=False, meaning (essentially) that we can
+        #only dump *once* per game
         self.successor = successor
         self.ir_stop = ir_stop
         self.timeout = 10
@@ -111,5 +126,6 @@ class DumpBalls:
         if time.time() > self.stop_time:
             arduino.set_door(False)
             return FieldBounce()
+        return self
     def finish(self):
         arduino.set_door(False)

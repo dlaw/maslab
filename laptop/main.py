@@ -18,16 +18,21 @@ stop_time = time.time() + 180
 arduino.set_helix(True)
 arduino.set_sucker(True)
 state = FieldBounce()
+print(state.__class__)
 last_change = time.time()
 while time.time() < stop_time - 20: #use last 20 secs for dump
     kinect.process_frame()
     try:
         new_state = state.next()
+        assert new_state is not None
     except Exception, e:
         print(e)
         new_state = state
     if (state.timeout is not None) and (time.time() > last_change + state.timeout):
-        new_state = FieldBounce()
+        if isinstance(state, FieldBounce):
+            new_state = Explore()
+        else:
+            new_state = FieldBounce()
     if state != new_state:
         try:
             state.finish()
