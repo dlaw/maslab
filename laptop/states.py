@@ -10,8 +10,7 @@ want_dump = False
 class FieldBounce(State):
     timeout = 7
     def __init__(self, min_time = 1):
-        left, right = arduino.get_ir()
-        self.turn = .5 if left > right else -.5
+        self.turn = random.choice([-.5, .5])
         self.min_stop_time = time.time() + min_time
     def next(self):
         if max(arduino.get_ir()) > .75:
@@ -39,13 +38,12 @@ class Reverse(State):
 # no ball found, so try to drive
 class Explore(State):
     timeout = 7
-    kp = 2
+    def __init__(self):
+        self.turn = random.choice([-.6, -.3, .3, .6])
     def next(self):
-        left, right = arduino.get_ir()
-        if max(left, right) > .8:
-            arduino.drive(0, -.5)
-        else:
-            arduino.drive(.8, 0)
+        if max(arduino.get_ir()) > .8:
+            return Reverse()
+        arduino.drive(.5, self.turn)
         return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
