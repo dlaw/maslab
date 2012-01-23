@@ -21,7 +21,8 @@ last_change = time.time()
 while time.time() < stop_time - 10: #use last 10 secs for dump
     kinect.process_frame()
     new_state = state.next()
-    if state.timeout not None and time.time() > last_change + state.timeout
+    if state.timeout not None and time.time() > last_change + state.timeout:
+        state.finish()
         new_state = FieldBounce()
     if state.__class__ != new_state.__class__:
         last_change = time.time()

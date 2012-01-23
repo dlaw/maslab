@@ -19,6 +19,8 @@ class FieldBounce:
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
         return self
+    def finish(self):
+        return
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter:
@@ -31,6 +33,8 @@ class BallCenter:
             return BallFollow()
         else:
             return self
+    def finish(self):
+        return
 
 # Visual servo to a ball
 class BallFollow:
@@ -49,6 +53,8 @@ class BallFollow:
             return BallSnarf()
         else:
             return self
+    def finish(self)
+        return
 
 # Drive forward after losing sight of a ball
 class BallSnarf:
@@ -64,6 +70,9 @@ class BallSnarf:
             arduino.set_sucker(False)
             arduino.drive(0, 0)
             return FieldBounce()
+    def finish(self):
+        arduino.set_sucker(False)
+        return
 
 # Use the front IRs to nose in to a wall
 class WallHumper:
@@ -80,6 +89,8 @@ class WallHumper:
             return self
         else:
             return self.successor()
+    def finish(self):
+        return
 
 # dump balls, assuming we're already lined up to the wall
 class DumpBalls:
@@ -92,4 +103,7 @@ class DumpBalls:
         if time.time() > self.stop_time:
             arduino.set_door(False)
             return FieldBounce()
+    def finish(self):
+        arduino.set_door(False)
+        return
 
