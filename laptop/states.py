@@ -19,7 +19,7 @@ class FieldBounce(State):
             return self
         arduino.drive(0, self.turn)
         if self.want_dump and kinect.yellow_walls:
-            return WallFollow
+            return WallFollow()
             #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
@@ -75,10 +75,10 @@ class WallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.yellow_walls:
-            return FieldBounce()
+            return FieldBounce(want_dump=True)
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
-        walls = max(kinect.yellow_walls, key = lambda wall: wall['size'])
+        wall = max(kinect.yellow_walls, key = lambda w: w['size'])
         offset = self.kp * (wall['col'][0] - 80)
         arduino.drive(max(0, .8 - abs(offset)), offset)
         # slow down if you need to turn more, but never go backwards
