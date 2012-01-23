@@ -63,7 +63,7 @@ class WallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.yellow_walls:
-            return FieldBounce()
+            return FieldBounce(want_dump=True)
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
         walls = max(kinect.yellow_walls, key = lambda wall: wall['size'])
