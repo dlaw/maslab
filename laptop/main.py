@@ -38,7 +38,7 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         except Exception, e:
             print(e)
         last_change = time.time()
-        print("{0} with {1} seconds to go".format(new_state.__class__, int(stop_time - time.time())))
+        print("{0} with {1} seconds to go".format(new_state.__class__, stop_time - time.time()))
         state = new_state
 print("transitioning to dump mode")
 state = states.FieldBounce()
