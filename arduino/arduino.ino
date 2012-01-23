@@ -77,10 +77,7 @@ void setup(){
   OCR1A=97;
    
   pinMode(11, OUTPUT);
-  
-  pinMode(53, INPUT);
-  digitalWrite(53, HIGH);
-  
+
   pinMode(6, OUTPUT); // sucker
   digitalWrite(6, LOW);
   
@@ -125,7 +122,7 @@ void loop(){
     int vel;
     ramp_counter++;
     control_semaphore = 0;  // disable the semaphore
-    
+    ramp_counter++;
     
     switch (navstate) {
       case 0: // waiting for command
