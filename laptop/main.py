@@ -21,19 +21,29 @@ state = FieldBounce()
 last_change = time.time()
 while time.time() < stop_time - 20: #use last 20 secs for dump
     kinect.process_frame()
-    new_state = state.next()
+    try:
+        new_state = state.next()
+    except Exception, e:
+        print(e)
+        new_state = state
     if (state.timeout is not None) and (time.time() > last_change + state.timeout):
-        state.finish()
         new_state = FieldBounce()
-    if state.__class__ != new_state.__class__:
+    if state != new_state:
+        try:
+            state.finish()
+        except Exception, e:
+            print(e)
         last_change = time.time()
         print(new_state.__class__)
-    state = new_state
+        state = new_state
 print("transitioning to dump mode")
 state = FieldBounce(want_dump = True)
 while time.time() < stop_time:
     kinect.process_frame()
-    state = state.next()
+    try:
+        state = state.next()
+    except Exception, e:
+        print(e)
 arduino.set_speeds(0, 0) #just in case
 arduino.set_sucker(False)
 arduino.set_helix(False)
