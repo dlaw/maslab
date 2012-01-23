@@ -18,6 +18,7 @@ stop_time = time.time() + 180
 arduino.set_helix(True)
 arduino.set_sucker(True)
 state = FieldBounce()
+print(state.__class__)
 last_change = time.time()
 while time.time() < stop_time - 20: #use last 20 secs for dump
     kinect.process_frame()
