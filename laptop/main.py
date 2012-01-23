@@ -20,7 +20,7 @@ arduino.set_sucker(True)
 state = FieldBounce()
 print(state.__class__)
 last_change = time.time()
-while time.time() < stop_time - 20: #use last 20 secs for dump
+while time.time() < stop_time - 40: #use last 40 secs for dump
     kinect.process_frame()
     try:
         new_state = state.next()

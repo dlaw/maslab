@@ -118,7 +118,7 @@ class WallHumper(State):
 # dump balls, assuming we're already lined up to the wall
 class DumpBalls:
     def __init__(self):
-        self.stop_time = time.time() + 2
+        self.stop_time = time.time() + 10
         arduino.drive(0, 0)
         arduino.set_door(True)
         self.timeout = 20
