@@ -1,7 +1,6 @@
 import time, arduino, kinect, random
 
 class State:
-    timeout = None
     def finish(self):
         pass
 
@@ -55,6 +54,22 @@ class BallFollow(State):
             return BallSnarf()
         else:
             return self
+
+# Visual servo to a wall
+class WallFollow(State):
+    kp = .003
+    def __init__(self, timeout=10):
+        self.timeout = timeout
+    def next(self):
+        if not kinect.yellow_walls:
+            return FieldBounce()
+        if max(arduino.get_ir()) > .75:
+            return WallHumper(DumpBalls)
+        walls = max(kinect.yellow_walls, key = lambda wall: wall['size'])
+        offset = self.kp * (wall['col'][0] - 80)
+        arduino.drive(max(0, .8 - abs(offset)), offset)
+        # slow down if you need to turn more, but never go backwards
+        return self
 
 # Drive forward after losing sight of a ball
 class BallSnarf(State):
