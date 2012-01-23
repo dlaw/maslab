@@ -28,7 +28,7 @@ class FieldBounce(State):
 
 class Reverse(State):
     timeout = None
-    def __init__(self, duration=0.5):
+    def __init__(self, duration=2):
         self.stop_time = time.time() + duration
     def next(self):
         if time.time() > self.stop_time:
