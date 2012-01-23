@@ -66,7 +66,7 @@ class WallFollow(State):
             return FieldBounce(want_dump=True)
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
-        walls = max(kinect.yellow_walls, key = lambda wall: wall['size'])
+        wall = max(kinect.yellow_walls, key = lambda w: w['size'])
         offset = self.kp * (wall['col'][0] - 80)
         arduino.drive(max(0, .8 - abs(offset)), offset)
         # slow down if you need to turn more, but never go backwards
