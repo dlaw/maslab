@@ -43,10 +43,10 @@ class Explore(State):
     def next(self):
         left, right = arduino.get_ir()
         if max(left, right) > .8:
-            return FieldBounce()
+            arduino.drive(0, -.5)
         else:
-            arduino.drive(.6, self.kp * (left - right))
-            return self
+            arduino.drive(.8, 0)
+    return self
 
 # After sighting a ball, wait .3 seconds before driving to it (because of motor slew limits)
 class BallCenter(State):
