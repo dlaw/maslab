@@ -22,7 +22,6 @@ int32_t target_rtime;
 volatile int dl;
 volatile int dr;
 
-
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
 
@@ -52,31 +51,6 @@ void sendir(serdata data){
   usart0_tx(analog[adcmap[data[0]]]);
 }
 
-// command 0x03
-void rotate(serdata data) {
-  theta_to_target = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
- 
-  rotate_speed = data[4]; 
-
-  navstate = 1; // start rotating
-  usart0_tx(0x00);
-}
-
-// command 0x04
-void gotopoint(serdata data) {
-  //deprecated
-}
-
-// command 0x05
-void getangle(serdata data) {
-  SEND_INT32(theta_to_target);
-}
-
-// command 0x06
-void getdistance(serdata data) {
-  SEND_INT32(dist_to_target);
-}
-
 // command 0x07
 void changeparam(serdata data) {
 	unsigned char param = data[0];
@@ -90,22 +64,14 @@ void sendticks(serdata data) {
   SEND_INT16(tickr);
 }  
 
-// command 0x09
-void sendbattvoltage(serdata data) {
-  int battvoltage = analogRead(9);
-  SEND_INT16(battvoltage);
-}
-
 void setmotorspeed(serdata data) {
-  int32_t new_ltime = (uint32_t) data[4] + ((uint32_t) data[5] << 8) + ((uint32_t) data[6] << 16) + ((uint32_t) data[7] << 24);
-  int32_t new_rtime = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
-
+  int32_t new_ltime = TO_INT32(data, 4)
+  int32_t new_rtime = TO_INT32(data, 0)
   navstate = 2;
   
   if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
     dl = (new_ltime > 0) ? 16 : -16;
   }
-    
   if ((new_rtime < 0 & target_rtime > 0) | (new_rtime > 0 & target_rtime < 0)) {
     dr = (new_rtime > 0) ? 16 : -16;
   }
@@ -159,13 +125,13 @@ responder responses[15]={
   &ack,
   &setmotors,
   &sendir,
-  &rotate,
-  &gotopoint,
-  &getangle,
-  &getdistance,
+  &ack, // depricated
+  &ack, // depricated
+  &ack, // depricated
+  &ack, // depricated
   &changeparam,
   &sendticks,
-  &sendbattvoltage,
+  &ack, // depricated
   &setmotorspeed,
   &buttonpressed,
   &setsucker,
