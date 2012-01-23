@@ -43,6 +43,8 @@ class Explore(State):
     timeout = 13
     turn_after = time.time()
     def next(self):
+        if kinect.balls:
+            return BallFollow()
         if max(arduino.get_ir()) > .8:
             self.turn_after = time.time() + .7
         if time.time() < self.turn_after:
