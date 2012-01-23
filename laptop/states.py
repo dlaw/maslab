@@ -26,6 +26,16 @@ class FieldBounce(State):
             return BallCenter()
         return self
 
+class Reverse(State):
+    timeout = None
+    def __init(self, duration=0.5):
+        self.stop_time = time.time() + duration
+    def next(self):
+        if time.time() > self.stop_time:
+            return FieldBounce()
+        arduino.drive(-.8, 0)
+        return self
+
 # no ball found, so try to drive
 class Explore(State):
     timeout = 7

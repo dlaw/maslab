@@ -31,7 +31,7 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         if isinstance(state, states.FieldBounce):
             new_state = states.Explore()
         else:
-            new_state = states.FieldBounce()
+            new_state = states.Reverse()
     if state != new_state:
         try:
             state.finish()
