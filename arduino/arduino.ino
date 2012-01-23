@@ -91,8 +91,8 @@ void setup(){
   pinMode(8, OUTPUT); // shooter
   digitalWrite(8, LOW);
   
-  pinMode(63, INPUT); // start switch
-  digitalWrite(63, HIGH); // turn on internal pullup
+  pinMode(53, INPUT); // start switch
+  digitalWrite(53, HIGH); // turn on internal pullup
 }
 
 void loop(){
