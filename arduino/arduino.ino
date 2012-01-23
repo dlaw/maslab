@@ -99,45 +99,25 @@ void loop(){
     ramp_counter = 0;
     // provide some protection against sudden acceleration
   
-    if (lvel > target_lvel) {
-      if (lvel > target_lvel + MAX_DIFF) {
-        lvel -= MAX_DIFF;
-      } else {
-        lvel = target_lvel;
-      }
-    }
+    if (lvel > target_lvel + MAX_DIFF)
+      lvel -= MAX_DIFF;
+    else if (lvel < target_lvel - MAX_DIFF)
+      lvel += MAX_DIFF;
+    else
+      lvel = target_lvel;
     
-    if (lvel < target_lvel) {
-      if (lvel < target_lvel - MAX_DIFF) {
-        lvel += MAX_DIFF;
-      } else {
-        lvel = target_lvel;
-      }
-    }
-    
-    if (rvel > target_rvel) {
-      if (rvel > target_rvel + MAX_DIFF) {
-        rvel -= MAX_DIFF;
-      } else {
-        rvel = target_rvel;
-      }
-    }
-    
-    if (rvel < target_rvel) {
-      if (rvel < target_rvel - MAX_DIFF) {
-        rvel += MAX_DIFF;
-      } else {
-        rvel = target_rvel;
-      }
-    }
-    
+    if (rvel > target_rvel + MAX_DIFF)
+      rvel -= MAX_DIFF;
+    else if (rvel < target_rvel - MAX_DIFF)
+      rvel += MAX_DIFF;
+    else
+      rvel = target_rvel;
+        
     usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
     usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
     usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
-  
   }
-
   ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
@@ -280,26 +260,24 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
   if (!frame){               //if incoming command
     com = UDR0;              //write rx buffer to command variable
     frame = commands[com];   //number of expected data bytes to follow
-  }else                      //if incoming data
+  } else                     //if incoming data
     data[--frame] = UDR0;    //write rx buffer to data array
   if(!frame)                 //if command is complete
     (*responses[com])(data); //run responder
 }
 
-ISR(INT4_vect){            //Pin Change interrupt handler
-  if(((PINE>>4)^(PING>>5))&1){ // Used for detecting encoder ticks
+ISR(INT4_vect){               //Pin Change interrupt handler
+  if(((PINE>>4)^(PING>>5))&1) // Used for detecting encoder ticks
     tickr++;                  // if they are different, we are rotating one direction
-  }else{
+  else
     tickr--;                  // otherwise, the other direction
-  }
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
-  if(((PINE>>5)^(PINE>>3))&1){ // Used for detecting encoder ticks
+  if(((PINE>>5)^(PINE>>3))&1) // Used for detecting encoder ticks
     tickl++;                  // if they are different, we are rotating one direction
-  }else{
+  else
     tickl--;                  // otherwise, the other direction
-  }
 }
 
 // the timed control loop currently triggers every 9.984 ms
