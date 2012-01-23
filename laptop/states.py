@@ -4,21 +4,22 @@ class State:
     def finish(self):
         pass
 
+want_dump = False
+
 # Bounce around the field.  For now, just turn around.  Eventually drive around walls.
 class FieldBounce(State):
     timeout = 7
-    def __init__(self, min_time = 1, want_dump = False):
+    def __init__(self, min_time = 1):
         left, right = arduino.get_ir()
         self.turn = .5 if left > right else -.5
         self.min_stop_time = time.time() + min_time
-        self.want_dump = want_dump
     def next(self):
         if max(arduino.get_ir()) > .75:
             arduino.drive(-.8, 0)
             self.min_stop_time = max(self.min_stop_time, time.time() + 1)
             return self
         arduino.drive(0, self.turn)
-        if self.want_dump and kinect.yellow_walls:
+        if want_dump and kinect.yellow_walls:
             return WallFollow()
             #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
@@ -75,7 +76,7 @@ class WallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.yellow_walls:
-            return FieldBounce(want_dump=True)
+            return FieldBounce()
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
         wall = max(kinect.yellow_walls, key = lambda w: w['size'])
@@ -97,9 +98,6 @@ class BallSnarf(State):
 class WallHumper(State):
     kp = 1
     def __init__(self, successor=FieldBounce, ir_stop=.95):
-        #NOTE: because we're specifying no arguments, this will default to
-        #FieldBounce with want_dump=False, meaning (essentially) that we can
-        #only dump *once* per game
         self.successor = successor
         self.ir_stop = ir_stop
         self.timeout = 10

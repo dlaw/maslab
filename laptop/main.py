@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 
-import time, cv, numpy as np, arduino, kinect
-from states import *
+import time, cv, numpy as np, arduino, kinect, states
 
 # wait for arduino and kinect to power up
 time.sleep(1)
@@ -17,7 +16,7 @@ while not arduino.get_switch():
 stop_time = time.time() + 180
 arduino.set_helix(True)
 arduino.set_sucker(True)
-state = FieldBounce()
+state = states.FieldBounce()
 print(state.__class__)
 last_change = time.time()
 while time.time() < stop_time - 40: #use last 40 secs for dump
@@ -29,10 +28,10 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         print(e)
         new_state = state
     if (state.timeout is not None) and (time.time() > last_change + state.timeout):
-        if isinstance(state, FieldBounce):
-            new_state = Explore()
+        if isinstance(state, states.FieldBounce):
+            new_state = states.Explore()
         else:
-            new_state = FieldBounce()
+            new_state = states.FieldBounce()
     if state != new_state:
         try:
             state.finish()
@@ -42,7 +41,8 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
         print(new_state.__class__)
         state = new_state
 print("transitioning to dump mode")
-state = FieldBounce(want_dump = True)
+state = states.FieldBounce()
+states.want_dump = True
 while time.time() < stop_time:
     kinect.process_frame()
     try:
