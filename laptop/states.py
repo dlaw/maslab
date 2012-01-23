@@ -11,6 +11,7 @@ class FieldBounce(State):
         self.turn = .5 if left > right else -.5
         self.min_stop_time = time.time() + min_time
         self.want_dump = want_dump
+        self.timeout = None
     def next(self):
         if max(arduino.get_ir()) > .75:
             arduino.drive(-.8, 0)
