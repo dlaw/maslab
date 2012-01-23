@@ -93,7 +93,7 @@ class WallFollow(State):
         self.timeout = timeout
     def next(self):
         if not kinect.yellow_walls:
-            return Reverse()()
+            return Reverse()
         if max(arduino.get_ir()) > .75:
             return WallHumper(successor=DumpBalls)
         wall = max(kinect.yellow_walls, key = lambda w: w['size'])
@@ -146,7 +146,7 @@ class DumpBalls:
     def next(self):
         if time.time() > self.stop_time:
             arduino.set_door(False)
-            return Reverse()()
+            return Reverse()
         return self
     def finish(self):
         arduino.set_door(False)
