@@ -65,8 +65,8 @@ void sendticks(serdata data) {
 }  
 
 void setmotorspeed(serdata data) {
-  int32_t new_ltime = TO_INT32(data, 4)
-  int32_t new_rtime = TO_INT32(data, 0)
+  int32_t new_ltime = TO_INT32(data, 4);
+  int32_t new_rtime = TO_INT32(data, 0);
   navstate = 2;
   
   if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {

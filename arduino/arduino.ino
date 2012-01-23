@@ -118,13 +118,12 @@ void loop(){
     usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
-  ramp_counter++;
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
-    
+    ramp_counter++;
     control_semaphore = 0;  // disable the semaphore
     
     
