@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import time, cv, numpy as np, arduino, kinect, states
+import time, cv, numpy as np, arduino, kinect, states, signal
 
 # wait for arduino and kinect to power up
 time.sleep(1)
@@ -12,6 +12,13 @@ assert kinect.initialized, "kinect not initialized"
 print("ready to go: waiting for switch")
 while not arduino.get_switch():
     time.sleep(.02) # check every 20 ms
+
+def kill_handler(signum, frame):
+    arduino.set_speeds(0, 0)
+    arduino.set_sucker(False)
+    arduino.set_helix(False)
+    exit()
+signal.signal(signal.SIGINT, kill_handler)
 
 stop_time = time.time() + 180
 arduino.set_helix(True)
