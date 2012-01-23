@@ -12,9 +12,7 @@ class FieldBounce:
         # TODO: check IRs to determine if we're on a wall and must back up
         arduino.drive(.6 * (time.time() > self.drive_time), self.turn)
         if want_dump and kinect.yellow_walls:
-            wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
-            if wall['size'] > 100 #min size for something to be a wall
-                return WallHumper(successor=DumpBalls)
+            return WallHumper(successor=DumpBalls)
             #known flaw: WallHumper won't work if the wall isn't straight-ish ahead
         if kinect.balls and time.time() > self.min_stop_time:
             return BallCenter()
