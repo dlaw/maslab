@@ -35,8 +35,8 @@ class BallFollow:
         # TODO: if IRs trigger, drive up to the wall and then FieldBounce
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = self.kp * (ball['col'][0] - 80)
-        arduino.set_speeds(.8 + offset - abs(offset),
-                           .8 - offset - abs(offset))
+        arduino.drive(max(0, .8 - abs(offset)), offset)
+        # slow down if you need to turn more, but never go backwards
         if ball['row'][0] > 80:
             return BallSnarf()
         else:

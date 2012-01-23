@@ -43,6 +43,9 @@ def set_speeds(left, right):
     right_period = right and int(1e6 / (4 * 140.76 * right))
     return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
 
+def drive(fwd, turn):
+    return set_speeds(fwd+turn, fwd-turn)
+
 def get_analog(channel):
     """Ask for an analog reading."""
     return raw_command('B', 'Bb', 2, channel)[0]
@@ -67,3 +70,4 @@ def set_helix(value):
 
 def set_door(value):
     return raw_command('B', 'BB', 14, value) == (0,)
+
