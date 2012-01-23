@@ -46,9 +46,18 @@ states.want_dump = True
 while time.time() < stop_time:
     kinect.process_frame()
     try:
-        state = state.next()
+        new_state = state.next()
+        assert new_state is not None
     except Exception, e:
         print(e)
+    if state != new_state:
+        try:
+            state.finish()
+        except Exception, e:
+            print(e)
+        last_change = time.time()
+        print("{0} with {1} seconds to go".format(new_state.__class__, stop_time - time.time()))
+        state = new_state
 arduino.set_speeds(0, 0) #just in case
 arduino.set_sucker(False)
 arduino.set_helix(False)
