@@ -19,7 +19,7 @@ arduino.set_sucker(True)
 state = states.FieldBounce()
 print(state)
 last_change = time.time()
-while time.time() < stop_time - 40: #use last 40 secs for dump
+while time.time() < stop_time:
     kinect.process_frame()
     try:
         new_state = state.next()
@@ -32,24 +32,10 @@ while time.time() < stop_time - 40: #use last 40 secs for dump
             new_state = states.Explore()
         else:
             new_state = states.Reverse()
-    if state != new_state:
-        try:
-            state.finish()
-        except Exception, e:
-            print(e)
-        last_change = time.time()
-        print("{0} with {1} seconds to go".format(new_state, stop_time - time.time()))
-        state = new_state
-print("transitioning to dump mode")
-state = states.FieldBounce()
-states.want_dump = True
-while time.time() < stop_time:
-    kinect.process_frame()
-    try:
-        new_state = state.next()
-        assert new_state is not None
-    except Exception, e:
-        print(e)
+    if time.time() > stop_time-40 and not states.want_dump:
+        print("transitioning to dump mode")
+        new_state = states.FieldBounce()
+        states.want_dump = True
     if state != new_state:
         try:
             state.finish()
