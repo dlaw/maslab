@@ -7,6 +7,7 @@ class FieldBounce:
         self.turn = .4 if left > right else -.4
         self.min_stop_time = time.time() + min_time
         self.drive_time = time.time() + drive_time
+        self.timeout = None
     def next(self):
         # TODO: check IRs to determine if we're on a wall and must back up
         arduino.drive(.6 * (time.time() > self.drive_time), self.turn)
@@ -23,6 +24,7 @@ class FieldBounce:
 class BallCenter:
     def __init__(self):
         self.stop_time = time.time() + .3
+        self.timeout = .5
     def next(self):
         arduino.drive(0, 0)
         if time.time() > self.stop_time:
@@ -34,9 +36,9 @@ class BallCenter:
 class BallFollow:
     kp = .004
     def __init__(self, timeout=10):
-        self.stop_time = time.time() + timeout
+        self.timeout = timeout
     def next(self):
-        if time.time() > self.stop_time or not kinect.balls:
+        if not kinect.balls:
             return FieldBounce()
         # TODO: if IRs trigger, drive up to the wall and then FieldBounce
         ball = max(kinect.balls, key = lambda ball: ball['size'])
@@ -52,6 +54,7 @@ class BallFollow:
 class BallSnarf:
     def __init__(self):
         self.stop_time = time.time() + 1
+        self.timeout = 1.5
     def next(self):
         if time.time() < self.stop_time:
             arduino.set_sucker(True)
@@ -67,6 +70,7 @@ class WallHumper:
     def __init__(self, successor=FieldBounce, ir_stop=130):
         self.successor = successor
         self.ir_stop = ir_stop
+        self.timeout = 10
     def next(self):
         left_ir, right_ir = arduino.get_ir()
         left = .4 if left_ir < self.ir_stop else 0
@@ -83,7 +87,9 @@ class DumpBalls:
         self.stop_time = time.time() + 2
         arduino.drive(0, 0)
         arduino.set_door(True)
+        self.timeout = 20
     def next(self):
         if time.time() > self.stop_time:
             arduino.set_door(False)
             return FieldBounce()
+

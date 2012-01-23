@@ -21,9 +21,8 @@ last_change = time.time()
 while time.time() < stop_time - 10: #use last 10 secs for dump
     kinect.process_frame()
     new_state = state.next()
-    if time.time() > last_change + 5 # don't spend 5 secs in one state
+    if state.timeout not None and time.time() > last_change + state.timeout
         new_state = FieldBounce()
-    #nitpick: I think we should be comparing the actual objects, not their classnames, because the line above means it's possible to transition from one FieldBounce state to another, which we'd only catch via `if state != new_state`
     if state.__class__ != new_state.__class__:
         last_change = time.time()
         print(new_state.__class__)
