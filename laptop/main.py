@@ -19,7 +19,7 @@ arduino.set_helix(True)
 arduino.set_sucker(True)
 state = FieldBounce()
 last_change = time.time()
-while time.time() < stop_time - 10: #use last 10 secs for dump
+while time.time() < stop_time - 20: #use last 20 secs for dump
     kinect.process_frame()
     new_state = state.next()
     if (state.timeout is not None) and (time.time() > last_change + state.timeout):
