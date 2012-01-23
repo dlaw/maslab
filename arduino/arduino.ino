@@ -71,10 +71,10 @@ void setup(){
   
   //init servo timer
   // servo output pin is 11
-  //TCCR1A = B10100010;
-  //TCCR1B = B00011011;
-  //ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
-  //OCR1A=97;
+  TCCR1A = B10100010;
+  TCCR1B = B00011011;
+  ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
+  OCR1A=97;
    
   pinMode(11, OUTPUT);
 
