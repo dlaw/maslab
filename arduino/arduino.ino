@@ -29,7 +29,6 @@ int32_t last_rerror;
 
 int stall_countl = 0;
 int stall_countr = 0;
-unsigned char ramp_counter;
 
 const int SERVO_PIN = 0;
 
@@ -92,36 +91,11 @@ void setup(){
 }
 
 void loop(){
-  if (ramp_counter > 2) {
-    ramp_counter = 0;
-    // provide some protection against sudden acceleration
-  
-    if (lvel > target_lvel + MAX_DIFF)
-      lvel -= MAX_DIFF;
-    else if (lvel < target_lvel - MAX_DIFF)
-      lvel += MAX_DIFF;
-    else
-      lvel = target_lvel;
-    
-    if (rvel > target_rvel + MAX_DIFF)
-      rvel -= MAX_DIFF;
-    else if (rvel < target_rvel - MAX_DIFF)
-      rvel += MAX_DIFF;
-    else
-      rvel = target_rvel;
-        
-    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
-    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
-    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
-  }
-
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
     control_semaphore = 0;  // disable the semaphore
-    ramp_counter++;
     
     switch (navstate) {
       case 0: // waiting for command
@@ -235,8 +209,27 @@ void loop(){
         tickl = 0;
         tickr = 0;
         break;
-        
+	
     }
+
+    if (lvel > target_lvel + MAX_DIFF)
+      lvel -= MAX_DIFF;
+    else if (lvel < target_lvel - MAX_DIFF)
+      lvel += MAX_DIFF;
+    else
+      lvel = target_lvel;
+    
+    if (rvel > target_rvel + MAX_DIFF)
+      rvel -= MAX_DIFF;
+    else if (rvel < target_rvel - MAX_DIFF)
+      rvel += MAX_DIFF;
+    else
+      rvel = target_rvel;
+        
+    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
+    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
+    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
+    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
 }
 
