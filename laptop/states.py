@@ -111,5 +111,6 @@ class DumpBalls:
         if time.time() > self.stop_time:
             arduino.set_door(False)
             return FieldBounce()
+        return self
     def finish(self):
         arduino.set_door(False)
