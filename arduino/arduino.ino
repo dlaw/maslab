@@ -136,9 +136,9 @@ void loop(){
       }
     }
     
-    usart1_tx((lvel<0 ? 0x8a : 0x88)); //direction
+    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
     usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-    usart1_tx((rvel<0 ? 0x8e : 0x8c)); //direction
+    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   
   }
@@ -274,9 +274,6 @@ void loop(){
 // * INTERRUPT SERVICE ROUTINES *
 // ******************************
 
-
-// This is disabled because it wasn't working reliably with
-// reading battery voltage
 ISR(ADC_vect){               //ADC complete interrupt handler
   analog[adcmap[adchan]]= ADCH;
   adchan++;
@@ -292,7 +289,6 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
     data[--frame] = UDR0;    //write rx buffer to data array
   if(!frame)                 //if command is complete
     (*responses[com])(data); //run responder
-    
 }
 
 ISR(INT4_vect){            //Pin Change interrupt handler
@@ -301,8 +297,6 @@ ISR(INT4_vect){            //Pin Change interrupt handler
   }else{
     tickr--;                  // otherwise, the other direction
   }
-  
-
 }
 
 ISR(INT5_vect){            //Pin Change interrupt handler
