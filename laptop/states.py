@@ -137,10 +137,16 @@ class DumpBalls(State):
         arduino.drive(0, 0)
         arduino.set_door(True)
         self.timeout = 20
+        self.next_shake = time.time() + 0.2
+        self.shake_turn = 0.4
     def next(self):
         if time.time() > self.stop_time:
             arduino.set_door(False)
             return Reverse()
+        if time.time() > self.next_shake:
+            self.next_shake = time.time() + 0.2
+            self.shake_turn *= -1
+        arduino.drive(0, self.shake_turn)
         return self
     def finish(self):
         arduino.set_door(False)
