@@ -200,14 +200,17 @@ class GoToWall(State):
             return self
 
 class FollowWall(State):
-    def __init__(self):
-        self.on_left = random.choice([True, False])
+    def __init__(self, on_left = None):
+        self.on_left = random.choice([True, False]) if on_left is None else on_left
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
+        self.time_look_away = time.time() + constants.wall_follow_time
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
-        if dist > constants.wall_follow_limit: # if we see a wall
+        if time.time() > self.time_look_away:
+            return LookAway(self.on_left)
+        elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, constants.wall_follow_kp *
                           self.dir * (constants.wall_follow_dist - dist))
