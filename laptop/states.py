@@ -54,22 +54,21 @@ class LookAround(State):
             return self
 
 class LookAway(State):
-    def __init__(self, on_right):
-        # on_right is True if we're following a wall on the right, False otherwise
-        self.on_right = on_right
+    def __init__(self, on_left):
+        self.on_left = on_left
         self.turning_back = False
-        if on_right:
-            arduino.rotate(-3.14)
-        else:
+        if on_left:
             arduino.rotate(3.14)
+        else:
+            arduino.rotate(-3.14)
     def default_action(self):
         if arduino.get_angle() == 0:
             if not self.turning_back:
                 self.turning_back = True
-                if on_right:
-                    arduino.rotate(3.14)
-                else:
+                if on_left:
                     arduino.rotate(-3.14)
+                else:
+                    arduino.rotate(3.14)
             else:
                 return FollowWall()
         return self
