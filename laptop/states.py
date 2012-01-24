@@ -113,7 +113,7 @@ class Unstick(State):
         self.unstall_start_time = time.time()
         self.reverse = False
     def next(self, time_left):
-        if max(arduino.get_stall()): # at least one motor is stalled
+        if any(arduino.get_stall()): # at least one motor is stalled
             self.unstall_start_time = time.time()
             if time.time() - self.stall_start_time > constants.stalled_time_before_reverse:
                 self.reverse = not self.reverse
