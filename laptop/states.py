@@ -51,7 +51,7 @@ class LookAround(State):
             return self
 
 class GoToBall(State):
-    def on_ball(self):
+    def on_ball(self): # TODO do the right thing if we're getting close to a wall
         # drive towards the ball
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
