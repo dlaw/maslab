@@ -100,7 +100,7 @@ class HappyDance(State):
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
-    def next(self): # override next so nothing can interrupt a HappyDance
+    def next(self, time_left): # override next so nothing can interrupt a HappyDance
         if time.time() > self.next_shake:
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
