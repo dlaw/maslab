@@ -5,10 +5,6 @@ import time, cv, numpy as np, arduino, kinect, states, signal
 # wait for arduino and kinect to power up
 time.sleep(1)
 
-assert arduino.is_alive(), "could not talk to Arduino"
-assert arduino.get_voltage() > 8, "battery not present or voltage low"
-assert kinect.initialized, "kinect not initialized"
-
 def handler(signum, frame):
     want_change = True
 signal.signal(signal.SIGINT, kill_handler)
