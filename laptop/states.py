@@ -47,6 +47,8 @@ class LookAround(State):
     def default_action(self):
         if arduino.get_angle() == 0: # saw nothing after turning
             return GoToWall() # drive to wall and then enter wall following mode
+        else:
+            return self
 
 class GoToBall(State):
     def on_ball(self):
@@ -86,7 +88,14 @@ class GoToYellow(State):
         return LookAround()
 
 class DumpBalls(State):
-    # override next() in this one
+    def next(self): # override next so nothing can interrupt a dump
+        # TODO wait until close to end of match
+        arduino.set_door(True)
+        return HappyDance()
+
+class HappyDance(State):
+    # TODO wiggle
+    pass
 
 class Unstick(State):
     # override next() in this one
