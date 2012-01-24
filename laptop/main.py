@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 
-import time, cv, numpy as np, arduino, kinect
-from states import *
+import time, cv, numpy as np, arduino, kinect, states, signal
 
 # wait for arduino and kinect to power up
 time.sleep(1)
@@ -14,26 +13,46 @@ print("ready to go: waiting for switch")
 while not arduino.get_switch():
     time.sleep(.02) # check every 20 ms
 
+def kill_handler(signum, frame):
+    arduino.set_speeds(0, 0)
+    arduino.set_sucker(False)
+    arduino.set_helix(False)
+    exit()
+signal.signal(signal.SIGINT, kill_handler)
+
 stop_time = time.time() + 180
 arduino.set_helix(True)
-state = FieldBounce()
+arduino.set_sucker(True)
+state = states.FieldBounce()
+print(state)
 last_change = time.time()
-while time.time() < stop_time - 10: #use last 10 secs for dump
-    kinect.process_frame()
-    new_state = state.next()
-    if state.timeout not None and time.time() > last_change + state.timeout:
-        state.finish()
-        new_state = FieldBounce()
-    if state.__class__ != new_state.__class__:
-        last_change = time.time()
-        print(new_state.__class__)
-    state = new_state
-print "transitioning to dump mode"
-state = FieldBounce(want_dump = True)
 while time.time() < stop_time:
     kinect.process_frame()
-    state = state.next()
+    try:
+        new_state = state.next()
+        assert new_state is not None
+    except Exception, e:
+        print(e)
+        new_state = state
+    if (state.timeout is not None) and (time.time() > last_change + state.timeout):
+        if isinstance(state, states.FieldBounce):
+            new_state = states.Explore()
+        else:
+            new_state = states.Reverse()
+    if time.time() > stop_time-40 and not states.want_dump:
+        print("transitioning to dump mode")
+        new_state = states.FieldBounce()
+        states.want_dump = True
+    if state != new_state:
+        try:
+            state.finish()
+        except Exception, e:
+            print(e)
+        last_change = time.time()
+        print("{0} with {1} seconds to go".format(new_state, stop_time - time.time()))
+        state = new_state
 arduino.set_speeds(0, 0) #just in case
+arduino.set_sucker(False)
 arduino.set_helix(False)
 
 print("finished: main.py exiting")
