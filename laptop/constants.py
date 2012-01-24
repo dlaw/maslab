@@ -12,3 +12,5 @@ wall_follow_kp = .004
 # Ball snarfing: when we consume a ball
 snarf_time = .7 # how long to snarf a ball after losing sight of it
 snarf_speed = 1 # how fast to drive while snarfing
+
+wall_follow_dist = .8 # IR distance for wall following

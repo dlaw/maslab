@@ -112,6 +112,13 @@ class Unstick(State):
 
 class GoToWall(State):
     # Drive straight to a wall, then enter state FollowWall
+    def default_action(self):
+        if max(arduino.get_ir()) > constants.wall_follow_dist:
+            arduino.drive(0, 0)
+            return FollowWall()
+        else:
+            arduino.drive(constants.drive_speed, 0)
+            return self
 
 class FollowWall(State):
     def __init__(self, side, distance):
