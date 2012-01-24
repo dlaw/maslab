@@ -62,7 +62,7 @@ def get_ticks():
 
 def get_ir():
     raise NotImplementedError
-    return [get_analog(0) / 170., get_analog(3) / 144.
+    return [get_analog(0) / 170., get_analog(3) / 144.,
             get_analog(2) / None, get_analog(1) / None]
 
 def get_bump():
