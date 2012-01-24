@@ -1,5 +1,10 @@
 dump_time = 30 # seconds before end-of-match to start looking for yellow wall
 
+drive_speed = .8 # standard drive forward speed
+ball_follow_kp = .004
+close_ball_row = 80 # snarf the ball if its center is below this row
+wall_follow_kp = .004
+
 # Ball snarfing: when we consume a ball
 snarf_time = .7 # how long to snarf a ball after losing sight of it
 snarf_speed = .8 # how fast to drive while snarfing
