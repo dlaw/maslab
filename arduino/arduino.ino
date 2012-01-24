@@ -1,5 +1,6 @@
 #include "commands.h"
 
+// DO NOT MODIFY
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
@@ -29,10 +30,13 @@ int32_t last_rerror;
 
 int stall_countl = 0;
 int stall_countr = 0;
+volatile unsigned char ramp_counter;
 
 const int SERVO_PIN = 0;
 
+// SERIOUSLY, DONT MODIFY
 void setup(){
+  // DO NOT MODIFY THE SETUP
   DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
   DDRG &= ~0x20;  //digital pin 4, right 
   DDRF &= ~0xff;  //adc 2
@@ -68,14 +72,15 @@ void setup(){
   TIMSK5 |= B00100000;
   TCCR5A = 0x00;
   
+    pinMode(11, OUTPUT);
+  
   //init servo timer
   // servo output pin is 11
   TCCR1A = B10100010;
   TCCR1B = B00011011;
   ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
-  OCR1A=97;
-   
-  pinMode(11, OUTPUT);
+  OCR1A=130;
+  
 
   pinMode(6, OUTPUT); // sucker
   digitalWrite(6, LOW);
@@ -91,36 +96,33 @@ void setup(){
 }
 
 void loop(){
-  if (ramp_counter > 2) {
+  // DO NOT MODIFY
+  
+  if (ramp_counter > 1) {
     ramp_counter = 0;
     // provide some protection against sudden acceleration
   
-    if (lvel > target_lvel + MAX_DIFF)
-      lvel -= MAX_DIFF;
-    else if (lvel < target_lvel - MAX_DIFF)
-      lvel += MAX_DIFF;
-    else
-      lvel = target_lvel;
+    if (lvel > target_lvel + MAX_DIFF) lvel -= MAX_DIFF;
+    else if (lvel < target_lvel - MAX_DIFF) lvel += MAX_DIFF;
+    else lvel = target_lvel;
     
-    if (rvel > target_rvel + MAX_DIFF)
-      rvel -= MAX_DIFF;
-    else if (rvel < target_rvel - MAX_DIFF)
-      rvel += MAX_DIFF;
-    else
-      rvel = target_rvel;
+    if (rvel > target_rvel + MAX_DIFF) rvel -= MAX_DIFF;
+    else if (rvel < target_rvel - MAX_DIFF) rvel += MAX_DIFF;
+    else rvel = target_rvel;
         
     usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
     usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
     usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
     usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
-  
-  ramp_counter++;
+
+  // DO NOT MODIFY
 
   // the control loop only triggers if it is allowed to by the timing semaphore
   if (control_semaphore > 10) {
     int rot_speed;
     int vel;
+    
     control_semaphore = 0;  // disable the semaphore
     
     switch (navstate) {
@@ -169,12 +171,13 @@ void loop(){
         break;
         
       case 2: // velocity feedback on motors
+        // DO NOT MODIFY
         int rerror = abs(abs(target_rtime) - rdif);
         int lerror = abs(abs(target_ltime) - ldif);
       
         if (rdif == 0) {
           if (dr == 0) {
-            dr = (target_rtime > 0) ? 24 : -24;
+            dr = (target_rtime > 0) ? 48 : -48;
           }
         } else {
           if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
@@ -186,7 +189,7 @@ void loop(){
         
         if (ldif == 0) {
           if (dl == 0) {
-            dl = (target_ltime > 0) ? 24 : -24;
+            dl = (target_ltime > 0) ? 48 : -48;
           }
         } else {
           if ((ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7)))) {
@@ -208,12 +211,25 @@ void loop(){
           stall_countr = 0;
         }
         
+        // DO NOT MODIFY
         if (stall_countl > 20) {
           dl += (target_ltime > 0) ? 1 : -1;
         }
         
         if (stall_countr > 20) {
           dr += (target_rtime > 0) ? 1 : -1;
+        }
+        
+        if (stall_countr > 200) {
+          target_rtime = 0;
+          dr = 0;
+          stall_countr = 0;
+        }
+        
+        if (stall_countl > 200) {
+          target_ltime = 0;
+          dl = 0;
+          stall_countl = 0;
         }
         
         if (dr > 127) dr = 127;
@@ -228,36 +244,16 @@ void loop(){
         if ((target_ltime == 0)) dl = 0;
         if ((target_rtime == 0)) dr = 0;
 
+        // DO NOT MODIFY
         drive(dl, dr);
-        usart0_tx(ldif >> 8);
-        usart0_tx(ldif);
 
         ldif = 0;
         rdif = 0;
         tickl = 0;
         tickr = 0;
         break;
-	
-    }
-
-    if (lvel > target_lvel + MAX_DIFF)
-      lvel -= MAX_DIFF;
-    else if (lvel < target_lvel - MAX_DIFF)
-      lvel += MAX_DIFF;
-    else
-      lvel = target_lvel;
-    
-    if (rvel > target_rvel + MAX_DIFF)
-      rvel -= MAX_DIFF;
-    else if (rvel < target_rvel - MAX_DIFF)
-      rvel += MAX_DIFF;
-    else
-      rvel = target_rvel;
         
-    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
-    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
-    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
+    }
   }
 }
 
@@ -299,7 +295,7 @@ ISR(INT5_vect){            //Pin Change interrupt handler
 // the timed control loop currently triggers every 9.984 ms
 ISR(TIMER0_COMPA_vect) {
   control_semaphore++;
-
+  ramp_counter++;
 }
 
 ISR(TIMER4_CAPT_vect) {

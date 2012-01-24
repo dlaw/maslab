@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "consts.h"
 
+// DO NOT MODIFY THIS FILE
+
 volatile int32_t dist_to_target;
 volatile int32_t theta_to_target;
 volatile int navstate; // algorithm's internal state
