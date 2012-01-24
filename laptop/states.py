@@ -47,6 +47,8 @@ class LookAround(State):
     def default_action(self):
         if arduino.get_angle() == 0: # saw nothing after turning
             return GoToWall() # drive to wall and then enter wall following mode
+        else:
+            return self
 
 class GoToBall(State):
     def on_ball(self):
