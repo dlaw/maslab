@@ -183,11 +183,15 @@ class FollowWall(State):
         self.on_left = random.choice([True, False])
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
-        self.time_since_wall = 0
+        self.time_wall_seen = time.time()
     def default_action(self):
-        if max(arduino.get_ir()) < constants.wall_follow_limit:
-            # TODO try turning
-            return GoToWall()
-        elif max(arduino.get_
-            # rotate to line up the proper sensor
+        dist = arduino.get_ir()[self.ir]
+        if dist > constants.wall_follow_limit: # if we see a wall
+            self.time_wall_seen = time.time()
+            arduino.drive(constants.drive_speed, constants.wall_follow_kp *
+                          self.dir * (constants.wall_follow_dist - dist))
+        elif time.time() - self.time_wall_seen < constants.wall_follow_timeout:
+            arduino.drive(0, constants.wall_follow_turn * self.dir)
+        else: # lost wall
+            return LookAround()
                  
