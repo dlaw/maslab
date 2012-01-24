@@ -8,7 +8,7 @@ class State:
         Returns a new state if the state shall change, and self otherwise.
         """
         if (any(arduino.get_stall()) or any(arduino.get_bump())
-            or max(arduino.get_ir()) > 1):
+            or max(arduino.get_ir() > 1)):
             return self.on_stuck()
         elif dump_mode and kinect.yellow_walls:
             return self.on_yellow()
@@ -34,12 +34,6 @@ class State:
         Returns a new state if the state shall change, and self otherwise.
         """
         return Unstick()
-    def on_ir(self):
-        """
-        Action to take when we are probably stuck.
-        Returns a new state if the state shall change, and self otherwise.
-        """
-        return FollowWall()
     def default_action(self):
         """
         Action to take if none of the other event handlers apply.

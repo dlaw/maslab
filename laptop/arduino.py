@@ -44,7 +44,14 @@ def set_speeds(left, right):
     return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
 
 def drive(fwd, turn):
-    return set_speeds(fwd+turn, fwd-turn)
+    return set_speeds(fwd + turn, fwd - turn)
+
+def rotate(angle):
+    raise NotImplementedError
+
+def get_angle():
+    # return angle remaining to destination
+    raise NotImplementedError
 
 def get_analog(channel):
     """Ask for an analog reading."""
