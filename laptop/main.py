@@ -29,7 +29,7 @@ arduino.set_sucker(True)
 while time.time() < stop_time:
     kinect.process_frame()
     try:
-        new_state = state.next(dump_mode = (stop_time - time.time() < constants.dump_start))
+        new_state = state.next(stop_time - time.time())
         assert new_state is not None
     except Exception, e:
         print("{0} while attempting to change states".format(e))
