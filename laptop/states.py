@@ -1,52 +1,82 @@
 import arduino, kinect
 
-# We allow multiple state transitions per frame (e.g. LookAround -> GoToBall -> BallSnarf)
-# However, default_action is always the last state transition.
-# Ideally, State.on_*() changes state without taking action,
-# and State.act() takes an action.
-
 class State:
-    def next(state, dump_mode=False): # first param is intentionally not "self"
+    # override next() whenever an action should not be interrupted
+    def next(self, dump_mode=False):
         """
         Superclass method to execute appropriate event handlers and actions.
         Returns a new state if the state shall change, and self otherwise.
         """
-        if dump_mode:
-            if kinect.yellow_walls:
-                state = state.on_yellow(kinect.yellow_walls)
+        if stalled motor or bump sensor triggered:
+            return state.on_stuck()
+        elif IR triggered:
+            return state.on_ir()
+        elif dump_mode and kinect.yellow_walls:
+            return state.on_yellow()
+        elif not dump_mode and kinect.balls:
+            return state.on_ball()
         else:
-            if kinect.balls:
-                state = state.on_ball(kinect.balls)
-        if stalled motor or IR too close or bump sensor triggered:
-            state = state.on_stuck()
-        return state.act()
-    def on_ball(self, balls):
+            return state.default_action()
+    def on_ball(self):
         """
         Action to take when a ball is seen and dump_mode is False.
         Returns a new state if the state shall change, and self otherwise.
         """
         return GoToBall()
-    def on_yellow(self, yellow_walls):
+    def on_yellow(self):
         """
         Action to take when a yellow wall is seen and dump_mode is True.
         Returns a new state if the state shall change, and self otherwise.
         """
         return GoToYellow()
-    def on_stuck(self, params?):
+    def on_stuck(self):
         """
         Action to take when we are probably stuck.
-        Returns a new state if the state shall changem and self otherwise.
+        Returns a new state if the state shall change, and self otherwise.
         """
         return Unstick()
+    def on_ir(self):
+        """
+        Action to take when we are probably stuck.
+        Returns a new state if the state shall change, and self otherwise.
+        """
+        return FollowWall()
+    def default_action(self):
+        """
+        Action to take if none of the other event handlers apply.
+        Returns a new state if the state shall change, and self otherwise.
+        """
+        raise NotImplementedError # subclass has to do this one
+
+class LookAround(State):
+    def default_action(self):
+        pass
 
 class GoToBall(State):
-    def on_ball(self, balls):
-        pass
+    def on_ball(self):
+        
+    def default_action(self):
+
+class SnarfBall(State):
+    # override next() in this one, because we don't know if a ball is present
+    # TODO learn to snarf balls that are up against the wall
 
 class GoToYellow(State):
-    def on_yellow(self, yellow_walls):
+    def on_yellow(self):
         pass
 
+class DumpBalls(State):
+    # override next() in this one
+
 class Unstick(State):
-    def on_stuck(self, params?):
+    # override next() in this one
+
+class GoToWall(State):
+    pass
+
+class FollowWall(State):
+    def __init__(self, side, distance):
         pass
+    # TODO don't go directly to balls/walls if there is a wall in the way
+    def on_ir(self): pass
+    def default_action(self): pass

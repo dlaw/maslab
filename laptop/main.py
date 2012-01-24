@@ -21,37 +21,24 @@ def kill_handler(signum, frame):
 signal.signal(signal.SIGINT, kill_handler)
 
 stop_time = time.time() + 180
+state = states.LookAround()
+
 arduino.set_helix(True)
 arduino.set_sucker(True)
-state = states.FieldBounce()
-print(state)
-last_change = time.time()
+
 while time.time() < stop_time:
     kinect.process_frame()
     try:
-        new_state = state.next()
+        new_state = state.next(dump_mode = (stop_time - time.time() < constants.dump_time))
         assert new_state is not None
     except Exception, e:
-        print(e)
+        print("{0} while attempting to change states".format(e))
         new_state = state
-    if (state.timeout is not None) and (time.time() > last_change + state.timeout):
-        if isinstance(state, states.FieldBounce):
-            new_state = states.Explore()
-        else:
-            new_state = states.Reverse()
-    if time.time() > stop_time-40 and not states.want_dump:
-        print("transitioning to dump mode")
-        new_state = states.FieldBounce()
-        states.want_dump = True
     if state != new_state:
-        try:
-            state.finish()
-        except Exception, e:
-            print(e)
-        last_change = time.time()
         print("{0} with {1} seconds to go".format(new_state, stop_time - time.time()))
         state = new_state
-arduino.set_speeds(0, 0) #just in case
+
+arduino.set_speeds(0, 0) # just in case
 arduino.set_sucker(False)
 arduino.set_helix(False)
 
