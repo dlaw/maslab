@@ -108,7 +108,30 @@ class HappyDance(State):
         return self
 
 class Unstick(State):
-    # override next() in this one
+    def __init__(self):
+        self.stall_start_time = time.time()
+        self.unstall_start_time = time.time()
+        self.reverse = False
+    def next(self, time_left):
+        if max(arduino.get_stall()): # at least one motor is stalled
+            self.unstall_start_time = time.time()
+            if time.time() - self.stall_start_time > constants.stalled_time_before_reverse:
+                self.reverse = not self.reverse
+        else: # neither motor is stalled
+            self.stall_start_time = time.time()
+            if time.time() - self.unstall_start_time > constants.unstalled_time_before_unstuck:
+                pass
+        for triggered, angle in zip(arduino.get_bump(), constants.bump_sensor_angles):
+            if triggered:
+                arduino.escape(angle, self.reverse)
+                return self
+        for value, angle in zip(arduino.get_ir(), constants.bump_sensor_angles):
+            if value > constants.ir_stuck_threshold:
+                arduino.escape(angle, self.reverse)
+                return self
+        #otherwise, just try to back up?
+        arduino.escape(0, self.reverse)
+        return self
 
 class GoToWall(State):
     # Drive straight to a wall, then enter state FollowWall
