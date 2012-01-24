@@ -50,12 +50,14 @@ class State:
 
 class LookAround(State):
     def default_action(self):
-        pass
+        pass # turn 360 degrees, then enter state GoToWall
 
 class GoToBall(State):
     def on_ball(self):
-        
+        # drive
     def default_action(self):
+        # lost the ball
+        return LookAround()
 
 class SnarfBall(State):
     # override next() in this one, because we don't know if a ball is present
@@ -64,6 +66,9 @@ class SnarfBall(State):
 class GoToYellow(State):
     def on_yellow(self):
         pass
+    def default_action(self):
+        # lost the wall
+        return LookAround()
 
 class DumpBalls(State):
     # override next() in this one
@@ -72,7 +77,7 @@ class Unstick(State):
     # override next() in this one
 
 class GoToWall(State):
-    pass
+    # Drive straight to a wall, then enter state FollowWall
 
 class FollowWall(State):
     def __init__(self, side, distance):
