@@ -88,14 +88,26 @@ class GoToYellow(State):
         return LookAround()
 
 class DumpBalls(State):
+    def __init__(self):
+        self.stop_time = time.time() + constants.dump_start - constants.dump_dance
     def next(self): # override next so nothing can interrupt a dump
-        # TODO wait until close to end of match
+        # TODO drive towards the wall
         arduino.set_door(True)
-        return HappyDance()
+        if time.time() < self.stop_time:
+            return self
+        else:
+            return HappyDance()
 
 class HappyDance(State):
-    # TODO wiggle
-    pass
+    def __init__(self):
+        self.next_shake = time.time() + constants.dance_period
+        self.shake_dir = 1
+    def next(self): # override next so nothing can interrupt a HappyDance
+        if time.time() > self.next_shake:
+            self.next_shake = time.time() + constants.dance_period
+            self.shake_dir *= -1
+        arudino.drive(0, self.shake_dir * constants.dance_turn)
+        return self
 
 class Unstick(State):
     # override next() in this one
