@@ -65,18 +65,16 @@ void sendticks(serdata data) {
 }  
 
 void setmotorspeed(serdata data) {
-<<<<<<< HEAD
   // DO NOT CHANGE THESE
   int32_t new_ltime = (uint32_t) data[4] + ((uint32_t) data[5] << 8) + ((uint32_t) data[6] << 16) + ((uint32_t) data[7] << 24);
   int32_t new_rtime = (uint32_t) data[0] + ((uint32_t) data[1] << 8) + ((uint32_t) data[2] << 16) + ((uint32_t) data[3] << 24);
-
   navstate = 2;
   
   if ((new_ltime < 0 & target_ltime > 0) | (new_ltime > 0 & target_ltime < 0)) {
-    dl = (new_ltime > 0) ? 16 : -16;
+    dl = (new_ltime > 0) ? 48 : -48;
   }
   if ((new_rtime < 0 & target_rtime > 0) | (new_rtime > 0 & target_rtime < 0)) {
-    dr = (new_rtime > 0) ? 16 : -16;
+    dr = (new_rtime > 0) ? 48 : -48;
   }
   
   target_ltime = new_ltime;
@@ -111,16 +109,25 @@ void sethelix(serdata data) {
 
 void setdoor(serdata data) {
   if (data[0] == 0x00) {
-    OCR1A=97;
+    OCR1A=130;
   } else {
-    OCR1A=535;
+    OCR1A=340;
   }
   usart0_tx(0x00);
 }
 
+void getbumpsensors(serdata data) {
+  char out = digitalRead(52) << 5;
+  out += digitalRead(51) << 4;
+  out += digitalRead(50) << 3;
+  out += digitalRead(49) << 2;
+  out += digitalRead(48) << 1;
+  out += digitalRead(47);
+}
+
 // How many bytes of data will follow each command?
-unsigned char commands[15]={
-  0,2,1,5,8,0,0,3,0,0,8,0,1,1,1
+unsigned char commands[16]={
+  0,2,1,5,8,0,0,3,0,0,8,0,1,1,1,0
 };
 
 // What function shall be called to respond to each command?
@@ -139,5 +146,6 @@ responder responses[15]={
   &buttonpressed,
   &setsucker,
   &sethelix,
-  &setdoor
+  &setdoor,
+  &getbumpsensors
 };

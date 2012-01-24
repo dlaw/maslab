@@ -1,5 +1,7 @@
 #include <avr/interrupt.h>
 
+// DO NOT MODIFY
+
 void usart0_init(unsigned int baud){
   UBRR0H = (unsigned char)(baud >> 8); //set baud rate register to correct baud
   UBRR0L = (unsigned char)baud;
