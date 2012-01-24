@@ -90,10 +90,10 @@ class GoToYellow(State):
 class DumpBalls(State):
     def next(self, time_left): # override next so nothing can interrupt a dump
         # TODO drive towards the wall
-        arduino.set_door(True)
         if time_left < constants.dump_dance:
             return self
         else:
+            arduino.set_door(True)
             return HappyDance()
 
 class HappyDance(State):
