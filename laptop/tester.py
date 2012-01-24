@@ -7,7 +7,7 @@ time.sleep(1)
 
 def handler(signum, frame):
     want_change = True
-signal.signal(signal.SIGINT, kill_handler)
+signal.signal(signal.SIGINT, handler)
 
 state = states.LookAround()
 
