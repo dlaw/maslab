@@ -15,9 +15,6 @@ ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4]
 ir_stuck_threshold = 0.9
 probability_to_use_bump = 0.9 # when getting unstuck, use bump sensors this percent of the time (as a decimal)
 unstick_times = [.5, .3, 1.] # a list of four times (monotonically increasing), see Unstick() documentation for details
-
-unstalled_time_before_unstuck = 1.0
-stalled_time_before_reverse = 0.3
 escape_drive_kp = 1.0
 escape_turn_kp = 1.0
 
