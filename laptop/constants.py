@@ -15,6 +15,8 @@ ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4]
 ir_stuck_threshold = 0.9
 unstalled_time_before_unstuck = 1.0
 stalled_time_before_reverse = 0.3
+escape_drive_kp = 1.0
+escape_turn_kp = 1.0
 
 # Ball snarfing: when we consume a ball
 snarf_time = .7 # how long to snarf a ball after losing sight of it

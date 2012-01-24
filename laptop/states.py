@@ -1,4 +1,4 @@
-import arduino, kinect, random, time, constants
+import arduino, kinect, random, time, constants, numpy as np
 
 class State:
     # override next() whenever an action should not be interrupted
@@ -133,7 +133,19 @@ class Unstick(State):
         escape(0, self.reverse)
         return self
     def escape(angle, reverse):
-        raise NotImplementedError
+        """
+        We're hitting an obstacle at angle (front of the robot is 0, positive
+        is clockwise) and need to escape. Periodically reverse the direction if
+        the motors are stalling (as passed in to the reverse argument).
+
+        For angles 0 or pi, you want full forward and no turn. For angles pi/2
+        and 3pi/2, you want no forward and only turn. This suggests using trig
+        functions, though maybe there's a better implementation.
+        """
+        offset = np.pi if reverse else 0
+        drive = constants.escape_drive_kp*np.cos(angle+offset)
+        turn = constants.escape_turn_kp*np.sin(angle+offset)
+        arduino.drive(drive, turn)
 
 class GoToWall(State):
     # Drive straight to a wall, then enter state FollowWall
