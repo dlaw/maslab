@@ -2,7 +2,7 @@ import arduino, kinect, random, time, constants
 
 class State:
     # override next() whenever an action should not be interrupted
-    def next(self, dump_mode=False):
+    def next(self, time_left):
         """
         Superclass method to execute appropriate event handlers and actions.
         Returns a new state if the state shall change, and self otherwise.
@@ -10,9 +10,9 @@ class State:
         if (any(arduino.get_stall()) or any(arduino.get_bump())
             or max(arduino.get_ir() > 1)):
             return self.on_stuck()
-        elif dump_mode and kinect.yellow_walls:
+        elif time_left < constants.dump_search and kinect.yellow_walls:
             return self.on_yellow()
-        elif not dump_mode and kinect.balls:
+        elif time_left >= constants.dump_search and kinect.balls:
             return self.on_ball()
         else:
             return state.default_action()
@@ -67,7 +67,7 @@ class GoToBall(State):
 class SnarfBall(State):
     def __init__(self):
         self.stop_time = time.time() + constants.snarf_time
-    def next(self): # override next because we snarf no matter what
+    def next(self, time_left): # override next because we snarf no matter what
         # TODO do the right thing for balls against a wall
         if time.time() < self.stop_time:
             arduino.drive(constants.snarf_speed, 0)
