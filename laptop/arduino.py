@@ -46,9 +46,6 @@ def set_speeds(left, right):
 def drive(fwd, turn):
     return set_speeds(fwd + turn, fwd - turn)
 
-def escape(angle, reverse):
-    raise NotImplementedError
-
 def rotate(angle):
     raise NotImplementedError
 

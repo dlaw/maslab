@@ -123,15 +123,17 @@ class Unstick(State):
                 pass
         for triggered, angle in zip(arduino.get_bump(), constants.bump_sensor_angles):
             if triggered:
-                arduino.escape(angle, self.reverse)
+                escape(angle, self.reverse)
                 return self
         for value, angle in zip(arduino.get_ir(), constants.bump_sensor_angles):
             if value > constants.ir_stuck_threshold:
-                arduino.escape(angle, self.reverse)
+                escape(angle, self.reverse)
                 return self
         #otherwise, just try to back up?
-        arduino.escape(0, self.reverse)
+        escape(0, self.reverse)
         return self
+    def escape(angle, reverse):
+        raise NotImplementedError
 
 class GoToWall(State):
     # Drive straight to a wall, then enter state FollowWall
