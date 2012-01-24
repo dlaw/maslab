@@ -1,4 +1,4 @@
-import arduino, kinect, random
+import arduino, kinect, random, time, constants
 
 class State:
     # override next() whenever an action should not be interrupted
@@ -56,8 +56,15 @@ class GoToBall(State):
         return LookAround()
 
 class SnarfBall(State):
-    # override next() in this one, because we don't know if a ball is present
-    # TODO learn to snarf balls that are up against the wall
+    def __init__(self):
+        self.stop_time = time.time() + constants.snarf_time
+    def next(self): # override next because we snarf no matter what
+        # TODO do the right thing for balls against a wall
+        if time.time() < self.stop_time:
+            arduino.drive(constants.snarf_speed, 0)
+            return self
+        else:
+            return LookAround()
 
 class GoToYellow(State):
     def on_yellow(self):
