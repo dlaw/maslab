@@ -1,5 +1,8 @@
 import arduino, kinect, random, time, constants
 
+# TODO how to lose sight of a ball? either for balls against a wall or
+# for partially obstructed balls.
+
 class State:
     # override next() whenever an action should not be interrupted
     def next(self, time_left):
@@ -68,7 +71,6 @@ class SnarfBall(State):
     def __init__(self):
         self.stop_time = time.time() + constants.snarf_time
     def next(self, time_left): # override next because we snarf no matter what
-        # TODO do the right thing for balls against a wall
         if time.time() < self.stop_time:
             arduino.drive(constants.snarf_speed, 0)
             return self
@@ -79,7 +81,7 @@ class GoToYellow(State):
     def on_yellow(self):
         # drive towards the yellow
         wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
-        offset = constants.wall_follow_kp * (wall['col'][0] - 80)
+        offset = constants.yellow_follow_kp * (wall['col'][0] - 80)
         # slow down if you need to turn more, but never go backwards
         arduino.drive(max(0, .8-abs(offset)), offset)
         return self
@@ -144,11 +146,15 @@ class GoToWall(State):
             return self
 
 class FollowWall(State):
-    def __init__(self, side, distance):
-        pass
-    def on_ball():
-        # if a wall is in the way, ignore the ball
-    def on_yellow():
-        # if a wall is in the way, ignore the yellow
+    def __init__(self):
+        self.on_left = random.choice([True, False])
+        self.ir = 0 if self.on_left else 3
+        self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
+        self.time_since_wall = 0
     def default_action(self):
-        pass
+        if max(arduino.get_ir()) < constants.wall_follow_limit:
+            # TODO try turning
+            return GoToWall()
+        elif max(arduino.get_
+            # rotate to line up the proper sensor
+                 
