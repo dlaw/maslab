@@ -7,14 +7,13 @@ class State:
         Superclass method to execute appropriate event handlers and actions.
         Returns a new state if the state shall change, and self otherwise.
         """
-        if stalled motor or bump sensor triggered:
-            return state.on_stuck()
-        elif IR triggered:
-            return state.on_ir()
+        if (any(arduino.get_stall()) or any(arduino.get_bump())
+            or max(arduino.get_ir()) > 1):
+            return self.on_stuck()
         elif dump_mode and kinect.yellow_walls:
-            return state.on_yellow()
+            return self.on_yellow()
         elif not dump_mode and kinect.balls:
-            return state.on_ball()
+            return self.on_ball()
         else:
             return state.default_action()
     def on_ball(self):
@@ -83,5 +82,4 @@ class FollowWall(State):
     def __init__(self, side, distance):
         pass
     # TODO don't go directly to balls/walls if there is a wall in the way
-    def on_ir(self): pass
     def default_action(self): pass

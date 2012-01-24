@@ -54,7 +54,15 @@ def get_ticks():
     return raw_command('hh', 'B', 8)
 
 def get_ir():
-    return [get_analog(0) / 170., get_analog(3) / 144.]
+    raise NotImplementedError
+    return [get_analog(0) / 170., get_analog(3) / 144.
+            get_analog(2) / None, get_analog(1) / None]
+
+def get_bump():
+    raise NotImplementedError
+
+def get_stall():
+    raise NotImplementedError
 
 def get_voltage():
     return get_analog(4) * 0.0693
