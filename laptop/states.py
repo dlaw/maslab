@@ -90,10 +90,10 @@ class GoToYellow(State):
 class DumpBalls(State):
     def next(self, time_left): # override next so nothing can interrupt a dump
         # TODO drive towards the wall
-        arduino.set_door(True)
         if time_left < constants.dump_dance:
             return self
         else:
+            arduino.set_door(True)
             return HappyDance()
 
 class HappyDance(State):
@@ -135,6 +135,13 @@ class Unstick(State):
 
 class GoToWall(State):
     # Drive straight to a wall, then enter state FollowWall
+    def default_action(self):
+        if max(arduino.get_ir()) > constants.wall_follow_dist:
+            arduino.drive(0, 0)
+            return FollowWall()
+        else:
+            arduino.drive(constants.drive_speed, 0)
+            return self
 
 class FollowWall(State):
     def __init__(self, side, distance):
