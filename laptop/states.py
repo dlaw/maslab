@@ -51,7 +51,7 @@ class LookAround(State):
             return self
 
 class GoToBall(State):
-    def on_ball(self):
+    def on_ball(self): # TODO do the right thing if we're getting close to a wall
         # drive towards the ball
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
@@ -88,16 +88,26 @@ class GoToYellow(State):
         return LookAround()
 
 class DumpBalls(State):
-    def next(self, time_left): # override next so nothing can interrupt a dump
-        if time_left < constants.dump_time:
-            arduino.set_door(True)
-            return HappyDance()
-        else:
+    def __init__(self):
+        self.stop_time = time.time() + constants.dump_start - constants.dump_dance
+    def next(self): # override next so nothing can interrupt a dump
+        # TODO drive towards the wall
+        arduino.set_door(True)
+        if time.time() < self.stop_time:
             return self
+        else:
+            return HappyDance()
 
 class HappyDance(State):
-    # TODO wiggle
-    pass
+    def __init__(self):
+        self.next_shake = time.time() + constants.dance_period
+        self.shake_dir = 1
+    def next(self): # override next so nothing can interrupt a HappyDance
+        if time.time() > self.next_shake:
+            self.next_shake = time.time() + constants.dance_period
+            self.shake_dir *= -1
+        arudino.drive(0, self.shake_dir * constants.dance_turn)
+        return self
 
 class Unstick(State):
     # override next() in this one
