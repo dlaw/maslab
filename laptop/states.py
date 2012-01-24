@@ -52,7 +52,14 @@ class LookAround(State):
 
 class GoToBall(State):
     def on_ball(self):
-        # drive
+        # drive towards the ball
+        ball = max(kinect.balls, key = lambda ball: ball['size'])
+        offset = constants.ball_follow_kp * (ball['col'][0] - 80)
+        # slow down if you need to turn more, but never go backwards
+        arduino.drive(max(0, .8-abs(offset)), offset)
+        if ball['row'][0] > constants.close_ball_row:
+            return SnarfBall()
+        return self
     def default_action(self):
         # lost the ball
         return LookAround()
@@ -70,7 +77,12 @@ class SnarfBall(State):
 
 class GoToYellow(State):
     def on_yellow(self):
-        pass
+        # drive towards the yellow
+        wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
+        offset = constants.wall_follow_kp * (wall['col'][0] - 80)
+        # slow down if you need to turn more, but never go backwards
+        arduino.drive(max(0, .8-abs(offset)), offset)
+        return self
     def default_action(self):
         # lost the wall
         return LookAround()
