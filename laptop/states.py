@@ -88,12 +88,10 @@ class GoToYellow(State):
         return LookAround()
 
 class DumpBalls(State):
-    def __init__(self):
-        self.stop_time = time.time() + constants.dump_start - constants.dump_dance
-    def next(self): # override next so nothing can interrupt a dump
+    def next(self, time_left): # override next so nothing can interrupt a dump
         # TODO drive towards the wall
         arduino.set_door(True)
-        if time.time() < self.stop_time:
+        if time_left < constants.dump_dance:
             return self
         else:
             return HappyDance()
