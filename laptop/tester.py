@@ -6,18 +6,22 @@ import time, cv, numpy as np, arduino, kinect, states, signal
 time.sleep(1)
 
 def handler(signum, frame):
+    global want_change
     want_change = True
 signal.signal(signal.SIGINT, handler)
 
 state = states.LookAround()
+print("Initial state is {0}".format(state))
 
 arduino.set_helix(True)
 arduino.set_sucker(True)
 
 fake_time_left = 180
+want_change = False
 
 while True:
     if want_change:
+        want_change = False
         arduino.set_speeds(0, 0)
         print "Enter a state name and, optionally, a time left (separated by a space), or enter nothing to quit"
         s = raw_input("> ")
