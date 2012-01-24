@@ -125,7 +125,7 @@ class Unstick(State):
             if triggered:
                 escape(angle, self.reverse)
                 return self
-        for value, angle in zip(arduino.get_ir(), constants.bump_sensor_angles):
+        for value, angle in zip(arduino.get_ir(), constants.ir_sensor_angles):
             if value > constants.ir_stuck_threshold:
                 escape(angle, self.reverse)
                 return self
