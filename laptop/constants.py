@@ -1,7 +1,7 @@
 # Ball dumping: timing of the end
 dump_start = 30 # seconds before end-of-match to start looking for yellow wall
 dump_dance = 5 # seconds before end-of-match to start the HappyDance
-dance_turn = 0.4 # the speed at which to turn while dancing
+dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
 drive_speed = 1 # standard drive forward speed
