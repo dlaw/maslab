@@ -53,6 +53,27 @@ class LookAround(State):
         else:
             return self
 
+class LookAway(State):
+    def __init__(self, on_right):
+        # on_right is True if we're following a wall on the right, False otherwise
+        self.on_right = on_right
+        self.turning_back = False
+        if on_right:
+            arduino.rotate(-3.14)
+        else:
+            arduino.rotate(3.14)
+    def default_action(self):
+        if arduino.get_angle() == 0:
+            if not self.turning_back:
+                self.turning_back = True
+                if on_right:
+                    arduino.rotate(3.14)
+                else:
+                    arduino.rotate(-3.14)
+            else:
+                return FollowWall()
+        return self
+
 class GoToBall(State):
     def on_ball(self): # TODO do the right thing if we're getting close to a wall
         # drive towards the ball
