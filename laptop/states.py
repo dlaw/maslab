@@ -74,7 +74,14 @@ class GoToYellow(State):
         return LookAround()
 
 class DumpBalls(State):
-    # override next() in this one
+    def next(self): # override next so nothing can interrupt a dump
+        # TODO wait until close to end of match
+        arduino.set_door(True)
+        return HappyDance()
+
+class HappyDance(State):
+    # TODO wiggle
+    pass
 
 class Unstick(State):
     # override next() in this one
