@@ -1,4 +1,4 @@
-import arduino, kinect
+import arduino, kinect, random
 
 class State:
     # override next() whenever an action should not be interrupted
@@ -42,8 +42,11 @@ class State:
         raise NotImplementedError # subclass has to do this one
 
 class LookAround(State):
+    def __init__(self):
+        arduino.rotate(random.choice([6.29, -6.29])) # 2 pi in either direction
     def default_action(self):
-        pass # turn 360 degrees, then enter state GoToWall
+        if arduino.get_angle() == 0: # saw nothing after turning
+            return GoToWall() # drive to wall and then enter wall following mode
 
 class GoToBall(State):
     def on_ball(self):
@@ -75,5 +78,9 @@ class GoToWall(State):
 class FollowWall(State):
     def __init__(self, side, distance):
         pass
-    # TODO don't go directly to balls/walls if there is a wall in the way
-    def default_action(self): pass
+    def on_ball():
+        # if a wall is in the way, ignore the ball
+    def on_yellow():
+        # if a wall is in the way, ignore the yellow
+    def default_action(self):
+        pass
