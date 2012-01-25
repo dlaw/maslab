@@ -40,7 +40,7 @@ def run(duration = 180):
         time.sleep(.02) # check every 20 ms
     stop_time = time.time() + duration
     state = states.LookAround()
-    timeout_time = stop_time
+    timeout_time = time.time() + state.timeout
     arduino.set_helix(True)
     arduino.set_sucker(True)
     while time.time() < stop_time:
