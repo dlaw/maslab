@@ -37,6 +37,7 @@ follow_wall_timeout = 20 # how long to follow a wall before looking away
 wall_follow_dist = .5 # target distance for wall following
 wall_follow_limit = .3 # maximum distance we can be from a wall
 wall_follow_kp = .3 # this could be off by an order of magnitude
+wall_follow_kd = -.1
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_turn = .7 # how fast to turn after losing a wall
 
