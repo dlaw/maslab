@@ -4,8 +4,6 @@ class SnarfBall(main.State):
     timeout = constants.snarf_time
     def next(self, time_left): # override next because we snarf no matter what
         arduino.drive(constants.snarf_speed, 0)
-    def on_timeout(self):
-        return navigation.LookAround() # lost the wall
 
 class DumpBalls(main.State):
     def next(self, time_left): # override next so nothing can interrupt a dump
