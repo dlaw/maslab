@@ -10,7 +10,7 @@ class SnarfBall(main.State):
 class DumpBalls(main.State):
     def next(self, time_left): # override next so nothing can interrupt a dump
         # TODO line up with the wall
-        if time_left > constants.dump_dance:
+        if time_left < constants.dump_dance:
             arduino.set_door(True)
             return HappyDance()
 
