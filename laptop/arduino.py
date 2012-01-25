@@ -68,9 +68,6 @@ def get_ir():
 def get_bump():
     raise NotImplementedError
 
-def get_stall():
-    raise NotImplementedError
-
 def get_voltage():
     return get_analog(4) * 0.0693
 

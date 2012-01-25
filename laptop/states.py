@@ -4,14 +4,9 @@ import arduino, kinect, random, time, constants, numpy as np
 # for partially obstructed balls.
 
 class State:
-    # override next() whenever an action should not be interrupted
     def next(self, time_left):
-        """
-        Superclass method to execute appropriate event handlers and actions.
-        Returns a new state if the state shall change, and self otherwise.
-        """
-        if (any(arduino.get_stall()) or any(arduino.get_bump())
-            or max(arduino.get_ir() > 1)):
+        """Superclass method to execute appropriate event handlers and actions."""
+        if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
         elif time_left < constants.dump_search and kinect.yellow_walls:
             return self.on_yellow()
@@ -20,29 +15,20 @@ class State:
         else:
             return state.default_action()
     def on_ball(self):
-        """
-        Action to take when a ball is seen and dump_mode is False.
-        Returns a new state if the state shall change, and self otherwise.
-        """
+        """Action to take when a ball is seen and dump_mode is False."""
         return GoToBall()
     def on_yellow(self):
-        """
-        Action to take when a yellow wall is seen and dump_mode is True.
-        Returns a new state if the state shall change, and self otherwise.
-        """
+        """Action to take when a yellow wall is seen and dump_mode is True."""
         return GoToYellow()
     def on_stuck(self):
-        """
-        Action to take when we are probably stuck.
-        Returns a new state if the state shall change, and self otherwise.
-        """
+        """Action to take when we are probably stuck."""
         return Unstick()
     def default_action(self):
-        """
-        Action to take if none of the other event handlers apply.
-        Returns a new state if the state shall change, and self otherwise.
-        """
+        """Action to take if none of the other event handlers apply."""
         raise NotImplementedError # subclass has to do this one
+    def on_timeout(self):
+        """Action to take once self.timeout has passed.""" # called by main.py
+        return LookAround()
 
 class LookAround(State):
     def __init__(self):
@@ -52,26 +38,6 @@ class LookAround(State):
             return GoToWall() # drive to wall and then enter wall following mode
         else:
             return self
-
-class LookAway(State):
-    def __init__(self, on_left):
-        self.on_left = on_left
-        self.turning_back = False
-        if on_left:
-            arduino.rotate(3.14)
-        else:
-            arduino.rotate(-3.14)
-    def default_action(self):
-        if arduino.get_angle() == 0:
-            if not self.turning_back:
-                self.turning_back = True
-                if on_left:
-                    arduino.rotate(-3.14)
-                else:
-                    arduino.rotate(3.14)
-            else:
-                return FollowWall()
-        return self
 
 class GoToBall(State):
     def on_ball(self): # TODO do the right thing if we're getting close to a wall
@@ -217,4 +183,3 @@ class FollowWall(State):
             arduino.drive(0, constants.wall_follow_turn * self.dir)
         else: # lost wall
             return LookAround()
-                 
