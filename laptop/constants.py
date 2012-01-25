@@ -25,10 +25,13 @@ escape_turn_kp = 1.0
 snarf_time = .7 # how long to snarf a ball after losing sight of it
 snarf_speed = 1 # how fast to drive while snarfing
 
+look_around_timeout = 10
+
 # wall following navigation
+follow_wall_timeout = 10
 wall_follow_dist = .9 # target distance for wall following
 wall_follow_limit = .8 # maximum distance we can be from a wall
 wall_follow_kp = 5 # this could be off by an order of magnitude
-wall_follow_timeout = 1 # how long to turn after losing a wall
+lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_turn = .7 # how fast to turn after losing a wall
 wall_follow_time = 10 # how long to follow a wall before looking away

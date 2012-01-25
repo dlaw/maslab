@@ -37,8 +37,11 @@ class GoToWall(main.State):
         arduino.drive(constants.drive_speed, 0)
 
 class FollowWall(main.State):
-    timeout = 10 # times out to LookAround every 10 sec
+    timeout = constants.follow_wall_timeout # times out to LookAround
     def __init__(self, on_left = None):
+        """
+        TODO actually use on_left (currently, we never pass it in as an argument)
+        """
         self.on_left = random.choice([True, False]) if on_left is None else on_left
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
@@ -49,7 +52,7 @@ class FollowWall(main.State):
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, constants.wall_follow_kp *
                           self.dir * (constants.wall_follow_dist - dist))
-        elif time.time() - self.time_wall_seen < constants.wall_follow_timeout:
+        elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
             arduino.drive(0, constants.wall_follow_turn * self.dir)
         else: # lost wall
             return LookAround()
