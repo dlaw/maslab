@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering
+import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback
 
 time.sleep(1) # wait for arduino and kinect to power up
 
@@ -48,6 +48,7 @@ def run():
                 print("{0} with {1} seconds to go".format(state, fake_time_left))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
+            traceback.print_exc(file=sys.stdout)
 
 def change_state(*args):
     global want_change
