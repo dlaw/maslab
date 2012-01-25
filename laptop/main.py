@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, cv, arduino, kinect, navigation, maneuvering, constants
+import signal, time, arduino, kinect, navigation, maneuvering, constants
 
 time.sleep(1) # wait for arduino and kinect to power up
 assert arduino.is_alive(), "could not talk to Arduino"
@@ -17,7 +17,7 @@ class State:
             return self.on_yellow()
         elif time_left >= constants.dump_search and kinect.balls:
             return self.on_ball()
-        return state.default_action()
+        return self.default_action()
     def on_ball(self): # called by State.next if applicable
         """Action to take when a ball is seen and we're not in dump mode."""
         return navigation.GoToBall()
@@ -39,7 +39,7 @@ def run(duration = 180):
     while not arduino.get_switch():
         time.sleep(.02) # check every 20 ms
     stop_time = time.time() + duration
-    state = states.LookAround()
+    state = navigation.LookAround()
     timeout_time = time.time() + state.timeout
     arduino.set_helix(True)
     arduino.set_sucker(True)
@@ -52,8 +52,8 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
-        except Exception, e:
-            print("{0} while attempting to change states".format(e))
+        except Exception, ex:
+            print("{0} while attempting to change states".format(ex))
 
 def kill(*args):
     arduino.drive(0, 0)

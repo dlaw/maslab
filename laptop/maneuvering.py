@@ -20,7 +20,7 @@ class HappyDance(main.State): # dead-end state
         if time.time() > self.next_shake:
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
-        arudino.drive(0, self.shake_dir * constants.dance_turn)
+        arduino.drive(0, self.shake_dir * constants.dance_turn)
 
 class Unstick(main.State):
     def __init__(self):
