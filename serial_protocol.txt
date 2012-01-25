@@ -25,11 +25,11 @@ Command 0x02: read analog data
 	      arduino responds with the one-byte mesured voltage
 
 Command 0x03: has the start switch been switched?
-	      0 bytes sent
+	      0 bytes data
 	      arduino responds with 0x01 if the start switch is on, 0x00 otherwise.
 
 Command 0x04: get bump sensors
-	      0 bytes sent
+	      0 bytes data
 	      Arduino responds with the following bitmap char:
 	      (1 indicates unpressed, 0 indicates depressed)
 			MSB ----------------------------------------------------- LSB
@@ -39,4 +39,8 @@ Command 0x05: set other motor
 	      2 bytes data
 	      first byte: motor to switch (0 = helix, 1 = sucker, 2 = door)
 	      second byte: new value (0 = off/closed, 1 = on/open)
+	      responds with 0x00
+
+Command 0x06: set drive motor speeds (closed loop)
+	      2 ints data: us between left motor ticks and us between right motor ticks
 	      responds with 0x00
