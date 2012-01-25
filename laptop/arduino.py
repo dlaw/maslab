@@ -72,5 +72,5 @@ def set_door(value):
     return raw_command('B', 'BB', 14, value) == (0,)
 
 def get_bump():
-    bumps = raw_command('B', 'B', 15)
+    bumps = raw_command('B', 'B', 15)[0]
     return [bool(bumps & (1 << i)) for i in range(6)]
