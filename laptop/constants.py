@@ -4,7 +4,7 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
-drive_speed = 1 # standard drive forward speed
+drive_speed = .6 # standard drive forward speed
 ball_follow_kp = .004
 close_ball_row = 80 # snarf the ball if its center is below this row
 yellow_follow_kp = .004
@@ -26,17 +26,17 @@ snarf_time = .7 # how long to snarf a ball after losing sight of it
 snarf_speed = 1 # how fast to drive while snarfing
 
 # look around for balls
-look_around_timeout = 10
+look_around_timeout = 3
 look_around_speed = .8
 
 # how close we need to be to a yellow wall before dumping
 dump_ir_threshhold = .9
 
 # wall following navigation
-follow_wall_timeout = 10 # how long to follow a wall before looking away
-wall_follow_dist = .7 # target distance for wall following
-wall_follow_limit = .4 # maximum distance we can be from a wall
-wall_follow_kp = 5 # this could be off by an order of magnitude
+follow_wall_timeout = 20 # how long to follow a wall before looking away
+wall_follow_dist = .5 # target distance for wall following
+wall_follow_limit = .3 # maximum distance we can be from a wall
+wall_follow_kp = .3 # this could be off by an order of magnitude
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_turn = .7 # how fast to turn after losing a wall
 
