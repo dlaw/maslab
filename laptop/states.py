@@ -140,7 +140,7 @@ class Unstick(State):
         elif len(triggered_ir):
             # only IR senors are triggered, or both types are triggered and we randomly chose to look at IR
             choice = random.choice(triggered_ir)
-            self.has_escaped = lambda: return (not arduino.get_ir()[choice])
+            self.has_escaped = lambda: return (arduino.get_ir()[choice] < constants.ir_unstuck_threshold)
             self.escape_angle = constants.ir_sensor_angles[choice] # randomly pick a triggered IR sensor
         else:
             self.escape_angle = None # oops, not good style
