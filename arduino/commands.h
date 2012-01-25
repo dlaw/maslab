@@ -123,6 +123,7 @@ void getbumpsensors(serdata data) {
   out += digitalRead(49) << 2;
   out += digitalRead(48) << 1;
   out += digitalRead(47);
+  usart0_tx(out);
 }
 
 // How many bytes of data will follow each command?
