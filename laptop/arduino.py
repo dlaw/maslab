@@ -37,7 +37,7 @@ def set_motors(left, right):
     return raw_command('B', 'Bbb', 1, int(127*left), int(127*right)) == (0,)
 
 def drive(fwd, turn):
-    return set_speeds(fwd + turn, fwd - turn)
+    return set_motors(fwd + turn, -(fwd - turn)) # negate R, for now only
 
 def get_analog(channel):
     """Ask for an analog reading."""
