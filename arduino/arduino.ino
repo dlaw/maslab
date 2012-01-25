@@ -7,7 +7,7 @@ volatile unsigned char com = 0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
 volatile char frame = 0;
 
-volatile unsigned char control_semaphore;
+volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 
