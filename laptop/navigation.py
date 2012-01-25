@@ -53,6 +53,6 @@ class FollowWall(main.State):
             arduino.drive(constants.drive_speed, constants.wall_follow_kp *
                           self.dir * (constants.wall_follow_dist - dist))
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            arduino.drive(0, constants.wall_follow_turn * self.dir)
+            arduino.drive(constants.drive_speed / 2, constants.wall_follow_turn * self.dir)
         else: # lost wall
             return LookAround()
