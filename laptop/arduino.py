@@ -1,4 +1,4 @@
-import serial, subprocess, struct
+import serial, subprocess, struct, constants
 
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
