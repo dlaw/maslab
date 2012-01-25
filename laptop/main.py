@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, cv, arduino, kinect, navigation, maneuvering
+import signal, time, cv, arduino, kinect, navigation, maneuvering, constants
 
 time.sleep(1) # wait for arduino and kinect to power up
 assert arduino.is_alive(), "could not talk to Arduino"

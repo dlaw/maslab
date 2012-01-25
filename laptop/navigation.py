@@ -1,4 +1,4 @@
-import arduino, random, main, maneuvering
+import arduino, random, main, maneuvering, constants
 
 class LookAround(main.State):
     timeout = constants.look_around_timeout
