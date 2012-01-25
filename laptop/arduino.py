@@ -54,12 +54,7 @@ def get_ticks():
     return raw_command('hh', 'B', 8)
 
 def get_ir():
-    raise NotImplementedError
-    return [get_analog(0) / 170., get_analog(3) / 144.,
-            get_analog(2) / None, get_analog(1) / None]
-
-def get_bump():
-    raise NotImplementedError
+    return [get_analog(i) / constants.ir_max[i] for i in range(4)]
 
 def get_voltage():
     return get_analog(4) * 0.0693
@@ -76,3 +71,6 @@ def set_helix(value):
 def set_door(value):
     return raw_command('B', 'BB', 14, value) == (0,)
 
+def get_bump():
+    bumps = raw_command('B', 'B', 15)
+    return [bool(bumps & (1 << i)) for i in range(6)]
