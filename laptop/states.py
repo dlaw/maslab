@@ -10,8 +10,7 @@ class State:
         Superclass method to execute appropriate event handlers and actions.
         Returns a new state if the state shall change, and self otherwise.
         """
-        if (any(arduino.get_stall()) or any(arduino.get_bump())
-            or max(arduino.get_ir() > 1)):
+        if (any(arduino.get_bump()) or max(arduino.get_ir() > 1)):
             return self.on_stuck()
         elif time_left < constants.dump_search and kinect.yellow_walls:
             return self.on_yellow()
@@ -130,60 +129,50 @@ class HappyDance(State):
         return self
 
 class Unstick(State):
-    """
-    The initialization randomly picks an obstacle and decides to drive away
-    from it. Once we have a direction in mind, we try driving away for t0
-    seconds. If the motors are still stalled, try reversing for t1 before
-    driving forward for t0 again. Now, if the motors are still stalled,
-    generate a new instance of this class (to start over again with new
-    randomness). Once the motors unstall, continue driving for t2 seconds
-    to fully escape.
-
-    constants.unstick_times = [t0, t1, t2] as defined above
-    """
     def __init__(self):
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
         if len(triggered_bump) and (not len(triggered_ir) or np.random.rand()<constants.probability_to_use_bump):
             # only bump sensors are triggered, or both types are triggered and we randomly chose to look at bump
-            self.escape_angle = constants.bump_sensor_angles[random.choice(triggered_bump)] # randomly pick a triggered bump sensor
+            choice = random.choice(triggered_bump)
+            self.has_escaped = lambda: return (not arduino.get_bump()[choice])
+            self.escape_angle = constants.bump_sensor_angles[choice] # randomly pick a triggered bump sensor
         elif len(triggered_ir):
             # only IR senors are triggered, or both types are triggered and we randomly chose to look at IR
-            self.escape_angle = constants.ir_sensor_angles[random.choice(triggered_ir)] # randomly pick a triggered IR sensor
+            choice = random.choice(triggered_ir)
+            self.has_escaped = lambda: return (not arduino.get_ir()[choice])
+            self.escape_angle = constants.ir_sensor_angles[choice] # randomly pick a triggered IR sensor
         else:
             self.escape_angle = None # oops, not good style
-        self.last_time_stalled = time.time()
-        self.unstick_state = 0 # 0 is fwd, 1 is rev, 2 is fwd, 3 is give up (but don't actually set it to 3)
-        self.next_state_change = time.time() + constants.unstick_times[0]
+        self.escaped = False
+        self.reverse = False
+        self.last_change = time.time()
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
             return LookAround()
-        if not any(arduino.get_stall()): # no motors are stalled!
-            self.escape(False)
-            if time.time() - self.last_time_stalled > constants.unstick_times[2]:
+        if self.escaped:
+            if time.time() > self.last_change + constants.unstick_clean_period:
                 return LookAround()
-            return self
-        else:
-            self.last_time_stalled = time.time()
-            if time.time() > self.next_state_change:
-                self.unstick_state += 1
-                if self.unstick_state == 3:
-                    return Unstick()
-                # otherwise, unstick_state is either 1 or 2
-                self.next_state_change = time.time() + constants.unstick_times[2-self.unstick_state] # yes, it works
-            self.escape(self.unstick_state == 1) # reverse only if we're in unstick_state 1
-            return self
-    def escape(self, reverse):
+        elif self.has_escaped():
+            self.escaped = True
+            self.reverse = False
+            self.last_change = time.time()
+        elif time.time() > self.last_change + constants.unstick_wiggle_period[self.reverse]:
+            self.reverse = not self.reverse
+            self.last_change = time.time()
+        self.escape()
+        return self
+    def escape(self):
         """
         We're hitting an obstacle at angle (front of the robot is 0, positive
-        is clockwise) and need to escape. Periodically reverse the direction if
-        the motors are stalling (as passed in to the reverse argument).
+        is clockwise) and need to escape. Periodically reverse the direction
+        (as determined by self.reverse).
 
         For angles 0 or pi, you want full forward and no turn. For angles pi/2
         and 3pi/2, you want no forward and only turn. This suggests using trig
         functions, though maybe there's a better implementation.
         """
-        offset = np.pi if reverse else 0
+        offset = np.pi if self.reverse else 0
         drive = constants.escape_drive_kp * np.cos(self.escape_angle + offset)
         turn = constants.escape_turn_kp * np.sin(self.escape_angle + offset)
         arduino.drive(drive, turn)

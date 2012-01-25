@@ -12,9 +12,12 @@ yellow_follow_kp = .004
 # position of sensors on the robot (0 is straight ahead, positive direction is clockwise)
 bump_sensor_angles = [4.6, 4.0, 3.4, 2.8, 2.2, 1.6]
 ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4]
+# ir_stuck_threshold should be larger than ir_unstuck_threshold
 ir_stuck_threshold = 0.9
+ir_unstuck_threshold = 0.8
 probability_to_use_bump = 0.9 # when getting unstuck, use bump sensors this percent of the time (as a decimal)
-unstick_times = [.5, .3, 1.] # see Unstick() documentation for details
+unstick_wiggle_period = [1.0, 0.4] # list, where first number is how long to try going forward and second is how long to try going backwards
+unstick_clean_period = 1.0 # time to keep moving after getting unstuck
 escape_drive_kp = 1.0
 escape_turn_kp = 1.0
 
