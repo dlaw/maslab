@@ -93,6 +93,26 @@ void setup(){
   
   pinMode(53, INPUT); // start switch
   digitalWrite(53, HIGH); // turn on internal pullup
+
+
+  //setup bump sensor inputs
+  pinMode(52, INPUT);
+  digitalWrite(52, HIGH);
+
+  pinMode(51, INPUT);
+  digitalWrite(51, HIGH);
+
+  pinMode(50, INPUT);
+  digitalWrite(50, HIGH);
+
+  pinMode(49, INPUT);
+  digitalWrite(49, HIGH);
+
+  pinMode(48, INPUT);
+  digitalWrite(48, HIGH);
+
+  pinMode(47, INPUT);
+  digitalWrite(47, HIGH);
 }
 
 void loop(){

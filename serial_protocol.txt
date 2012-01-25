@@ -1,3 +1,4 @@
+
 =======================================
 | pleit cereal communication protocol |
 =======================================
@@ -60,3 +61,9 @@ Command 0x0E: set door
 		1 bytes sent
 		if a zero is sent, door is closed. otherwise, door is open
 		responds with 0x00
+
+Command 0x0F: get bump sensors
+		0 bytes sent
+		Arduino responds with the following bitmap char: (1 indicates unpressed, 0 indicates depressed)
+			MSB ----------------------------------------------------- LSB
+			[NA][NA][Front-left][F-r][Back-left][B-r][Veryback-left][Vb-r]
