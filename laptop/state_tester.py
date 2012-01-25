@@ -17,7 +17,7 @@ def run():
         if want_change:
             want_change = False
             arduino.drive(0, 0)
-            print "Enter a state name and, optionally, a time left (separated by a space), or enter nothing to quit"
+            print "Enter a state constructor (with no spaces) and, optionally, a time left (separated by a space), or enter nothing to quit"
             s = raw_input("> ")
             if s == "":
                 arduino.set_sucker(False)
@@ -31,7 +31,7 @@ def run():
             new_state = None
             for class_name in ["navigation", "maneuvering"]:
                 try:
-                    new_state = eval(class_name + "." + s[0] + "()")
+                    new_state = eval(class_name + "." + s[0])
                     break
                 except AttributeError:
                     continue
