@@ -1,8 +1,7 @@
-import arduino, kinect, random, time, constants, numpy as np
-from unstick import Unstick
+import arduino, kinect, random, time, constants, numpy as np, unstick, navigation
 
-# TODO how to lose sight of a ball? either for balls against a wall or
-# for partially obstructed balls.
+# TODO how to deliberately lose sight of a ball? either for balls
+# against a wall or for partially obstructed balls.
 
 class State:
     def next(self, time_left):
@@ -23,7 +22,7 @@ class State:
         return GoToYellow()
     def on_stuck(self):
         """Action to take when we are probably stuck."""
-        return Unstick()
+        return unstick.Unstick()
     def default_action(self):
         """Action to take if none of the other event handlers apply."""
         raise NotImplementedError # subclass has to do this one
@@ -38,10 +37,10 @@ class LookAround(State):
     def default_action(self):
         arduino.drive(0, self.turn)
     def on_timeout(self):
-        return GoToWall()
+        return navigation.GoToWall() # enter wall-following mode
 
 class GoToBall(State):
-    def on_ball(self): # TODO do the right thing if we're getting close to a wall
+    def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, .8 - abs(offset)), offset)
@@ -81,32 +80,3 @@ class HappyDance(State):
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
         arudino.drive(0, self.shake_dir * constants.dance_turn)
-
-
-class GoToWall(State):
-    # Drive straight to a wall, then enter state FollowWall
-    def default_action(self):
-        if max(arduino.get_ir()) > constants.wall_follow_dist:
-            arduino.drive(0, 0)
-            return FollowWall()
-        arduino.drive(constants.drive_speed, 0)
-
-class FollowWall(State):
-    def __init__(self, on_left = None):
-        self.on_left = random.choice([True, False]) if on_left is None else on_left
-        self.ir = 0 if self.on_left else 3
-        self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
-        self.time_wall_seen = time.time()
-        self.time_look_away = time.time() + constants.wall_follow_time
-    def default_action(self):
-        dist = arduino.get_ir()[self.ir]
-        if time.time() > self.time_look_away:
-            return LookAway(self.on_left)
-        elif dist > constants.wall_follow_limit: # if we see a wall
-            self.time_wall_seen = time.time()
-            arduino.drive(constants.drive_speed, constants.wall_follow_kp *
-                          self.dir * (constants.wall_follow_dist - dist))
-        elif time.time() - self.time_wall_seen < constants.wall_follow_timeout:
-            arduino.drive(0, constants.wall_follow_turn * self.dir)
-        else: # lost wall
-            return LookAround()

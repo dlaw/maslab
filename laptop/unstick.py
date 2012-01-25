@@ -1,7 +1,6 @@
-import numpy as np, constants, random, time, arduino
-from states import LookAround
+import numpy as np, constants, random, time, arduino, states
 
-class Unstick(State):
+class Unstick(states.State):
     def __init__(self):
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
@@ -22,10 +21,10 @@ class Unstick(State):
         self.last_change = time.time()
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
-            return LookAround()
+            return states.LookAround()
         if self.unstick_complete:
             if time.time() > self.last_change + constants.unstick_clean_period:
-                return LookAround()
+                return states.LookAround()
         elif self.trigger_released():
             self.unstick_complete = True
             self.reverse = False
