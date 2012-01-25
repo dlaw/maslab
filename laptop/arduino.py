@@ -1,4 +1,4 @@
-import serial, subprocess, struct
+import serial, subprocess, struct, constants
 
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
@@ -73,4 +73,4 @@ def set_door(value):
 
 def get_bump():
     bumps = raw_command('B', 'B', 15)[0]
-    return [bool(bumps & (1 << i)) for i in range(6)]
+    return [not bool(bumps & (1 << i)) for i in range(6)]
