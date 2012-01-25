@@ -1,6 +1,30 @@
-import numpy as np, constants, random, time, arduino, states
+import numpy as np, constants, random, time, arduino, main, navigation
 
-class Unstick(states.State):
+class SnarfBall(main.State):
+    timeout = constants.snarf_time
+    def next(self, time_left): # override next because we snarf no matter what
+        arduino.drive(constants.snarf_speed, 0)
+    def on_timeout(self):
+        return navigation.LookAround() # lost the wall
+
+class DumpBalls(main.State):
+    def next(self, time_left): # override next so nothing can interrupt a dump
+        # TODO line up with the wall
+        if time_left > constants.dump_dance:
+            arduino.set_door(True)
+            return HappyDance()
+
+class HappyDance(main.State): # dead-end state
+    def __init__(self):
+        self.next_shake = time.time() + constants.dance_period
+        self.shake_dir = 1
+    def next(self, time_left): # override next so nothing can interrupt a HappyDance
+        if time.time() > self.next_shake:
+            self.next_shake = time.time() + constants.dance_period
+            self.shake_dir *= -1
+        arudino.drive(0, self.shake_dir * constants.dance_turn)
+
+class Unstick(main.State):
     def __init__(self):
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
@@ -21,10 +45,10 @@ class Unstick(states.State):
         self.last_change = time.time()
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
-            return states.LookAround()
+            return navigation.LookAround()
         if self.unstick_complete:
             if time.time() > self.last_change + constants.unstick_clean_period:
-                return states.LookAround()
+                return navigation.LookAround()
         elif self.trigger_released():
             self.unstick_complete = True
             self.reverse = False
