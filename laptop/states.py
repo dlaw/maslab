@@ -89,33 +89,33 @@ class Unstick(State):
         if len(triggered_bump) and (not len(triggered_ir) or np.random.rand()<constants.probability_to_use_bump):
             # only bump sensors are triggered, or both types are triggered and we randomly chose to look at bump
             choice = random.choice(triggered_bump)
-            self.has_escaped = lambda: return (not arduino.get_bump()[choice])
+            self.trigger_released = lambda: return (not arduino.get_bump()[choice])
             self.escape_angle = constants.bump_sensor_angles[choice] # randomly pick a triggered bump sensor
         elif len(triggered_ir):
             # only IR senors are triggered, or both types are triggered and we randomly chose to look at IR
             choice = random.choice(triggered_ir)
-            self.has_escaped = lambda: return (arduino.get_ir()[choice] < constants.ir_unstuck_threshold)
+            self.trigger_released = lambda: return (arduino.get_ir()[choice] < constants.ir_unstuck_threshold)
             self.escape_angle = constants.ir_sensor_angles[choice] # randomly pick a triggered IR sensor
         else:
             self.escape_angle = None # oops, not good style
-        self.escaped = False
+        self.unstick_complete = False
         self.reverse = False
         self.last_change = time.time()
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
             return LookAround()
-        if self.escaped:
+        if self.unstick_complete:
             if time.time() > self.last_change + constants.unstick_clean_period:
                 return LookAround()
-        elif self.has_escaped():
-            self.escaped = True
+        elif self.trigger_released():
+            self.unstick_complete = True
             self.reverse = False
             self.last_change = time.time()
         elif time.time() > self.last_change + constants.unstick_wiggle_period[self.reverse]:
             self.reverse = not self.reverse
             self.last_change = time.time()
-        self.escape()
-    def escape(self):
+        self.drive_away()
+    def drive_away(self):
         """
         We're hitting an obstacle at angle (front of the robot is 0, positive
         is clockwise) and need to escape. Periodically reverse the direction
