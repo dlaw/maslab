@@ -1,4 +1,5 @@
 #include "qik.h"
+#include <Arduino.h>
 
 // serdata is an array of volatile unsigned chars
 typedef volatile unsigned char serdata[];
