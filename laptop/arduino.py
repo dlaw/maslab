@@ -46,13 +46,6 @@ def set_speeds(left, right):
 def drive(fwd, turn):
     return set_speeds(fwd + turn, fwd - turn)
 
-def rotate(angle):
-    raise NotImplementedError
-
-def get_angle():
-    # return angle remaining to destination
-    raise NotImplementedError
-
 def get_analog(channel):
     """Ask for an analog reading."""
     return raw_command('B', 'Bb', 2, channel)[0]
