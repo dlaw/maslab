@@ -24,7 +24,17 @@ void setup(){
   usart0_init(baud0);
   usart1_init(baud2);
 
-  timer0_init(20); // period in milliseconds = val * .064 
+  // set Timer0 to CTC mode
+  TCCR0A &= B00000000;
+  TCCR0A |= B00000010;
+  
+  // set /1024 prescaler
+  TCCR0B &= B11111000;
+  TCCR0B |= B00000101;
+
+  OCR0A = 20; // trigger the timer interrupt every 500 us
+  TIMSK0 |= B00000010; // enable interrupt A
+  
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
   
