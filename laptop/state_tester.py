@@ -1,7 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering, constants
-from main import State
+import signal, time, arduino, kinect, navigation, maneuvering
 
 time.sleep(1) # wait for arduino and kinect to power up
 
@@ -17,7 +16,7 @@ def run():
     while True:
         if want_change:
             want_change = False
-            arduino.drive(0, 0)
+            arduino.set_speeds(0, 0)
             print "Enter a state name and, optionally, a time left (separated by a space), or enter nothing to quit"
             s = raw_input("> ")
             if s == "":
@@ -29,8 +28,18 @@ def run():
                 fake_time_left = int(s[1])
             else:
                 fake_time_left = 180
-            state = eval("states." + s[0] + "()")
-            print("State manually changed to {0}".format(state))
+            new_state = None
+            for class_name in ["navigation", "maneuvering"]:
+                try:
+                    new_state = eval(class_name + "." + s[0] + "()")
+                    break
+                except AttributeError:
+                    continue
+            if new_state is None:
+                print("{0} was not found in any of the classes".format(s[0]))
+            else:
+                state = new_state
+                print("State manually changed to {0}".format(state))
         kinect.process_frame()
         try:
             new_state = state.next(fake_time_left)
