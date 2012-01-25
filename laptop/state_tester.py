@@ -16,7 +16,7 @@ def run():
     while True:
         if want_change:
             want_change = False
-            arduino.set_speeds(0, 0)
+            arduino.drive(0, 0)
             print "Enter a state name and, optionally, a time left (separated by a space), or enter nothing to quit"
             s = raw_input("> ")
             if s == "":
