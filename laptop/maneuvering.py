@@ -29,12 +29,12 @@ class Unstick(main.State):
         if len(triggered_bump) and (not len(triggered_ir) or np.random.rand()<constants.probability_to_use_bump):
             # only bump sensors are triggered, or both types are triggered and we randomly chose to look at bump
             choice = random.choice(triggered_bump)
-            self.trigger_released = lambda: return (not arduino.get_bump()[choice])
+            self.trigger_released = lambda: (not arduino.get_bump()[choice])
             self.escape_angle = constants.bump_sensor_angles[choice] # randomly pick a triggered bump sensor
         elif len(triggered_ir):
             # only IR senors are triggered, or both types are triggered and we randomly chose to look at IR
             choice = random.choice(triggered_ir)
-            self.trigger_released = lambda: return (arduino.get_ir()[choice] < constants.ir_unstuck_threshold)
+            self.trigger_released = lambda: (arduino.get_ir()[choice] < constants.ir_unstuck_threshold)
             self.escape_angle = constants.ir_sensor_angles[choice] # randomly pick a triggered IR sensor
         else:
             self.escape_angle = None # oops, not good style
