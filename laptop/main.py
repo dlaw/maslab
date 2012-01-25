@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering, constants
+import signal, time, arduino, kinect, constants
 
 time.sleep(1) # wait for arduino and kinect to power up
 assert arduino.is_alive(), "could not talk to Arduino"
@@ -20,21 +20,26 @@ class State:
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
         """Action to take when a ball is seen and we're not in dump mode."""
+        import navigation
         return navigation.GoToBall()
     def on_yellow(self): # called by State.next if applicable
         """Action to take when a yellow wall is seen and we're in dump mode."""
+        import navigation
         return navigation.GoToYellow()
     def on_stuck(self): # called by State.next if applicable
         """Action to take when we are probably stuck."""
+        import maneuvering
         return maneuvering.Unstick()
     def default_action(self): # called by State.next if applicable
         """Action to take if none of the other event handlers apply."""
         raise NotImplementedError # subclass has to do this one
     def on_timeout(self): # called by main.py if applicable
         """Action to take once self.timeout has passed.""" 
+        import navigation
         return navigation.LookAround()
 
 def run(duration = 180):
+    import navigation
     print("ready to go: waiting for switch")
     while not arduino.get_switch():
         time.sleep(.02) # check every 20 ms
