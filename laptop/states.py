@@ -1,4 +1,5 @@
 import arduino, kinect, random, time, constants, numpy as np
+from unstick import *
 
 # TODO how to lose sight of a ball? either for balls against a wall or
 # for partially obstructed balls.
@@ -31,56 +32,43 @@ class State:
         return LookAround()
 
 class LookAround(State):
+    timeout = constants.look_around_timeout
     def __init__(self):
-        arduino.rotate(random.choice([6.29, -6.29])) # 2 pi in either direction
+        self.turn = random.choice([-1, 1]) * constants.look_around_speed
     def default_action(self):
-        if arduino.get_angle() == 0: # saw nothing after turning
-            return GoToWall() # drive to wall and then enter wall following mode
-        else:
-            return self
+        arduino.drive(0, self.turn)
+    def on_timeout(self):
+        return GoToWall()
 
 class GoToBall(State):
     def on_ball(self): # TODO do the right thing if we're getting close to a wall
-        # drive towards the ball
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
-        # slow down if you need to turn more, but never go backwards
-        arduino.drive(max(0, .8-abs(offset)), offset)
+        arduino.drive(max(0, .8 - abs(offset)), offset)
         if ball['row'][0] > constants.close_ball_row:
             return SnarfBall()
-        return self
     def default_action(self):
-        # lost the ball
         return LookAround()
 
 class SnarfBall(State):
-    def __init__(self):
-        self.stop_time = time.time() + constants.snarf_time
+    timeout = constants.snarf_time
     def next(self, time_left): # override next because we snarf no matter what
-        if time.time() < self.stop_time:
-            arduino.drive(constants.snarf_speed, 0)
-            return self
-        else:
-            return LookAround()
+        arduino.drive(constants.snarf_speed, 0)
+    def on_timeout(self):
+        return LookAround() # lost the wall
 
 class GoToYellow(State):
     def on_yellow(self):
-        # drive towards the yellow
         wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
         offset = constants.yellow_follow_kp * (wall['col'][0] - 80)
-        # slow down if you need to turn more, but never go backwards
-        arduino.drive(max(0, .8-abs(offset)), offset)
-        return self
+        arduino.drive(max(0, .8 - abs(offset)), offset)
     def default_action(self):
-        # lost the wall
-        return LookAround()
+        return LookAround() # lost the wall
 
 class DumpBalls(State):
     def next(self, time_left): # override next so nothing can interrupt a dump
         # TODO drive towards the wall
-        if time_left < constants.dump_dance:
-            return self
-        else:
+        if time_left > constants.dump_dance:
             arduino.set_door(True)
             return HappyDance()
 
@@ -93,7 +81,6 @@ class HappyDance(State):
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
         arudino.drive(0, self.shake_dir * constants.dance_turn)
-        return self
 
 class Unstick(State):
     def __init__(self):
@@ -128,7 +115,6 @@ class Unstick(State):
             self.reverse = not self.reverse
             self.last_change = time.time()
         self.escape()
-        return self
     def escape(self):
         """
         We're hitting an obstacle at angle (front of the robot is 0, positive
@@ -150,9 +136,7 @@ class GoToWall(State):
         if max(arduino.get_ir()) > constants.wall_follow_dist:
             arduino.drive(0, 0)
             return FollowWall()
-        else:
-            arduino.drive(constants.drive_speed, 0)
-            return self
+        arduino.drive(constants.drive_speed, 0)
 
 class FollowWall(State):
     def __init__(self, on_left = None):
