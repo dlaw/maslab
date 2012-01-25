@@ -1,5 +1,5 @@
 # Ball dumping: timing of the end
-dump_start = 30 # seconds before end-of-match to start looking for yellow wall
+dump_search = 30 # seconds before end-of-match to start looking for yellow wall
 dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
@@ -25,13 +25,18 @@ escape_turn_kp = 1.0
 snarf_time = .7 # how long to snarf a ball after losing sight of it
 snarf_speed = 1 # how fast to drive while snarfing
 
+# look around for balls
 look_around_timeout = 10
+look_around_speed = .8
+
+# how close we need to be to a yellow wall before dumping
+dump_ir_threshhold = .9
 
 # wall following navigation
-follow_wall_timeout = 10
+follow_wall_timeout = 10 # how long to follow a wall before looking away
 wall_follow_dist = .9 # target distance for wall following
 wall_follow_limit = .8 # maximum distance we can be from a wall
 wall_follow_kp = 5 # this could be off by an order of magnitude
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_turn = .7 # how fast to turn after losing a wall
-wall_follow_time = 10 # how long to follow a wall before looking away
+
