@@ -7,10 +7,16 @@ class SnarfBall(main.State):
 
 class DumpBalls(main.State):
     def next(self, time_left): # override next so nothing can interrupt a dump
-        # TODO line up with the wall
-        if time_left < constants.dump_dance:
-            arduino.set_door(True)
-            return HappyDance()
+        fl, fr = arduino.get_ir()[1:-1]
+        if min(fl, fr) > constants.dump_ir_final:
+            arduino.drive(0, 0)
+            if time_left < constants.dump_dance:
+                arduino.set_door(True)
+                return HappyDance()
+        elif abs(fl - fr) > constants.dump_ir_turn_tol:
+            arduino.drive(0, (1 if fr > fl else -1) * constants.dump_turn_speed)
+        else:
+            arduino.drive(constants.dump_fwd_speed)
 
 class HappyDance(main.State): # dead-end state
     def __init__(self):
