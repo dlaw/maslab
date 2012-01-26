@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback
+import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, constants
 
 time.sleep(1) # wait for arduino and kinect to power up
 
@@ -23,6 +23,7 @@ def run():
                 arduino.set_helix(False)
                 exit()
             s = s.split(" ")
+            """
             if len(s) > 1:
                 fake_time_left = int(s[1])
             else:
@@ -39,6 +40,9 @@ def run():
             else:
                 state = new_state
                 print("State manually changed to {0}".format(state))
+            """
+            constants.wall_follow_kp = float(s[0])
+            constants.wall_follow_kd = float(s[1])
         kinect.process_frame()
         try:
             new_state = state.next(fake_time_left)
@@ -48,6 +52,9 @@ def run():
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
             traceback.print_exc(file=sys.stdout)
+        if not isinstance(state, navigation.FollowWall):
+            print("Back to FollowWall(on_left=True)")
+            state = navigation.FollowWall(on_left=True)
 
 def change_state(*args):
     global want_change
