@@ -4,7 +4,7 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
-drive_speed = .6 # standard drive forward speed
+drive_speed = .5 # standard drive forward speed
 ball_follow_kp = .004
 close_ball_row = 80 # snarf the ball if its center is below this row
 yellow_follow_kp = .004
