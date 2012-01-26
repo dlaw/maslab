@@ -3,44 +3,18 @@
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
-volatile unsigned char com=0;
+volatile unsigned char com = 0;
 volatile unsigned char data[12]; // max 12 bytes of data per command
-volatile char frame=0;
+volatile char frame = 0;
 
-volatile unsigned char control_semaphore;
-
-int32_t last_theta = 0;
-int32_t accumulated_error = 0;
-int32_t delta;
-int32_t delta_error;
-
-char lvel;
-char rvel;
-
-volatile uint32_t ldif;
-volatile uint32_t rdif;
-
-int32_t a_lerror;
-int32_t a_rerror;
-int32_t d_lerror;
-int32_t d_rerror;
-int32_t last_lerror;
-int32_t last_rerror;
-
-int stall_countl = 0;
-int stall_countr = 0;
+volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 
+// SERIOUSLY, DONT MODIFY
 void setup(){
-  DDRE &= ~0x38;  //digital pins 2,3,5 - (3,5) left (2) right
-  DDRG &= ~0x20;  //digital pin 4, right 
+  // DO NOT MODIFY THE SETUP
   DDRF &= ~0xff;  //adc 2
-  
-  // load all of the parameters from their default values
-  for (int i = 0; i < 8; i ++) {
-    parameters[i] = PARAMETERS[i];
-  }
   adchan=0;           //adc channel selection 
   adc_init(6);      //channel 2, div 64 clock prescaler
   adc_select(adcmap[adchan]);
@@ -49,34 +23,30 @@ void setup(){
   ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
-  //adchan=2;           //adc channel selection 
-  timer0_init(20); // period in milliseconds = val * .064 
+
+  // set Timer0 to CTC mode
+  TCCR0A &= B00000000;
+  TCCR0A |= B00000010;
+  
+  // set /1024 prescaler
+  TCCR0B &= B11111000;
+  TCCR0B |= B00000101;
+
+  OCR0A = 20; // trigger the timer interrupt every 500 us
+  TIMSK0 |= B00000010; // enable interrupt A
+  
   sei();            // start interrupts
   usart1_tx(0xaa);    //initialize the qik controller
   
-  pinMode(48, INPUT);
-  pinMode(49, INPUT);
-  pinMode(5, INPUT);
-  pinMode(4, INPUT);
-  
-  // enable timers 4 + 5
-  TCCR4B |= B00000001;
-  TIMSK4 |= B00100000;
-  TCCR4A = 0x00;
-  
-  TCCR5B |= B00000001;
-  TIMSK5 |= B00100000;
-  TCCR5A = 0x00;
+  pinMode(11, OUTPUT);
   
   //init servo timer
   // servo output pin is 11
-  TCCR1A = B10100010;
-  TCCR1B = B00011011;
-  ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
-  OCR1A=97;
-   
-  pinMode(11, OUTPUT);
-
+  //TCCR1A = B10100010;
+  //TCCR1B = B00011011;
+  //ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
+  //OCR1A=130;
+  
   pinMode(6, OUTPUT); // sucker
   digitalWrite(6, LOW);
   
@@ -88,176 +58,35 @@ void setup(){
   
   pinMode(53, INPUT); // start switch
   digitalWrite(53, HIGH); // turn on internal pullup
+
+  //setup bump sensor inputs
+  pinMode(52, INPUT);
+  digitalWrite(52, HIGH);
+
+  pinMode(51, INPUT);
+  digitalWrite(51, HIGH);
+
+  pinMode(50, INPUT);
+  digitalWrite(50, HIGH);
+
+  pinMode(49, INPUT);
+  digitalWrite(49, HIGH);
+
+  pinMode(48, INPUT);
+  digitalWrite(48, HIGH);
+
+  pinMode(47, INPUT);
+  digitalWrite(47, HIGH);
 }
 
-void loop(){
-  if (ramp_counter > 2) {
+void loop() {
+  if (ramp_counter) { // ramp every 1.28 ms, so 0 to 127 in 162 ms
+    if (target_lvel > current_lvel) current_lvel++;
+    if (target_lvel < current_lvel) current_lvel--;
+    if (target_rvel > current_rvel) current_rvel++;
+    if (target_rvel < current_rvel) current_rvel--;
+    drive(current_lvel, current_rvel);
     ramp_counter = 0;
-    // provide some protection against sudden acceleration
-  
-    if (lvel > target_lvel + MAX_DIFF)
-      lvel -= MAX_DIFF;
-    else if (lvel < target_lvel - MAX_DIFF)
-      lvel += MAX_DIFF;
-    else
-      lvel = target_lvel;
-    
-    if (rvel > target_rvel + MAX_DIFF)
-      rvel -= MAX_DIFF;
-    else if (rvel < target_rvel - MAX_DIFF)
-      rvel += MAX_DIFF;
-    else
-      rvel = target_rvel;
-        
-    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
-    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
-    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
-  }
-  
-  ramp_counter++;
-
-  // the control loop only triggers if it is allowed to by the timing semaphore
-  if (control_semaphore > 10) {
-    int rot_speed;
-    int vel;
-    control_semaphore = 0;  // disable the semaphore
-    
-    switch (navstate) {
-      case 0: // waiting for command
-        if (timeout > 500) {
-          drive(0,0);
-          timeout = 0;
-        }
-        
-        timeout++;
-        break;
-        
-      case 1: // rotate in place
-        update_state(&tickl, &tickr);
-        // update the distance/angle to target from how much we've moved in the last 500 uS
-        // this is commented out until some bugs are fixed
-      
-        accumulated_error += theta_to_target;
-        delta = (theta_to_target - last_theta);
-        
-        if (accumulated_error > 40000000) { accumulated_error = 40000000; }
-        
-        rot_speed = (theta_to_target * parameters[ROT_K]) >> 16;
-        //rot_speed += ((((theta_to_target - last_theta)) * parameters[ROT_K_D]) >> 14);
-        rot_speed += ((accumulated_error * parameters[ROT_K_I]) >> 18);
-        
-        dl = 0 + rot_speed;
-        dr = 0 - rot_speed;
-      
-        
-        if (dl > rotate_speed) dl = rotate_speed;
-        if (dr > rotate_speed) dr = rotate_speed;
-        if (dl < -rotate_speed) dl = -rotate_speed;
-        if (dr < -rotate_speed) dr = -rotate_speed;
-        
-        
-        if ((delta < 2000) & (theta_to_target < parameters[THETA_ACCURACY_THRESHOLD])) { // close enough
-          navstate = 0;   // go back to waiting for commands
-          dl = 0;
-          dr = 0;
-        }
-        
-        
-        drive(dl, dr);
-        last_theta = theta_to_target;
-        break;
-        
-      case 2: // velocity feedback on motors
-        int rerror = abs(abs(target_rtime) - rdif);
-        int lerror = abs(abs(target_ltime) - ldif);
-      
-        if (rdif == 0) {
-          if (dr == 0) {
-            dr = (target_rtime > 0) ? 24 : -24;
-          }
-        } else {
-          if (rdif > (abs(target_rtime) + ((unsigned char) abs(target_rtime) >> 7))) {
-            dr +=  (target_rtime > 0) ? 1 : -1;
-          } else if (rdif < (abs(target_rtime) - ((unsigned char) abs(target_rtime) >> 7))) {
-            dr +=  (target_rtime > 0) ? -1 : 1;
-          }
-        }
-        
-        if (ldif == 0) {
-          if (dl == 0) {
-            dl = (target_ltime > 0) ? 24 : -24;
-          }
-        } else {
-          if ((ldif > (abs(target_ltime) + ((unsigned char) abs(target_ltime) >> 7)))) {
-            dl += (target_ltime > 0) ? 1 : -1;
-          } else if (ldif < (abs(target_ltime) - ((unsigned char) abs(target_ltime) >> 7))) {
-            dl += (target_ltime > 0) ? -1 : 1;
-          }
-        }
-        
-        if (tickl == 0) {
-          stall_countl++;
-        } else {
-          stall_countl = 0;
-        }
-        
-        if (tickr == 0) {
-          stall_countr++;
-        } else {
-          stall_countr = 0;
-        }
-        
-        if (stall_countl > 20) {
-          dl += (target_ltime > 0) ? 1 : -1;
-        }
-        
-        if (stall_countr > 20) {
-          dr += (target_rtime > 0) ? 1 : -1;
-        }
-        
-        if (dr > 127) dr = 127;
-        if (dr < -127) dr = -127;
-        if (dl > 127) dl = 127;
-        if (dl < -127) dl = -127;
-        
-        if ((target_rtime < 0) && (dr > 0)) dr = 0;
-        if ((target_rtime > 0) && (dr < 0)) dr = 0;
-        if ((target_ltime < 0) && (dl > 0)) dl = 0;
-        if ((target_ltime > 0) && (dl < 0)) dl = 0;
-        if ((target_ltime == 0)) dl = 0;
-        if ((target_rtime == 0)) dr = 0;
-
-        drive(dl, dr);
-        usart0_tx(ldif >> 8);
-        usart0_tx(ldif);
-
-        ldif = 0;
-        rdif = 0;
-        tickl = 0;
-        tickr = 0;
-        break;
-	
-    }
-
-    if (lvel > target_lvel + MAX_DIFF)
-      lvel -= MAX_DIFF;
-    else if (lvel < target_lvel - MAX_DIFF)
-      lvel += MAX_DIFF;
-    else
-      lvel = target_lvel;
-    
-    if (rvel > target_rvel + MAX_DIFF)
-      rvel -= MAX_DIFF;
-    else if (rvel < target_rvel - MAX_DIFF)
-      rvel += MAX_DIFF;
-    else
-      rvel = target_rvel;
-        
-    usart1_tx(lvel<0 ? 0x8a : 0x88); //direction
-    usart1_tx(lvel<0 ? -lvel : lvel); //magnitude
-    usart1_tx(rvel<0 ? 0x8e : 0x8c); //direction
-    usart1_tx(rvel<0 ? -rvel : rvel); //magnitude
   }
 }
 
@@ -282,38 +111,7 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
     (*responses[com])(data); //run responder
 }
 
-ISR(INT4_vect){               //Pin Change interrupt handler
-  if(((PINE>>4)^(PING>>5))&1) // Used for detecting encoder ticks
-    tickr++;                  // if they are different, we are rotating one direction
-  else
-    tickr--;                  // otherwise, the other direction
-}
-
-ISR(INT5_vect){            //Pin Change interrupt handler
-  if(((PINE>>5)^(PINE>>3))&1) // Used for detecting encoder ticks
-    tickl++;                  // if they are different, we are rotating one direction
-  else
-    tickl--;                  // otherwise, the other direction
-}
-
-// the timed control loop currently triggers every 9.984 ms
+// the timed control loop currently triggers every 1.28 ms
 ISR(TIMER0_COMPA_vect) {
-  control_semaphore++;
-
-}
-
-ISR(TIMER4_CAPT_vect) {
-  rdif = ICR4;
-  __asm__("nop");
-  TCNT4H = 0x00;
-  TCNT4L = 0x00;
-
-}
-
-ISR(TIMER5_CAPT_vect) {
-  ldif = ICR5;
-  __asm__("nop");
-  TCNT5H = 0x00;
-  TCNT5L = 0x00;
-
+  ramp_counter++;
 }

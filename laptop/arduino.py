@@ -1,4 +1,4 @@
-import serial, subprocess, struct
+import serial, subprocess, struct, constants
 
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
@@ -36,53 +36,31 @@ def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
     return raw_command('B', 'Bbb', 1, int(127*left), int(127*right)) == (0,)
 
-def set_speeds(left, right):
-    """Set motor speeds in rotations per second."""
-    # usecs between motor ticks, or 0 to halt rotation
-    left_period = left and int(1e6 / (4 * 140.76 * left))
-    right_period = right and int(1e6 / (4 * 140.76 * right))
-    return raw_command('B', 'Bii', 10, left_period, right_period) == (0,)
-
 def drive(fwd, turn):
-    return set_speeds(fwd + turn, fwd - turn)
-
-def rotate(angle):
-    raise NotImplementedError
-
-def get_angle():
-    # return angle remaining to destination
-    raise NotImplementedError
+    return set_motors(fwd + turn, -(fwd - turn)) # negate R, for now only
 
 def get_analog(channel):
     """Ask for an analog reading."""
     return raw_command('B', 'Bb', 2, channel)[0]
 
-def get_ticks():
-    return raw_command('hh', 'B', 8)
-
 def get_ir():
-    raise NotImplementedError
-    return [get_analog(0) / 170., get_analog(3) / 144.
-            get_analog(2) / None, get_analog(1) / None]
-
-def get_bump():
-    raise NotImplementedError
-
-def get_stall():
-    raise NotImplementedError
+    return [get_analog(i) / constants.ir_max[i] for i in range(4)]
 
 def get_voltage():
     return get_analog(4) * 0.0693
 
 def get_switch():
-    return bool(raw_command('B', 'B', 11)[0])
+    return bool(raw_command('B', 'B', 3)[0])
 
 def set_sucker(value):
-    return raw_command('B', 'BB', 12, value) == (0,)
+    return raw_command('B', 'BBB', 5, 1, value) == (0,)
 
 def set_helix(value):
-    return raw_command('B', 'BB', 13, value) == (0,)
+    return raw_command('B', 'BBB', 5, 0, value) == (0,)
 
 def set_door(value):
-    return raw_command('B', 'BB', 14, value) == (0,)
+    return raw_command('B', 'BBB', 5, 2, value) == (0,)
 
+def get_bump():
+    bumps = raw_command('B', 'B', 4)[0]
+    return [not bool(bumps & (1 << i)) for i in range(6)]

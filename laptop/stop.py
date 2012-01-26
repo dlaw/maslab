@@ -2,7 +2,7 @@
 
 import arduino
 
-arduino.set_speeds(0, 0) #just in case
+arduino.drive(0, 0)
 arduino.set_sucker(False)
 arduino.set_helix(False)
 

@@ -15,55 +15,33 @@ successfully.
 
 Command 0x00: are you awake?
 	      0 bytes data
-	      arduino responds with 0x00
+	      arduino r esponds with 0x00
 
-Command 0x01: set motor speeds (open loop)
+Command 0x01: set drive motor speeds (open loop)
 	      2 bytes data: left motor speed and right motor speed
               arduino responds with 0x00
 
-Command 0x02: read IR sensor
-              1 byte data: index of IR sensor to read
-	      arduino responds with the one-byte mesured sensor value
+Command 0x02: read analog data
+              1 byte data: index of analog input to read
+	      arduino responds with the one-byte mesured voltage
 
-Command 0x07: change a parameters
-		3 bytes total:
-			1 byte for the parameter number
-				0 - distance between the wheels
-				1 - accuracy threshold for distance (in motor ticks)
-				2 - accuracy threshold for rotations (in radians << 16)
-				3 - proportional gain for rotation in place
-				4 - proportional gain for rotation while moving
-				5 - proportional gain for velocity
-			2 bytes for the parameter value (signed)
-		arduino responds with 1 byte, echoing the parameter number
+Command 0x03: has the start switch been switched?
+	      0 bytes data
+	      arduino responds with 0x01 if the start switch is on, 0x00 otherwise.
 
-Command 0x0A: set motor velocity (closed loop)
-		8 bytes total
-		4 bytes for left motor velocity (signed int)	|period between encoder ticks
-		4 bytes for right motor velocity (signed int)	|valid from ~0x00 00 02 50 -- 0x00 00 40 00
-		responds with 0x00
-
-Command 0x0B: has the switch been switched?
-		0 bytes sent
-		arduino responds with 0x01 if the switch is on, 0x00 otherwise.
-
-Command 0x0C: set sucker
-		1 bytes sent
-		if a zero is sent, sucker is turned off. otherwise, sucker is turned on
-		responds with 0x00
-
-Command 0x0D: set helix
-		1 bytes sent
-		if a zero is sent, helix is turned off. otherwise, helix is turned on
-		responds with 0x00
-
-Command 0x0E: set door
-		1 bytes sent
-		if a zero is sent, door is closed. otherwise, door is open
-		responds with 0x00
-
-Command 0x0F: get bump sensors
-		0 bytes sent
-		Arduino responds with the following bitmap char: (1 indicates unpressed, 0 indicates depressed)
+Command 0x04: get bump sensors
+	      0 bytes data
+	      Arduino responds with the following bitmap char:
+	      (1 indicates unpressed, 0 indicates depressed)
 			MSB ----------------------------------------------------- LSB
 			[NA][NA][Front-left][F-r][Back-left][B-r][Veryback-left][Vb-r]
+
+Command 0x05: set other motor
+	      2 bytes data
+	      first byte: motor to switch (0 = helix, 1 = sucker, 2 = door)
+	      second byte: new value (0 = off/closed, 1 = on/open)
+	      responds with 0x00
+
+Command 0x06: set drive motor speeds (closed loop)
+	      2 ints data: us between left motor ticks and us between right motor ticks
+	      responds with 0x00
