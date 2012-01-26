@@ -1,4 +1,5 @@
 #include "commands.h"
+#include "external_interrupt.h"
 
 #define baud0 103  //500k baud rate
 #define baud2 25 //38.4k baud rate
