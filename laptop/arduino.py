@@ -1,4 +1,4 @@
-import serial, subprocess, struct, constants
+import serial, subprocess, struct, constants, numpy as np
 
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
@@ -34,17 +34,22 @@ def is_alive():
 
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
-    return raw_command('B', 'Bbb', 1, int(127*left), int(127*right)) == (0,)
+    left = np.clip(left, -1, 1)
+    right = np.clip(right, -1, 1)
+    print "set_motors", left, right
+    return raw_command('B', 'Bbb', 1, int(127*right), int(127*left)) == (0,)
 
 def drive(fwd, turn):
-    return set_motors(fwd + turn, -(fwd - turn)) # negate R, for now only
+    print "drive", fwd, turn
+    return set_motors(fwd + turn, fwd - turn)
 
 def get_analog(channel):
     """Ask for an analog reading."""
     return raw_command('B', 'Bb', 2, channel)[0]
 
 def get_ir():
-    return [get_analog(i) / constants.ir_max[i] for i in range(4)]
+    return [get_analog(i) / constants.ir_max[j] for i, j in 
+            zip([1, 0, 3, 2], range(4))]
 
 def get_voltage():
     return get_analog(4) * 0.0693
@@ -62,5 +67,6 @@ def set_door(value):
     return raw_command('B', 'BBB', 5, 2, value) == (0,)
 
 def get_bump():
+    return [False for i in range(2)]
     bumps = raw_command('B', 'B', 4)[0]
-    return [not bool(bumps & (1 << i)) for i in range(6)]
+    return [not bool(bumps & (1 << i)) for i in range(2)]

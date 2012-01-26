@@ -4,13 +4,13 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
-drive_speed = .6 # standard drive forward speed
+drive_speed = .5 # standard drive forward speed
 ball_follow_kp = .004
 close_ball_row = 80 # snarf the ball if its center is below this row
 yellow_follow_kp = .004
 
 # position of sensors on the robot (0 is straight ahead, positive direction is clockwise)
-bump_sensor_angles = [4.6, 4.0, 3.4, 2.8, 2.2, 1.6]
+bump_sensor_angles = [2.36, 3.93] # 45 degrees from straight behind
 ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4]
 # ir_stuck_threshold should be larger than ir_unstuck_threshold
 ir_stuck_threshold = 0.9
@@ -36,9 +36,9 @@ dump_ir_threshhold = .9
 follow_wall_timeout = 20 # how long to follow a wall before looking away
 wall_follow_dist = .5 # target distance for wall following
 wall_follow_limit = .3 # maximum distance we can be from a wall
-wall_follow_kp = .3 # this could be off by an order of magnitude
-wall_follow_kd = -.1
+wall_follow_kp = .5 # this could be off by an order of magnitude
+wall_follow_kd = 10. 
 lost_wall_timeout = 1 # how long to turn after losing a wall
-wall_follow_turn = .7 # how fast to turn after losing a wall
+wall_follow_turn = .4 # how fast to turn after losing a wall
 
-ir_max = [100., 165., 145., 95.]
+ir_max = [101., 165., 102., 107.]
