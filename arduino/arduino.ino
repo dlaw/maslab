@@ -1,6 +1,6 @@
 #include "commands.h"
 
-#define baud0 1  //500k baud rate
+#define baud0 103  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com = 0;
