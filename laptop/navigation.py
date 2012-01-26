@@ -51,7 +51,9 @@ class FollowWall(main.State):
         dist = arduino.get_ir()[self.ir]
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist 
         if self.last_err is None: self.last_err = self.err # initialize D to 0
-        if dist > constants.wall_follow_limit: # if we see a wall
+        if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+            arduino.drive(0, constants.wall_follow_turn * -1 * self.dir)
+        elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, self.dir * 
                           (constants.wall_follow_kp * self.err + 
