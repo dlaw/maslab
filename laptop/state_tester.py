@@ -11,7 +11,6 @@ def run():
     print("starting state_tester.py")
     state = navigation.LookAround()
     arduino.set_helix(True)
-    arduino.set_sucker(True)
     fake_time_left = 180
     while True:
         if want_change:
