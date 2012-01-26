@@ -10,7 +10,7 @@ close_ball_row = 80 # snarf the ball if its center is below this row
 yellow_follow_kp = .004
 
 # position of sensors on the robot (0 is straight ahead, positive direction is clockwise)
-bump_sensor_angles = [4.6, 4.0, 3.4, 2.8, 2.2, 1.6]
+bump_sensor_angles = [2.36, 3.93] # 45 degrees from straight behind
 ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4]
 # ir_stuck_threshold should be larger than ir_unstuck_threshold
 ir_stuck_threshold = 0.9
