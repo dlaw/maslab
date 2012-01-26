@@ -42,18 +42,18 @@ class FollowWall(main.State):
         """
         TODO actually use on_left (currently, we never pass it in as an argument)
         """
-        self.on_left = random.choice([True, False]) if on_left is None else on_left
+        #self.on_left = random.choice([True, False]) if on_left is None else on_left
+        self.on_left = False
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
         self.err = None
-    def next(self, time_left):
-        return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
-        self.last_err, self.err = self.err, constants.wall_follow_dist - dist 
+        self.last_err, self.err = self.err, constants.wall_follow_dist - dist
         if self.last_err is None: self.last_err = self.err # initialize D to 0
         if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+            self.time_wall_seen = time.time()
             arduino.drive(0, constants.wall_follow_turn * -1 * self.dir)
         elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
@@ -61,7 +61,6 @@ class FollowWall(main.State):
                           (constants.wall_follow_kp * self.err + 
                            constants.wall_follow_kd * (self.err - self.last_err)))
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            arduino.drive(constants.drive_speed / 2, constants.wall_follow_turn * self.dir)
+            arduino.drive(constants.drive_speed / 3, constants.wall_follow_turn * self.dir)
         else: # lost wall
-            print "lost wall"
             return LookAround()

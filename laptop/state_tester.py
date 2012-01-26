@@ -4,13 +4,13 @@ import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, c
 
 time.sleep(1) # wait for arduino and kinect to power up
 
-want_change = False
+want_change = True
 
 def run():
     global want_change
     print("starting state_tester.py")
     state = navigation.LookAround()
-    arduino.set_helix(True)
+    #arduino.set_helix(True)
     fake_time_left = 180
     while True:
         if want_change:
@@ -23,7 +23,6 @@ def run():
                 arduino.set_helix(False)
                 exit()
             s = s.split(" ")
-            """
             if len(s) > 1:
                 fake_time_left = int(s[1])
             else:
@@ -43,6 +42,7 @@ def run():
             """
             constants.wall_follow_kp = float(s[0])
             constants.wall_follow_kd = float(s[1])
+            """
         kinect.process_frame()
         try:
             new_state = state.next(fake_time_left)
@@ -52,9 +52,11 @@ def run():
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
             traceback.print_exc(file=sys.stdout)
+        """
         if not isinstance(state, navigation.FollowWall):
-            print("Back to FollowWall(on_left=True)")
-            state = navigation.FollowWall(on_left=True)
+            print("Back to FollowWall(on_left=False)")
+            state = navigation.FollowWall(on_left=False)
+        """
 
 def change_state(*args):
     global want_change
