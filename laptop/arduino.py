@@ -44,7 +44,8 @@ def get_analog(channel):
     return raw_command('B', 'Bb', 2, channel)[0]
 
 def get_ir():
-    return [get_analog(i) / constants.ir_max[i] for i in range(4)]
+    return [get_analog(i) / constants.ir_max[j] for i, j in 
+            zip([1, 0, 3, 2], range(4))]
 
 def get_voltage():
     return get_analog(4) * 0.0693
