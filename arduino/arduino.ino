@@ -1,7 +1,7 @@
 #include "commands.h"
 #include "external_interrupt.h"
 
-#define baud0 103  //500k baud rate
+#define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
 
 volatile unsigned char com = 0;
@@ -21,7 +21,7 @@ void setup(){
   adc_select(adcmap[adchan]);
   adc_start();
 
-  ext_int_init();   //left motor pcint init
+  //ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
 
@@ -37,7 +37,6 @@ void setup(){
   TIMSK0 |= B00000010; // enable interrupt A
   
   sei();            // start interrupts
-  usart1_tx(0xaa);    //initialize the qik controller
   
   pinMode(11, OUTPUT);
   
@@ -48,14 +47,8 @@ void setup(){
   //ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
   //OCR1A=130;
   
-  pinMode(6, OUTPUT); // sucker
-  digitalWrite(6, LOW);
-  
-  pinMode(7, OUTPUT); // helix
-  digitalWrite(7, LOW);
-  
-  pinMode(8, OUTPUT); // shooter
-  digitalWrite(8, LOW);
+  DDRH  |= B00111000;
+  PORTH &= B11000111;
   
   pinMode(53, INPUT); // start switch
   digitalWrite(53, HIGH); // turn on internal pullup
@@ -81,7 +74,7 @@ void setup(){
 }
 
 void loop() {
-  if (ramp_counter) { // ramp every 1.28 ms, so 0 to 127 in 162 ms
+  if (ramp_counter) {
     if (target_lvel > current_lvel) current_lvel++;
     if (target_lvel < current_lvel) current_lvel--;
     if (target_rvel > current_rvel) current_rvel++;

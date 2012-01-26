@@ -36,12 +36,8 @@ void button_pressed(serdata data) {
 // command 0x04
 // get state of bump sensors
 void get_bump(serdata data) {
-  char out = digitalRead(52) << 5;
-  out += digitalRead(51) << 4;
-  out += digitalRead(50) << 3;
-  out += digitalRead(49) << 2;
-  out += digitalRead(48) << 1;
-  out += digitalRead(47);
+  char out = digitalRead(51) << 1;
+  out += digitalRead(50);
   usart0_tx(out);
 }
 
@@ -50,12 +46,30 @@ void get_bump(serdata data) {
 void set_motor(serdata data) {
   // data[1] is index of motor: 0 helix, 1 sucker, 2 door
   // data[0] is new value
-  if (data[1] == 2)
-    digitalWrite(8, data[0] ? HIGH : LOW);
-  else
-    digitalWrite(data[1] ? 6 : 7, data[0] ? HIGH : LOW);
+  if (data[1] == 2) {
+    if (data[0]) {
+      PORTH |= B00100000;
+    } else {
+      PORTH &= B11011111;
+    }
+  } else if (data[1] == 0) {
+    if (data[0]) {
+      PORTH |= B00010000;
+    } else {
+      PORTH &= B11101111;
+    }
+  } else if (data[1] == 1) {
+    if (data[0]) {
+      PORTH |= B00001000;
+    } else {
+      PORTH &= B11110111;
+    }
+  }
     
   usart0_tx(0x00);
+  
+
+  drive(current_lvel, current_rvel);
 }
 
 // How many bytes of data will follow each command?
