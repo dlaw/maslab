@@ -51,9 +51,10 @@ void set_motor(serdata data) {
   // data[1] is index of motor: 0 helix, 1 sucker, 2 door
   // data[0] is new value
   if (data[1] == 2)
-    OCR1A = data[0] ? 340 : 130;
+    digitalWrite(8, data[0] ? HIGH : LOW);
   else
     digitalWrite(data[1] ? 6 : 7, data[0] ? HIGH : LOW);
+    
   usart0_tx(0x00);
 }
 
