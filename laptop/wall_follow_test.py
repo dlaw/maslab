@@ -49,8 +49,6 @@ def run():
     global want_change
     print("starting wall_follow_test.py")
     state = FollowWallTest()
-    arduino.set_helix(True)
-    arduino.set_sucker(True)
     fake_time_left = 180
     while True:
         if want_change:
@@ -59,8 +57,6 @@ def run():
             print "Enter kp and kd, separated by a space"
             s = raw_input("> ")
             if s == "":
-                arduino.set_sucker(False)
-                arduino.set_helix(False)
                 exit()
             s = s.split(" ")
             constants.wall_follow_kp = float(s[0])
