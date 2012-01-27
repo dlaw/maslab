@@ -64,8 +64,12 @@ class Unstick(main.State):
         For angles 0 or pi, you want full forward and no turn. For angles pi/2
         and 3pi/2, you want no forward and only turn. This suggests using trig
         functions, though maybe there's a better implementation.
+
+        Note that escape_angle is the angle of the sensor, but the trig
+        functions rely on having the angle you want to drive, so offset should
+        be pi when we're *not* reversed.
         """
-        offset = np.pi if self.reverse else 0
+        offset = 0 if self.reverse else np.pi
         drive = constants.escape_drive_kp * np.cos(self.escape_angle + offset)
         turn = constants.escape_turn_kp * np.sin(self.escape_angle + offset)
         arduino.drive(drive, turn)
