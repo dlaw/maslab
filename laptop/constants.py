@@ -41,4 +41,4 @@ wall_follow_kd = 10.
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_turn = .5 # how fast to turn after losing a wall
 
-ir_max = [101., 165., 102., 107.]
+ir_max = [101., 102., 165., 107.]
