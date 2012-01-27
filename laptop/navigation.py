@@ -25,7 +25,7 @@ class GoToYellow(main.State):
         offset = constants.yellow_follow_kp * (wall['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
         if (max(arduino.get_ir()[1:-1]) > constants.dump_ir_threshhold
-            and wall['size'] > 5000):
+            and wall['size'] > 3500):
             return maneuvering.DumpBalls()
     def default_action(self):
         return LookAround() # lost the wall
