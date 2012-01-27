@@ -38,22 +38,21 @@ class Unstick(main.State):
             self.escape_angle = constants.ir_sensor_angles[choice] # randomly pick a triggered IR sensor
         else:
             self.escape_angle = None # oops, not good style
-        self.unstick_complete = False
-        self.reverse = False
-        self.last_change = time.time()
+        if self.escape_angle is not None:
+            self.escape_angle += random.uniform(-1.6, 1.6) # add some randomness
+            self.unstick_complete = False
+            self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
             return navigation.LookAround()
         if self.unstick_complete:
-            if time.time() > self.last_change + constants.unstick_clean_period:
+            if time.time() > self.stop_time:
                 return navigation.LookAround()
         elif self.trigger_released():
             self.unstick_complete = True
-            self.reverse = False
-            self.last_change = time.time()
-        elif time.time() > self.last_change + constants.unstick_wiggle_period[self.reverse]:
-            self.reverse = not self.reverse
-            self.last_change = time.time()
+            self.stop_time = time.time() + constants.unstick_clean_period
+        elif time.time() > self.stop_time:
+            return Unstick()
         self.drive_away()
     def drive_away(self):
         """
@@ -66,10 +65,8 @@ class Unstick(main.State):
         functions, though maybe there's a better implementation.
 
         Note that escape_angle is the angle of the sensor, but the trig
-        functions rely on having the angle you want to drive, so offset should
-        be pi when we're *not* reversed.
+        functions rely on having the angle you want to drive, so add pi.
         """
-        offset = 0 if self.reverse else np.pi
-        drive = constants.escape_drive_kp * np.cos(self.escape_angle + offset)
-        turn = constants.escape_turn_kp * np.sin(self.escape_angle + offset)
+        drive = constants.escape_drive_kp * np.cos(self.escape_angle + np.pi)
+        turn = constants.escape_turn_kp * np.sin(self.escape_angle + np.pi)
         arduino.drive(drive, turn)
