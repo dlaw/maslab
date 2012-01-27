@@ -1,4 +1,5 @@
 #include "commands.h"
+#include "external_interrupt.h"
 
 #define baud0 1  //500k baud rate
 #define baud2 25 //38.4k baud rate
@@ -11,18 +12,18 @@ volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 
-// SERIOUSLY, DONT MODIFY
 void setup(){
-  // DO NOT MODIFY THE SETUP
   DDRF &= ~0xff;  //adc 2
   adchan=0;           //adc channel selection 
   adc_init(6);      //channel 2, div 64 clock prescaler
   adc_select(adcmap[adchan]);
   adc_start();
 
-  ext_int_init();   //left motor pcint init
+  //ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
+
+  qik_init();		//qik initialization (pwm frequency)
 
   // set Timer0 to CTC mode
   TCCR0A &= B00000000;
@@ -36,7 +37,6 @@ void setup(){
   TIMSK0 |= B00000010; // enable interrupt A
   
   sei();            // start interrupts
-  usart1_tx(0xaa);    //initialize the qik controller
   
   pinMode(11, OUTPUT);
   
@@ -47,14 +47,8 @@ void setup(){
   //ICR1=4999;  //fPWM=50Hz (Period = 20ms Standard). 
   //OCR1A=130;
   
-  pinMode(6, OUTPUT); // sucker
-  digitalWrite(6, LOW);
-  
-  pinMode(7, OUTPUT); // helix
-  digitalWrite(7, LOW);
-  
-  pinMode(8, OUTPUT); // shooter
-  digitalWrite(8, LOW);
+  DDRH  |= B00111000;
+  PORTH &= B11000111;
   
   pinMode(53, INPUT); // start switch
   digitalWrite(53, HIGH); // turn on internal pullup
@@ -77,10 +71,13 @@ void setup(){
 
   pinMode(47, INPUT);
   digitalWrite(47, HIGH);
+  
+  pinMode(36, INPUT);      //qik reset
+  digitalWrite(36, LOW);
 }
 
 void loop() {
-  if (ramp_counter) { // ramp every 1.28 ms, so 0 to 127 in 162 ms
+  if (ramp_counter) {
     if (target_lvel > current_lvel) current_lvel++;
     if (target_lvel < current_lvel) current_lvel--;
     if (target_rvel > current_rvel) current_rvel++;
