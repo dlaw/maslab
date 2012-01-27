@@ -1,5 +1,5 @@
-#include <avr/interrupt.h>
 #include "usart.h"
+#include <Arduino.h>
 
 volatile unsigned char adcmap[5] = {2,5,4,3,9};
 volatile unsigned char analog[15];

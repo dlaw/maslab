@@ -71,6 +71,9 @@ void setup(){
 
   pinMode(47, INPUT);
   digitalWrite(47, HIGH);
+  
+  pinMode(36, INPUT);      //qik reset
+  digitalWrite(36, LOW);
 }
 
 void loop() {
