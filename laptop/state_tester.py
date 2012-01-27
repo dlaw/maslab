@@ -11,6 +11,7 @@ def run():
     print("starting state_tester.py")
     state = navigation.LookAround()
     arduino.set_helix(True)
+    arduino.set_sucker(True)
     fake_time_left = 180
     while True:
         if want_change:
@@ -23,7 +24,6 @@ def run():
                 arduino.set_helix(False)
                 exit()
             s = s.split(" ")
-            """
             if len(s) > 1:
                 fake_time_left = int(s[1])
             else:
@@ -43,6 +43,7 @@ def run():
             """
             constants.wall_follow_kp = float(s[0])
             constants.wall_follow_kd = float(s[1])
+            """
         kinect.process_frame()
         try:
             new_state = state.next(fake_time_left)

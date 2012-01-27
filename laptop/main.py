@@ -47,6 +47,7 @@ def run(duration = 180):
     state = navigation.LookAround()
     timeout_time = time.time() + state.timeout
     arduino.set_helix(True)
+    arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
         try:

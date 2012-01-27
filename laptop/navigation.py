@@ -48,8 +48,6 @@ class FollowWall(main.State):
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
         self.err = None
-    def next(self, time_left):
-        return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist
@@ -65,5 +63,4 @@ class FollowWall(main.State):
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
             arduino.drive(constants.drive_speed / 3, constants.wall_follow_turn * self.dir)
         else: # lost wall
-            print "lost wall"
             return LookAround()
