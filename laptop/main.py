@@ -64,6 +64,7 @@ def kill(*args):
     arduino.drive(0, 0)
     arduino.set_sucker(False)
     arduino.set_helix(False)
+    arduino.set_door(False)
     exit()
 
 signal.signal(signal.SIGINT, kill)

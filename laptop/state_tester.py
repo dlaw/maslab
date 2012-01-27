@@ -22,6 +22,7 @@ def run():
             if s == "":
                 arduino.set_sucker(False)
                 arduino.set_helix(False)
+                arduino.set_door(False)
                 exit()
             s = s.split(" ")
             if len(s) > 1:

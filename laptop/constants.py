@@ -29,8 +29,11 @@ snarf_speed = 1. # how fast to drive while snarfing
 look_around_timeout = 3
 look_around_speed = .8
 
-# how close we need to be to a yellow wall before dumping
-dump_ir_threshhold = .9
+dump_ir_threshhold = .7 # how close we need to be to a yellow wall before dumping
+dump_ir_final = .9
+dump_ir_turn_tol = .05
+dump_fwd_speed = .3
+dump_turn_speed = .3
 
 # wall following navigation
 follow_wall_timeout = 20 # how long to follow a wall before looking away
