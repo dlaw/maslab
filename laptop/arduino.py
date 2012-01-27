@@ -36,7 +36,7 @@ def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
     left = np.clip(left, -1, 1)
     right = np.clip(right, -1, 1)
-    return raw_command('B', 'Bbb', 1, int(127*right), int(127*left)) == (0,)
+    return raw_command('B', 'Bbb', 1, int(127*left), int(127*right)) == (0,)
 
 def drive(fwd, turn):
     return set_motors(fwd + turn, fwd - turn)

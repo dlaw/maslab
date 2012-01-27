@@ -18,31 +18,27 @@ class FollowWallTest(main.State):
         return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
-        print("IR: {0:1.4}".format(dist))
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist
         if self.last_err is None: self.last_err = self.err # initialize D to 0
         if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
-            print "A"
             self.time_wall_seen = time.time()
             drive = 0
             turn = constants.wall_follow_turn * -1 * self.dir
-            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            print("A {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
         elif dist > constants.wall_follow_limit: # if we see a wall
-            print "B"
             self.time_wall_seen = time.time()
             drive = constants.drive_speed
             turn = self.dir * (constants.wall_follow_kp * self.err + constants.wall_follow_kd * (self.err - self.last_err))
-            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            print("B {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            print "C"
             drive = constants.drive_speed / 3
             turn = constants.wall_follow_turn * self.dir
-            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            print("C {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
         else: # lost wall
-            print "D"
+            print("D {0:1.4}".format(dist))
             return navigation.LookAround()
 
 def run():
