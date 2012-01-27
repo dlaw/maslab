@@ -34,12 +34,12 @@ dump_ir_threshhold = .9
 
 # wall following navigation
 follow_wall_timeout = 20 # how long to follow a wall before looking away
-wall_follow_dist = .6 # target distance for wall following
-wall_follow_limit = .4 # maximum distance we can be from a wall
+wall_follow_dist = .5 # target distance for wall following
+wall_follow_limit = .3 # maximum distance we can be from a wall
 wall_follow_kp = .6
 wall_follow_kd = 8. 
 lost_wall_timeout = 1 # how long to turn after losing a wall
-wall_follow_drive = .5 # how to move after losing a wall
-wall_follow_turn = .3 # how to move after losing a wall
+wall_follow_drive = .2 # .5 # how to move after losing a wall
+wall_follow_turn = .5 # .3 # how to move after losing a wall
 
 ir_max = [101., 102., 165., 107.]

@@ -39,15 +39,18 @@ class GoToWall(main.State):
 class FollowWall(main.State):
     timeout = constants.follow_wall_timeout # times out to LookAround
     def __init__(self, on_left = None):
-        """
-        TODO actually use on_left (currently, we never pass it in as an argument)
-        """
+        # TODO actually use on_left (currently, we never pass it in as an argument)
         self.on_left = random.choice([True, False]) if on_left is None else on_left
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
         self.turning_away = False
         self.err = None
+    def on_stuck(self):
+        # TODO decide if we still need this hack
+        if any(arduino.get_bump()):
+            return maneuvering.Unstick()
+        return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist

@@ -19,14 +19,15 @@ class FollowWallTest(main.State):
         return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
+        front = max(arduino.get_ir()[1:-1])
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist
         if self.last_err is None: self.last_err = self.err # initialize D to 0
-        if self.turning_in or max(arduino.get_ir()[1:-1]) > constants.wall_follow_limit: # too close in front
+        if self.turning_in or front > constants.wall_follow_dist: # too close in front
             self.time_wall_seen = time.time()
             self.turning_in = True
             drive = 0
             turn = constants.wall_follow_turn * -1 * self.dir
-            print("A {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
+            print("A {0:1.4} {3:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn), front))
             arduino.drive(drive, turn)
             if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and dist > constants.wall_follow_limit:
                 self.turning_in = False
@@ -34,15 +35,15 @@ class FollowWallTest(main.State):
             self.time_wall_seen = time.time()
             drive = constants.drive_speed
             turn = self.dir * (constants.wall_follow_kp * self.err + constants.wall_follow_kd * (self.err - self.last_err))
-            print("B {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
+            print("B {0:1.4} {3:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn), front))
             arduino.drive(drive, turn)
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
             drive = constants.wall_follow_drive
             turn = constants.wall_follow_turn * self.dir
-            print("C {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
+            print("C {0:1.4} {3:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn), front))
             arduino.drive(drive, turn)
         else: # lost wall
-            print("D {0:1.4}".format(dist))
+            print("D {0:1.4} {1:1.4}".format(dist, front))
             return navigation.LookAround()
 
 def run():
