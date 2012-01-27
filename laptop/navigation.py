@@ -1,4 +1,4 @@
-import arduino, random, main, maneuvering, constants, kinect, time
+import arduino, random, main, maneuvering, constants, kinect, time, numpy as np
 
 class LookAround(main.State):
     timeout = constants.look_around_timeout
