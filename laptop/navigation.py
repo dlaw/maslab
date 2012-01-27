@@ -19,6 +19,7 @@ class LookAround(main.State):
 
 class GoToBall(main.State):
     def on_ball(self):
+        self.timeout = constants.go_to_ball_timeout
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
