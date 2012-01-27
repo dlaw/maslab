@@ -1,16 +1,25 @@
-import arduino, random, main, maneuvering, constants, kinect, time
+import arduino, random, main, maneuvering, constants, kinect, time, numpy as np
 
 class LookAround(main.State):
     timeout = constants.look_around_timeout
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
+        self.force_wall_follow = False
+        if np.random.rand() < constants.prob_forcing_wall_follow:
+            self.force_wall_follow = True
+        else:
+            constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
     def default_action(self):
+        if self.force_wall_follow:
+            constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
+            return ForcedFollowWall()
         arduino.drive(0, self.turn)
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
 
 class GoToBall(main.State):
     def on_ball(self):
+        self.timeout = constants.go_to_ball_timeout
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
@@ -51,6 +60,7 @@ class FollowWall(main.State):
         self.time_wall_seen = time.time()
         self.turning_away = False
         self.err = None
+        self.last_err = None # to avoid a pylint warning
     def on_stuck(self):
         # TODO decide if we still need this hack
         if any(arduino.get_bump()):
