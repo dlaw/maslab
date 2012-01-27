@@ -1,19 +1,54 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, constants
+import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, constants, main
 
 time.sleep(1) # wait for arduino and kinect to power up
 
 want_change = True
 
-class FollowWallTest(navigation.FollowWall):
+class FollowWallTest(main.State):
+    timeout = constants.follow_wall_timeout # times out to LookAround
+    def __init__(self):
+        self.on_left = True
+        self.ir = 0 if self.on_left else 3
+        self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
+        self.time_wall_seen = time.time()
+        self.err = None
     def next(self, time_left):
         return self.default_action()
+    def default_action(self):
+        dist = arduino.get_ir()[self.ir]
+        print("IR: {0:1.4}".format(dist))
+        self.last_err, self.err = self.err, constants.wall_follow_dist - dist
+        if self.last_err is None: self.last_err = self.err # initialize D to 0
+        if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+            print "A"
+            self.time_wall_seen = time.time()
+            drive = 0
+            turn = constants.wall_follow_turn * -1 * self.dir
+            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            arduino.drive(drive, turn)
+        elif dist > constants.wall_follow_limit: # if we see a wall
+            print "B"
+            self.time_wall_seen = time.time()
+            drive = constants.drive_speed
+            turn = self.dir * (constants.wall_follow_kp * self.err + constants.wall_follow_kd * (self.err - self.last_err))
+            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            arduino.drive(drive, turn)
+        elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
+            print "C"
+            drive = constants.drive_speed / 3
+            turn = constants.wall_follow_turn * self.dir
+            print("drive: {0:1.4} {0:1.4}".format(float(drive), float(turn)))
+            arduino.drive(drive, turn)
+        else: # lost wall
+            print "D"
+            return navigation.LookAround()
 
 def run():
     global want_change
     print("starting wall_follow_test.py")
-    state = FollowWallTest(on_left=False)
+    state = FollowWallTest()
     arduino.set_helix(True)
     arduino.set_sucker(True)
     fake_time_left = 180
@@ -21,7 +56,7 @@ def run():
         if want_change:
             want_change = False
             arduino.drive(0, 0)
-            print "Enter a state constructor (with no spaces) and, optionally, a time left (separated by a space), or enter nothing to quit"
+            print "Enter kp and kd, separated by a space"
             s = raw_input("> ")
             if s == "":
                 arduino.set_sucker(False)
@@ -40,8 +75,8 @@ def run():
             print("{0} while attempting to change states".format(ex))
             traceback.print_exc(file=sys.stdout)
         if not isinstance(state, FollowWallTest):
-            print("Back to FollowWallTest(on_left=False)")
-            state = FollowWallTest(on_left=False)
+            print("Back to FollowWallTest")
+            state = FollowWallTest()
 
 def change_state(*args):
     global want_change
