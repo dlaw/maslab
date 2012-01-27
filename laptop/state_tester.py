@@ -20,10 +20,7 @@ def run():
             print "Enter a state constructor (with no spaces) and, optionally, a time left (separated by a space), or enter nothing to quit"
             s = raw_input("> ")
             if s == "":
-                arduino.set_sucker(False)
-                arduino.set_helix(False)
-                arduino.set_door(False)
-                exit()
+                kill()
             s = s.split(" ")
             if len(s) > 1:
                 stop_time = time.time() + int(s[1])
@@ -54,7 +51,15 @@ def change_state(*args):
     want_change = True
 
 signal.signal(signal.SIGINT, change_state)
+                
+def kill():
+    arduino.drive(0, 0)
+    arduino.set_sucker(False)
+    arduino.set_helix(False)
+    arduino.set_door(False)
+    exit()
 
 if __name__ == '__main__': # called from the command line
     run()
+    kill()
 
