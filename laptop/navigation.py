@@ -37,7 +37,7 @@ class GoToWall(main.State):
         arduino.drive(constants.drive_speed, 0)
 
 class FollowWall(main.State):
-    timeout = constants.follow_wall_timeout # times out to LookAround
+    timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
     def __init__(self, on_left = None):
         # TODO actually use on_left (currently, we never pass it in as an argument)
         self.on_left = random.choice([True, False]) if on_left is None else on_left
