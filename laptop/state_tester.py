@@ -1,10 +1,10 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback
+import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, constants
 
 time.sleep(1) # wait for arduino and kinect to power up
 
-want_change = False
+want_change = True
 
 def run():
     global want_change
