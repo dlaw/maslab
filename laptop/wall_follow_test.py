@@ -13,6 +13,7 @@ class FollowWallTest(main.State):
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
+        self.turning_in = False
         self.err = None
     def next(self, time_left):
         return self.default_action()
@@ -20,12 +21,15 @@ class FollowWallTest(main.State):
         dist = arduino.get_ir()[self.ir]
         self.last_err, self.err = self.err, constants.wall_follow_dist - dist
         if self.last_err is None: self.last_err = self.err # initialize D to 0
-        if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+        if self.turning_in or max(arduino.get_ir()[1:-1]) > constants.wall_follow_limit: # too close in front
             self.time_wall_seen = time.time()
+            self.turning_in = True
             drive = 0
             turn = constants.wall_follow_turn * -1 * self.dir
             print("A {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
+            if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and dist > constants.wall_follow_limit:
+                self.turning_in = False
         elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             drive = constants.drive_speed
@@ -33,7 +37,7 @@ class FollowWallTest(main.State):
             print("B {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            drive = constants.drive_speed / 3
+            drive = constants.wall_follow_drive
             turn = constants.wall_follow_turn * self.dir
             print("C {0:1.4} drive {1:1.4} {2:1.4}".format(dist, float(drive), float(turn)))
             arduino.drive(drive, turn)
