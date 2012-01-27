@@ -42,8 +42,7 @@ class FollowWall(main.State):
         """
         TODO actually use on_left (currently, we never pass it in as an argument)
         """
-        #self.on_left = random.choice([True, False]) if on_left is None else on_left
-        self.on_left = False
+        self.on_left = random.choice([True, False]) if on_left is None else on_left
         self.ir = 0 if self.on_left else 3
         self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
         self.time_wall_seen = time.time()
