@@ -24,7 +24,8 @@ class GoToYellow(main.State):
         wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
         offset = constants.yellow_follow_kp * (wall['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
-        if max(arduino.get_ir()) > constants.dump_ir_threshhold:
+        if (max(arduino.get_ir()[1:-1]) > constants.dump_ir_threshhold
+            and wall['size'] > 5000):
             return maneuvering.DumpBalls()
     def default_action(self):
         return LookAround() # lost the wall
@@ -38,11 +39,15 @@ class GoToWall(main.State):
 
 class FollowWall(main.State):
     timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
-    def __init__(self, on_left = None):
-        # TODO actually use on_left (currently, we never pass it in as an argument)
-        self.on_left = random.choice([True, False]) if on_left is None else on_left
-        self.ir = 0 if self.on_left else 3
-        self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
+    def __init__(self):
+        if np.random.rand() < constants.prob_change_wall_follow_dir:
+            constants.wall_follow_on_left = not constants.wall_follow_on_left
+        if constants.wall_follow_on_left:
+            self.ir = 0
+            self.dir = -1 # sign of direction to turn into wall
+        else:
+            self.ir = 3
+            self.dir = 1
         self.time_wall_seen = time.time()
         self.turning_away = False
         self.err = None
