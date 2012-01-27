@@ -83,3 +83,9 @@ class FollowWall(main.State):
             arduino.drive(constants.wall_follow_drive, constants.wall_follow_turn * self.dir)
         else: # lost wall
             return LookAround()
+
+class ForcedFollowWall(FollowWall):
+    def on_ball(self):
+        return self.default_action() # ignore balls
+    def on_timeout(self):
+        return FollowWall()
