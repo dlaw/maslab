@@ -16,7 +16,7 @@ class DumpBalls(main.State):
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, (1 if fr > fl else -1) * constants.dump_turn_speed)
         else:
-            arduino.drive(constants.dump_fwd_speed)
+            arduino.drive(constants.dump_fwd_speed, 0)
 
 class HappyDance(main.State): # dead-end state
     def __init__(self):
