@@ -12,8 +12,8 @@ def run():
     state = navigation.LookAround()
     arduino.set_helix(True)
     arduino.set_sucker(True)
-    fake_time_left = 180
-    while True:
+    stop_time = time.time() + 180
+    while time.time() < stop_time:
         if want_change:
             want_change = False
             arduino.drive(0, 0)
@@ -26,9 +26,7 @@ def run():
                 exit()
             s = s.split(" ")
             if len(s) > 1:
-                fake_time_left = int(s[1])
-            else:
-                fake_time_left = 180
+                stop_time = time.time() + int(s[1])
             new_state = None
             for class_name in ["navigation", "maneuvering"]:
                 try:
@@ -43,10 +41,10 @@ def run():
                 print("State manually changed to {0}".format(state))
         kinect.process_frame()
         try:
-            new_state = state.next(fake_time_left)
+            new_state = state.next(stop_time - time.time())
             if new_state is not None: # if the state has changed
                 state = new_state
-                print("{0} with {1} seconds to go".format(state, fake_time_left))
+                print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
             traceback.print_exc(file=sys.stdout)
