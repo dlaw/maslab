@@ -59,6 +59,7 @@ class FollowWall(main.State):
         self.time_wall_seen = time.time()
         self.turning_away = False
         self.err = None
+        self.last_err = None # to avoid a pylint warning
     def on_stuck(self):
         # TODO decide if we still need this hack
         if any(arduino.get_bump()):
