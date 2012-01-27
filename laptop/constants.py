@@ -4,7 +4,7 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
-drive_speed = .5 # standard drive forward speed
+drive_speed = .7 # standard drive forward speed
 ball_follow_kp = .004
 close_ball_row = 80 # snarf the ball if its center is below this row
 yellow_follow_kp = .004
@@ -42,11 +42,11 @@ dump_turn_speed = .3
 follow_wall_timeout = 20 # how long to follow a wall before looking away
 wall_follow_dist = .5 # target distance for wall following
 wall_follow_limit = .3 # maximum distance we can be from a wall
-wall_follow_kp = .6
-wall_follow_kd = 8. 
+wall_follow_kp = .75
+wall_follow_kd = 10.
 lost_wall_timeout = 1 # how long to turn after losing a wall
-wall_follow_drive = .2 # .5 # how to move after losing a wall
-wall_follow_turn = .5 # .3 # how to move after losing a wall
+wall_follow_drive = .4 # .5 # how to move after losing a wall
+wall_follow_turn = .4 # .3 # how to move after losing a wall
 wall_follow_on_left = True # start following on left, until we change
 prob_change_wall_follow_dir = 0.05
 
