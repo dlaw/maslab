@@ -28,6 +28,9 @@ snarf_speed = 1. # how fast to drive while snarfing
 # look around for balls
 look_around_timeout = 3
 look_around_speed = .8
+init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to this each time ForcedFollowWall happens
+prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
+delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
 
 dump_ir_threshhold = .7 # how close we need to be to a yellow wall before dumping
 dump_ir_final = .9

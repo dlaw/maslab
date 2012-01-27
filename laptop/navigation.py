@@ -4,7 +4,15 @@ class LookAround(main.State):
     timeout = constants.look_around_timeout
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
+        self.force_wall_follow = False
+        if np.random.rand() < constants.prob_forcing_wall_follow:
+            self.force_wall_follow = True
+        else:
+            constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
     def default_action(self):
+        if self.force_wall_follow:
+            constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
+            return ForcedFollowWall()
         arduino.drive(0, self.turn)
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
