@@ -63,16 +63,16 @@ class FollowWall(main.State): # PDD controller
     def default_action(self):
         side_ir = arduino.get_ir()[self.ir]
         p = constants.wall_follow_dist - side_ir
-        d = (err - self.last_p) if self.last_p else 0
+        d = (p - self.last_p) if self.last_p else 0
         dd = (d - self.last_d) if self.last_d else 0
         self.last_p, self.last_d = p, d
         if self.turning_away or max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
             self.turning_away = True
             self.time_wall_seen = time.time()
             arduino.drive(0, constants.wall_follow_turn * -1 * self.dir)
-            if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and dist > constants.wall_follow_limit:
+            if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and side_ir > constants.wall_follow_limit:
                 self.turning_away = False
-        elif dist > constants.wall_follow_limit: # if we see a wall
+        elif side_ir > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, self.dir * 
                           (constants.wall_follow_kp * p +
