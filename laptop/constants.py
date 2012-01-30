@@ -46,6 +46,7 @@ wall_follow_dist = .5 # target distance for wall following
 wall_follow_limit = .3 # maximum distance we can be from a wall
 wall_follow_kp = .75
 wall_follow_kd = 10.
+wall_follow_kdd = 0.
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_drive = .4 # .5 # how to move after losing a wall
 wall_follow_turn = .4 # .3 # how to move after losing a wall
