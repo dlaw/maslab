@@ -37,7 +37,7 @@ void button_pressed(serdata data) {
 // get state of bump sensors
 void get_bump(serdata data) {
   char out = digitalRead(51) << 1;
-  out += digitalRead(50);
+  out += digitalRead(52);
   usart0_tx(out);
 }
 
