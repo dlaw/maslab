@@ -46,30 +46,26 @@ class GoToWall(main.State):
             return FollowWall()
         arduino.drive(constants.drive_speed, 0)
 
-class FollowWall(main.State):
+class FollowWall(main.State): # PDD controller
     timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
     def __init__(self):
         if np.random.rand() < constants.prob_change_wall_follow_dir:
             constants.wall_follow_on_left = not constants.wall_follow_on_left
-        if constants.wall_follow_on_left:
-            self.ir = 0
-            self.dir = -1 # sign of direction to turn into wall
-        else:
-            self.ir = 3
-            self.dir = 1
+        self.ir, self.dir = (0, -1) if constants.wall_follow_on_left else (3, 1)
         self.time_wall_seen = time.time()
         self.turning_away = False
-        self.err = None
-        self.last_err = None # to avoid a pylint warning
+        self.last_p, self.last_d = None, None
     def on_stuck(self):
-        # TODO decide if we still need this hack
         if any(arduino.get_bump()):
             return maneuvering.Unstick()
+        # TODO: check if IRs are totally unreasonable.
         return self.default_action()
     def default_action(self):
-        dist = arduino.get_ir()[self.ir]
-        self.last_err, self.err = self.err, constants.wall_follow_dist - dist
-        if self.last_err is None: self.last_err = self.err # initialize D to 0
+        side_ir = arduino.get_ir()[self.ir]
+        p = constants.wall_follow_dist - side_ir
+        d = (err - self.last_p) if self.last_p else 0
+        dd = (d - self.last_d) if self.last_d else 0
+        self.last_p, self.last_d = p, d
         if self.turning_away or max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
             self.turning_away = True
             self.time_wall_seen = time.time()
@@ -79,8 +75,9 @@ class FollowWall(main.State):
         elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, self.dir * 
-                          (constants.wall_follow_kp * self.err + 
-                           constants.wall_follow_kd * (self.err - self.last_err)))
+                          (constants.wall_follow_kp * p +
+                           constants.wall_follow_kd * d +
+                           constants.wall_follow_kd * dd))
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
             arduino.drive(constants.wall_follow_drive, constants.wall_follow_turn * self.dir)
         else: # lost wall
