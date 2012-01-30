@@ -66,22 +66,23 @@ class FollowWall(main.State): # PDD controller
         d = (p - self.last_p) if self.last_p else 0
         dd = (d - self.last_d) if self.last_d else 0
         self.last_p, self.last_d = p, d
-        if self.turning_away or max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+        if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
+            return LookAround()
+        elif (max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
+              or self.turning_away): # too close in front
             self.turning_away = True
             self.time_wall_seen = time.time()
             arduino.drive(0, constants.wall_follow_turn * -1 * self.dir)
-            if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and side_ir > constants.wall_follow_limit:
+            if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
+                side_ir > constants.wall_follow_limit):
                 self.turning_away = False
-        elif side_ir > constants.wall_follow_limit: # if we see a wall
-            self.time_wall_seen = time.time()
+        else:
+            if side_ir > constants.wall_follow_limit: # if we see a wall
+                self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, self.dir * 
                           (constants.wall_follow_kp * p +
                            constants.wall_follow_kd * d +
-                           constants.wall_follow_kd * dd))
-        elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            arduino.drive(constants.wall_follow_drive, constants.wall_follow_turn * self.dir)
-        else: # lost wall
-            return LookAround()
+                           constants.wall_follow_kdd * dd))
 
 class ForcedFollowWall(FollowWall):
     def on_ball(self):
