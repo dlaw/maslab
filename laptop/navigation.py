@@ -85,7 +85,7 @@ class FollowWall(main.State): # PDD controller
                            constants.wall_follow_max_turn)
             arduino.drive(constants.wall_follow_drive, self.dir * turn)
         else: # lost wall but not timed out, so turn into the wall
-            arduino.drive(constants.wall_follow_drive / 2, constants.wall_follow_turn)
+            arduino.drive(constants.wall_follow_drive / 2, self.dir * constants.wall_follow_turn)
 class ForcedFollowWall(FollowWall):
     def on_ball(self):
         return self.default_action() # ignore balls
