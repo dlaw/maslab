@@ -1,16 +1,25 @@
-import arduino, random, main, maneuvering, constants, kinect, time
+import arduino, random, main, maneuvering, constants, kinect, time, numpy as np
 
 class LookAround(main.State):
     timeout = constants.look_around_timeout
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
+        self.force_wall_follow = False
+        if np.random.rand() < constants.prob_forcing_wall_follow:
+            self.force_wall_follow = True
+        else:
+            constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
     def default_action(self):
+        if self.force_wall_follow:
+            constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
+            return ForcedFollowWall()
         arduino.drive(0, self.turn)
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
 
 class GoToBall(main.State):
     def on_ball(self):
+        self.timeout = constants.go_to_ball_timeout
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
@@ -24,7 +33,8 @@ class GoToYellow(main.State):
         wall = max(kinect.yellow_walls, key = lambda wall: wall['size'])
         offset = constants.yellow_follow_kp * (wall['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
-        if max(arduino.get_ir()) > constants.dump_ir_threshhold:
+        if (max(arduino.get_ir()[1:-1]) > constants.dump_ir_threshhold
+            and wall['size'] > 3500):
             return maneuvering.DumpBalls()
     def default_action(self):
         return LookAround() # lost the wall
@@ -37,31 +47,47 @@ class GoToWall(main.State):
         arduino.drive(constants.drive_speed, 0)
 
 class FollowWall(main.State):
-    timeout = constants.follow_wall_timeout # times out to LookAround
-    def __init__(self, on_left = None):
-        """
-        TODO actually use on_left (currently, we never pass it in as an argument)
-        """
-        self.on_left = random.choice([True, False]) if on_left is None else on_left
-        self.ir = 0 if self.on_left else 3
-        self.dir = -1 if self.on_left else 1 # sign of direction to turn into wall
+    timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
+    def __init__(self):
+        if np.random.rand() < constants.prob_change_wall_follow_dir:
+            constants.wall_follow_on_left = not constants.wall_follow_on_left
+        if constants.wall_follow_on_left:
+            self.ir = 0
+            self.dir = -1 # sign of direction to turn into wall
+        else:
+            self.ir = 3
+            self.dir = 1
         self.time_wall_seen = time.time()
+        self.turning_away = False
         self.err = None
-    def next(self, time_left):
+        self.last_err = None # to avoid a pylint warning
+    def on_stuck(self):
+        # TODO decide if we still need this hack
+        if any(arduino.get_bump()):
+            return maneuvering.Unstick()
         return self.default_action()
     def default_action(self):
         dist = arduino.get_ir()[self.ir]
-        self.last_err, self.err = self.err, constants.wall_follow_dist - dist 
+        self.last_err, self.err = self.err, constants.wall_follow_dist - dist
         if self.last_err is None: self.last_err = self.err # initialize D to 0
-        if max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+        if self.turning_away or max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist: # too close in front
+            self.turning_away = True
+            self.time_wall_seen = time.time()
             arduino.drive(0, constants.wall_follow_turn * -1 * self.dir)
+            if max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and dist > constants.wall_follow_limit:
+                self.turning_away = False
         elif dist > constants.wall_follow_limit: # if we see a wall
             self.time_wall_seen = time.time()
             arduino.drive(constants.drive_speed, self.dir * 
                           (constants.wall_follow_kp * self.err + 
                            constants.wall_follow_kd * (self.err - self.last_err)))
         elif time.time() - self.time_wall_seen < constants.lost_wall_timeout:
-            arduino.drive(constants.drive_speed, constants.wall_follow_turn * self.dir)
+            arduino.drive(constants.wall_follow_drive, constants.wall_follow_turn * self.dir)
         else: # lost wall
-            print "lost wall"
             return LookAround()
+
+class ForcedFollowWall(FollowWall):
+    def on_ball(self):
+        return self.default_action() # ignore balls
+    def on_timeout(self):
+        return FollowWall()

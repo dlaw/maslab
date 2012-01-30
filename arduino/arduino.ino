@@ -12,9 +12,7 @@ volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 
-// SERIOUSLY, DONT MODIFY
 void setup(){
-  // DO NOT MODIFY THE SETUP
   DDRF &= ~0xff;  //adc 2
   adchan=0;           //adc channel selection 
   adc_init(6);      //channel 2, div 64 clock prescaler
@@ -24,6 +22,8 @@ void setup(){
   //ext_int_init();   //left motor pcint init
   usart0_init(baud0);
   usart1_init(baud2);
+
+  qik_init();		//qik initialization (pwm frequency)
 
   // set Timer0 to CTC mode
   TCCR0A &= B00000000;
@@ -62,6 +62,9 @@ void setup(){
 
   pinMode(50, OUTPUT);
   digitalWrite(50, LOW);
+  
+  pinMode(36, INPUT);      //qik reset
+  digitalWrite(36, LOW);
 }
 
 void loop() {

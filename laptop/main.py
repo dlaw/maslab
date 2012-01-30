@@ -46,7 +46,8 @@ def run(duration = 180):
     stop_time = time.time() + duration
     state = navigation.LookAround()
     timeout_time = time.time() + state.timeout
-    arduino.set_helix(True)
+    #arduino.set_helix(True) TODO uncomment me!
+    arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
         try:
@@ -63,6 +64,7 @@ def kill(*args):
     arduino.drive(0, 0)
     arduino.set_sucker(False)
     arduino.set_helix(False)
+    arduino.set_door(False)
     exit()
 
 signal.signal(signal.SIGINT, kill)

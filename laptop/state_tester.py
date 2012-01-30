@@ -4,30 +4,26 @@ import signal, time, arduino, kinect, navigation, maneuvering, sys, traceback, c
 
 time.sleep(1) # wait for arduino and kinect to power up
 
-want_change = False
+want_change = True
 
 def run():
     global want_change
     print("starting state_tester.py")
     state = navigation.LookAround()
     arduino.set_helix(True)
-    fake_time_left = 180
-    while True:
+    arduino.set_sucker(True)
+    stop_time = time.time() + 180
+    while time.time() < stop_time:
         if want_change:
             want_change = False
             arduino.drive(0, 0)
             print "Enter a state constructor (with no spaces) and, optionally, a time left (separated by a space), or enter nothing to quit"
             s = raw_input("> ")
             if s == "":
-                arduino.set_sucker(False)
-                arduino.set_helix(False)
-                exit()
+                kill()
             s = s.split(" ")
-            """
             if len(s) > 1:
-                fake_time_left = int(s[1])
-            else:
-                fake_time_left = 180
+                stop_time = time.time() + int(s[1])
             new_state = None
             for class_name in ["navigation", "maneuvering"]:
                 try:
@@ -40,28 +36,30 @@ def run():
             else:
                 state = new_state
                 print("State manually changed to {0}".format(state))
-            """
-            constants.wall_follow_kp = float(s[0])
-            constants.wall_follow_kd = float(s[1])
         kinect.process_frame()
         try:
-            new_state = state.next(fake_time_left)
+            new_state = state.next(stop_time - time.time())
             if new_state is not None: # if the state has changed
                 state = new_state
-                print("{0} with {1} seconds to go".format(state, fake_time_left))
+                print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
             traceback.print_exc(file=sys.stdout)
-        if not isinstance(state, navigation.FollowWall):
-            print("Back to FollowWall(on_left=True)")
-            state = navigation.FollowWall(on_left=True)
 
 def change_state(*args):
     global want_change
     want_change = True
 
 signal.signal(signal.SIGINT, change_state)
+                
+def kill():
+    arduino.drive(0, 0)
+    arduino.set_sucker(False)
+    arduino.set_helix(False)
+    arduino.set_door(False)
+    exit()
 
 if __name__ == '__main__': # called from the command line
     run()
+    kill()
 
