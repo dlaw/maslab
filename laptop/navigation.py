@@ -89,7 +89,7 @@ class FollowWall(main.State): # PDD controller
             arduino.drive(drive, turn)
         else: # lost wall but not timed out, so turn into the wall
             drive = constants.wall_follow_drive / 2
-            turn = constants.wall_follow_turn
+            turn = self.dir * constants.wall_follow_turn
             arduino.drive(drive, turn)
 
 class ForcedFollowWall(FollowWall):

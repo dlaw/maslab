@@ -58,7 +58,7 @@ class FollowWallTest(main.State): # PDD controller
             print("B {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
         else: # lost wall but not timed out, so turn into the wall
             drive = constants.wall_follow_drive / 2
-            turn = constants.wall_follow_turn
+            turn = self.dir * constants.wall_follow_turn
             arduino.drive(drive, turn)
             print("C {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
 
