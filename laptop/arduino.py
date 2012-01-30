@@ -47,7 +47,7 @@ def get_analog(channel):
 
 def get_ir():
     return [get_analog(i) / constants.ir_max[j] for i, j in 
-            zip([2, 0, 3, 1], range(4))]
+            zip([3, 2, 1, 0], range(4))]
 
 def get_voltage():
     return get_analog(4) * 0.0693
