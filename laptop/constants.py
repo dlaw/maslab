@@ -42,8 +42,8 @@ dump_turn_speed = .3
 
 # wall following navigation
 follow_wall_timeout = 20 # how long to follow a wall before looking away
-wall_follow_dist = .7 # target distance for wall following
-wall_follow_limit = .4 # maximum distance we can be from a wall
+wall_follow_dist = .5 # target distance for wall following
+wall_follow_limit = .3 # maximum distance we can be from a wall
 wall_follow_kp = .75
 wall_follow_kd = 10.
 wall_follow_kdd = 0.
