@@ -50,7 +50,7 @@ wall_follow_kdd = 0.
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_drive = .4 # .5 # how to move after losing a wall
 wall_follow_turn = .4 # .3 # how to move after losing a wall
-wall_follow_max_turn = .15 # maximum speed to turn while under PDD control
+wall_follow_max_turn = .3 # maximum speed to turn while under PDD control
 wall_follow_on_left = True # start following on left, until we change
 prob_change_wall_follow_dir = 0.05
 
