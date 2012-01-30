@@ -44,12 +44,13 @@ dump_turn_speed = .3
 follow_wall_timeout = 20 # how long to follow a wall before looking away
 wall_follow_dist = .5 # target distance for wall following
 wall_follow_limit = .3 # maximum distance we can be from a wall
-wall_follow_kp = .75
-wall_follow_kd = 10.
+wall_follow_kp = .6
+wall_follow_kd = 8.
 wall_follow_kdd = 0.
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_drive = .4 # .5 # how to move after losing a wall
 wall_follow_turn = .4 # .3 # how to move after losing a wall
+wall_follow_max_turn = .15 # maximum speed to turn while under PDD control
 wall_follow_on_left = True # start following on left, until we change
 prob_change_wall_follow_dir = 0.05
 
