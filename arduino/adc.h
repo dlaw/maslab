@@ -4,6 +4,7 @@
 volatile unsigned char adcmap[5] = {2,5,4,3,9};
 volatile unsigned char analog[15];
 volatile unsigned char adchan=0;
+volatile uint32_t filter[5];
 
 void adc_init(char prescaler){
   ADMUX |= (1<<REFS0)|(1<<ADLAR); //select ADC channel, rvcc as ref, and left-shift the data
