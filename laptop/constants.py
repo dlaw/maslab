@@ -52,4 +52,4 @@ wall_follow_turn = .4 # .3 # how to move after losing a wall
 wall_follow_on_left = True # start following on left, until we change
 prob_change_wall_follow_dir = 0.05
 
-ir_max = [101., 136., 168., 107.]
+ir_max = [89., 131., 167., 94.]
