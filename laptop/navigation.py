@@ -49,9 +49,7 @@ class GoToWall(main.State):
 class FollowWall(main.State): # PDD controller
     timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
     def __init__(self):
-        if np.random.rand() < constants.prob_change_wall_follow_dir:
-            constants.wall_follow_on_left = not constants.wall_follow_on_left
-        self.ir, self.dir = (0, -1) if constants.wall_follow_on_left else (3, 1)
+        self.ir = 3
         self.time_wall_seen = time.time()
         self.time_wall_absent = 0
         self.turning_away = False
@@ -75,7 +73,7 @@ class FollowWall(main.State): # PDD controller
             self.turning_away = True
             self.time_wall_seen = time.time()
             drive = 0
-            turn = constants.wall_follow_turn * -1 * self.dir
+            turn = constants.wall_follow_turn * -1
             arduino.drive(drive, turn)
             if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
                 side_ir > constants.wall_follow_limit):
@@ -83,16 +81,16 @@ class FollowWall(main.State): # PDD controller
         elif side_ir > constants.wall_follow_limit and side_ir < 1: # if we see a wall
             self.time_wall_seen = time.time()
             drive = constants.wall_follow_drive
-            turn = self.dir * np.clip((constants.wall_follow_kp * p +
-                                       constants.wall_follow_kd * d +
-                                       constants.wall_follow_kdd * dd),
-                                       -constants.wall_follow_max_turn,
-                                       constants.wall_follow_max_turn)
+            turn = np.clip((constants.wall_follow_kp * p +
+                            constants.wall_follow_kd * d +
+                            constants.wall_follow_kdd * dd),
+                            -constants.wall_follow_max_turn,
+                            constants.wall_follow_max_turn)
             arduino.drive(drive, turn)
         else: # lost wall but not timed out, so turn into the wall
             self.time_wall_absent = time.time()
             drive = 0
-            turn = self.dir * constants.wall_follow_turn
+            turn = constants.wall_follow_turn
             arduino.drive(drive, turn)
 
 class ForcedFollowWall(FollowWall):
