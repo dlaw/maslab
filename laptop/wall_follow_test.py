@@ -16,6 +16,7 @@ class FollowWallTest(main.State): # PDD controller
         constants.wall_follow_on_left = True
         self.ir, self.dir = (0, -1) if constants.wall_follow_on_left else (3, 1)
         self.time_wall_seen = time.time()
+        self.time_wall_absent = 0
         self.turning_away = False
         self.last_p, self.last_d = None, None
     """
@@ -35,8 +36,9 @@ class FollowWallTest(main.State): # PDD controller
         self.last_p, self.last_d = p, d
         if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
             return navigation.LookAround()
-        elif (max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
-              or self.turning_away): # too close in front
+        elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
+               and (time.time() - self.time_wall_absent) > constants.lost_wall_timeout)
+               or self.turning_away): # too close in front
             self.turning_away = True
             self.time_wall_seen = time.time()
             drive = 0
@@ -46,7 +48,7 @@ class FollowWallTest(main.State): # PDD controller
             if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
                 side_ir > constants.wall_follow_limit):
                 self.turning_away = False
-        elif side_ir > constants.wall_follow_limit: # if we see a wall
+        elif side_ir > constants.wall_follow_limit and side_ir < 1: # if we see a wall
             self.time_wall_seen = time.time()
             drive = constants.wall_follow_drive
             turn = self.dir * np.clip((constants.wall_follow_kp * p +
@@ -57,7 +59,8 @@ class FollowWallTest(main.State): # PDD controller
             arduino.drive(drive, turn)
             print("B {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
         else: # lost wall but not timed out, so turn into the wall
-            drive = constants.wall_follow_drive / 2
+            self.time_wall_absent = time.time()
+            drive = 0
             turn = self.dir * constants.wall_follow_turn
             arduino.drive(drive, turn)
             print("C {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
