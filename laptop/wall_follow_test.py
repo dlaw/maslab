@@ -44,7 +44,7 @@ class FollowWallTest(main.State): # PDD controller
             drive = 0
             turn = constants.wall_follow_turn * -1 * self.dir
             arduino.drive(drive, turn)
-            print("A {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
+            print("A {d: 4.2f} {t: 4.2f}".format(d=drive, t=turn))
             if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
                 side_ir > constants.wall_follow_limit):
                 self.turning_away = False
@@ -57,13 +57,13 @@ class FollowWallTest(main.State): # PDD controller
                                        -constants.wall_follow_max_turn,
                                        constants.wall_follow_max_turn)
             arduino.drive(drive, turn)
-            print("B {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
+            print("B {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
         else: # lost wall but not timed out, so turn into the wall
             self.time_wall_absent = time.time()
             drive = 0
             turn = self.dir * constants.wall_follow_turn
             arduino.drive(drive, turn)
-            print("C {d:4.2f} {t:4.2f}".format(d=drive, t=turn))
+            print("C {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
 
 def run():
     global want_change
