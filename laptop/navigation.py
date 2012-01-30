@@ -47,20 +47,23 @@ class GoToWall(main.State):
         arduino.drive(constants.drive_speed, 0)
 
 class FollowWall(main.State): # PDD controller
+    last_p, last_d = None, None
+    turning_away = False
     timeout = random.uniform(.5, 1) * constants.follow_wall_timeout
     def __init__(self):
-        self.ir = 3
+        self.time_last_unstuck = time.time()
         self.time_wall_seen = time.time()
         self.time_wall_absent = 0
-        self.turning_away = False
-        self.last_p, self.last_d = None, None
     def on_stuck(self):
-        if any(arduino.get_bump()):
+        if ((time.time() - self.time_last_unstuck > constants.wall_stuck_timeout)
+            or any(arduino.get_bump()) or arduino.get_ir()[0] > 1):
             return maneuvering.Unstick()
-        # TODO: check if IRs are totally unreasonable.
-        return self.default_action()
+        return self.follow()
     def default_action(self):
-        side_ir = arduino.get_ir()[self.ir]
+        self.time_last_unstuck = time.time()
+        return self.follow()
+    def follow(self):
+        side_ir = arduino.get_ir()[3] # hard-coded to follow on right
         p = constants.wall_follow_dist - side_ir
         d = (p - self.last_p) if self.last_p else 0
         dd = (d - self.last_d) if self.last_d else 0

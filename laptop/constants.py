@@ -50,5 +50,5 @@ wall_follow_kdd = 0.
 lost_wall_timeout = 1 # how long to turn after losing a wall
 wall_follow_drive = .6 # .5 # how to move after losing a wall
 wall_follow_turn = .5 # .3 # how to move after losing a wall
-
+wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
 ir_max = [89., 131., 167., 94.]
