@@ -34,7 +34,7 @@ class FollowWallTest(main.State): # PDD controller
         self.last_p, self.last_d = p, d
         if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
             return navigation.LookAround()
-        elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
+        elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_limit
                and (time.time() - self.time_wall_absent) > constants.lost_wall_timeout)
                or self.turning_away): # too close in front
             self.turning_away = True
@@ -42,8 +42,8 @@ class FollowWallTest(main.State): # PDD controller
             drive = 0
             turn = constants.wall_follow_turn * -1
             arduino.drive(drive, turn)
-            print("A {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
-            if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
+            #print("A {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
+            if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_limit and
                 side_ir > constants.wall_follow_limit):
                 self.turning_away = False
         elif side_ir > constants.wall_follow_limit: # if we see a wall
@@ -53,13 +53,13 @@ class FollowWallTest(main.State): # PDD controller
                     constants.wall_follow_kd * d +
                     constants.wall_follow_kdd * dd)
             arduino.drive(drive, turn)
-            print("B {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
+            #print("B {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
         else: # lost wall but not timed out, so turn into the wall
             self.time_wall_absent = time.time()
             drive = 0
             turn = constants.wall_follow_turn
             arduino.drive(drive, turn)
-            print("C {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
+            #print("C {d: 4.2f} {t: 4.2f} {ir: 4.2f}".format(d=drive, t=turn, ir=side_ir))
 
 def run():
     global want_change
