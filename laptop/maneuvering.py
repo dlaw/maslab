@@ -32,7 +32,7 @@ class ConfirmLinedUp(main.State):
         return navigation.GoToYellow()
 
 class HappyDance(main.State): # dead-end state
-    timeout = constants.dump_dance # don't time out! (keep this in case we ever increase dump_dance)
+    timeout = constants.eject_time
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
