@@ -86,7 +86,7 @@ class FollowWall(main.State): # PDD controller
         self.time_wall_absent = 0
     def on_stuck(self):
         if ((time.time() - self.time_last_unstuck > constants.wall_stuck_timeout)
-            or any(arduino.get_bump()) or arduino.get_ir()[0] > 1):
+            or any(arduino.get_bump())):
             return maneuvering.Unstick()
         return self.follow()
     def default_action(self):
