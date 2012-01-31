@@ -6,9 +6,9 @@ drive_speed = .7 # standard drive forward speed
 
 # DumpBalls
 dump_search = 60 # seconds before end-of-match to start looking for yellow wall
-dump_dance = 5 # seconds before end-of-match to start the HappyDance
+dump_dance = 3 # seconds before end-of-match to start the HappyDance
 dump_ir_final = .9
-dump_ir_turn_tol = .05
+dump_ir_turn_tol = .1
 dump_fwd_speed = .6
 dump_turn_speed = .4
 back_up_time = 1.
