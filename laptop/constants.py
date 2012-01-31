@@ -2,7 +2,7 @@
 ir_max = [89., 131., 167., 94.]
 
 # Multi-purpose
-drive_speed = .7 # standard drive forward speed
+drive_speed = .9 # standard drive forward speed
 
 # DumpBalls
 dump_search = 60 # seconds before end-of-match to start looking for yellow wall
@@ -19,9 +19,9 @@ dance_turn = 0.6 # the speed at which to turn while dancing
 dance_period = 0.2 # how often to switch dance directions
 
 # GoToBall
-ball_follow_kp = .004
+ball_follow_kp = .006
 close_ball_row = 80 # snarf the ball if its center is below this row
-go_to_ball_timeout = 4.
+go_to_ball_timeout = 7.
 ball_stuck_ratio = 1.04
 
 # GoToYellow
