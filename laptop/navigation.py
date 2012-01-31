@@ -8,7 +8,7 @@ class LookAround(main.State):
         if np.random.rand() < constants.prob_forcing_wall_follow:
             self.force_wall_follow = True
         else:
-            constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
+            constants.prob_forcing_wall_follow *= constants.look_around_multiplier_prob_forcing_wall_follow
     def next(self, time_left):
         if self.force_wall_follow:
             constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
@@ -20,7 +20,7 @@ class LookAround(main.State):
         return GoToWall() # enter wall-following mode
 
 class LookAway(main.State):
-    timeout = constants.look_around_timeout
+    timeout = constants.look_away_timeout
     def __init__(self, turning_away = True):
         self.turning_away = turning_away
         self.turn = -1 if turning_away else 1
@@ -110,7 +110,7 @@ class FollowWall(main.State): # PDD controller
         self.last_p, self.last_d = p, d
         if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
             return GoToWall()
-        elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
+        elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_limit
                and (time.time() - self.time_wall_absent) > constants.lost_wall_timeout)
                or self.turning_away): # too close in front
             self.turning_away = True
@@ -118,7 +118,7 @@ class FollowWall(main.State): # PDD controller
             drive = 0
             turn = constants.wall_follow_turn * -1
             arduino.drive(drive, turn)
-            if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_dist and
+            if (max(arduino.get_ir()[1:-1]) < constants.wall_follow_limit and
                 side_ir > constants.wall_follow_limit):
                 self.turning_away = False
         elif side_ir > constants.wall_follow_limit: # if we see a wall

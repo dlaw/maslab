@@ -5,8 +5,8 @@ ir_max = [89., 131., 167., 94.]
 drive_speed = .9 # standard drive forward speed
 
 # DumpBalls
-dump_search = 30 # seconds before end-of-match to start looking for yellow wall # TODO: increase for complex field
-dump_dance = 30 # 3 # seconds before end-of-match to start the HappyDance # TODO change me back to 3
+dump_search = 60 # seconds before end-of-match to start looking for yellow wall # TODO: increase for complex field
+dump_dance = 60 # 3 # seconds before end-of-match to start the HappyDance # TODO change me back to 3
 dump_ir_final = .8
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
@@ -47,27 +47,31 @@ snarf_time = .4 # how long to snarf a ball after losing sight of it
 snarf_speed = 1. # how fast to drive while snarfing
 
 # LookAround
-look_around_timeout = 3 # also used in LookAway
+look_around_timeout = 3
 look_around_speed = .5 # also used in LookAway
-init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to this each time ForcedFollowWall happens
+init_prob_forcing_wall_follow = 0.01 # initial value of the below, also reset to this each time ForcedFollowWall happens
 prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
-delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
+look_around_multiplier_prob_forcing_wall_follow = 1.1 # multiply the above by this amount each time we create a new LookAround()
+unstick_multiplier_prob_forcing_wall_follow = 1.25 # multiply the above by this amount each time we create a new Unstick()
+
+# LookAway
+look_away_timeout = 5
 
 # HerpDerp
 herp_derp_timeout = 0.5
 herp_derp_min_drive = .4
 herp_derp_max_drive = .6
 herp_derp_min_turn = .2
-herp_derp_max_turn = .5
+herp_derp_max_turn = .3
 
 # FollowWall
-follow_wall_timeout = 20 # how long to follow a wall before looking away
+follow_wall_timeout = 17 # how long to follow a wall before looking away
 wall_follow_dist = .6 # target distance for wall following
 wall_follow_limit = .4 # maximum distance we can be from a wall
-wall_follow_kp = .8
-wall_follow_kd = 3.3
-wall_follow_kdd = 1.5
+wall_follow_kp = .7
+wall_follow_kd = 3.
+wall_follow_kdd = 2.
 lost_wall_timeout = 2 # how long to turn after losing a wall
-wall_follow_drive = .8 # how fast to drive
+wall_follow_drive = .6 # how fast to drive
 wall_follow_turn = .5 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
