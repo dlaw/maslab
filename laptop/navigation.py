@@ -61,7 +61,8 @@ class GoToYellow(main.State):
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
         if (max(arduino.get_ir()[1:-1]) > constants.dump_ir_threshhold
             and wall['size'] > 3500):
-            return maneuvering.DumpBalls()
+            return maneuvering.DumpBalls(final = abs(wall['col'][0] - 80) <
+                                         constants.wall_center_tolerance)
     def default_action(self):
         return LookAround()
     def on_timeout(self):

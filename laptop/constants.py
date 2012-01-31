@@ -10,7 +10,9 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dump_ir_final = .9
 dump_ir_turn_tol = .05
 dump_fwd_speed = .6
-dump_turn_speed = .3
+dump_turn_speed = .4
+back_up_time = .622
+wall_center_tolerance = 10 # pixels from center that wall center can be
 
 # HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing
@@ -49,6 +51,10 @@ delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each t
 
 # HerpDerp
 herp_derp_timeout = 0.5
+herp_derp_min_drive = .3
+herp_derp_max_drive = .7
+herp_derp_min_turn = .3
+herp_derp_max_turn = .6
 
 # FollowWall
 follow_wall_timeout = 20 # how long to follow a wall before looking away
