@@ -25,11 +25,11 @@ class LookAway(LookAround):
     def default_action(self):
         if self.turning_away:
             arduino.drive(0, -constants.look_around_speed)
-            if arduino.get_ir()[0] < constants.wall_follow_dist:
+            if arduino.get_ir()[0] > constants.wall_follow_dist:
                 self.turning_away = False
         else:
             arduino.drive(0, constants.look_around_speed)
-            if arduino.get_ir()[3] < constants.wall_follow_dist:
+            if arduino.get_ir()[3] > constants.wall_follow_dist:
                 return FollowWall()
     def on_timeout(self):
         if self.turning_away:
