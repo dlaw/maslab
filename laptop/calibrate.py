@@ -47,6 +47,7 @@ def show_video():
 if __name__ == '__main__':
     while True:
         show_video()
-        if cv.WaitKey(10) == ord('s'):
+        key = cv.WaitKey(10)
+        if key == ord('s') or key == 1048691:
             np.save('calibrate_out.npy', kinect.constants)
 
