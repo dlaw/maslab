@@ -55,7 +55,7 @@ look_around_multiplier_prob_forcing_wall_follow = 1.05 # multiply the above by t
 unstick_multiplier_prob_forcing_wall_follow = 1.1 # multiply the above by this amount each time we create a new Unstick()
 
 # LookAway
-look_away_timeout = 5
+look_away_timeout = 6
 
 # HerpDerp
 herp_derp_timeout = 0.5
