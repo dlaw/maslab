@@ -62,7 +62,7 @@ herp_derp_timeout = 0.5
 herp_derp_min_drive = .4
 herp_derp_max_drive = .6
 herp_derp_min_turn = .2
-herp_derp_max_turn = .5
+herp_derp_max_turn = .3
 
 # FollowWall
 follow_wall_timeout = 10 # how long to follow a wall before looking away
