@@ -49,9 +49,10 @@ snarf_speed = 1. # how fast to drive while snarfing
 # LookAround
 look_around_timeout = 3 # also used in LookAway
 look_around_speed = .5 # also used in LookAway
-init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to this each time ForcedFollowWall happens
+init_prob_forcing_wall_follow = 0.01 # initial value of the below, also reset to this each time ForcedFollowWall happens
 prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
-delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
+look_around_multiplier_prob_forcing_wall_follow = 1.2 # multiply the above by this amount each time we create a new LookAround()
+unstick_multiplier_prob_forcing_wall_follow = 2. # multiply the above by this amount each time we create a new Unstick()
 
 # HerpDerp
 herp_derp_timeout = 0.5
