@@ -14,11 +14,11 @@ class DumpBalls(main.State):
         fl, fr = arduino.get_ir()[1:-1]
         if min(fl, fr) > constants.dump_ir_final:
             arduino.drive(0, 0)
-            if time_left < constants.dump_dance:
+            if not self.final:
+                return ConfirmLinedUp()
+            elif time_left < constants.dump_dance:
                 arduino.set_door(True)
                 return HappyDance()
-            elif not self.final:
-                return ConfirmLinedUp()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
         else:
