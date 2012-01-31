@@ -20,7 +20,7 @@ dance_period = 0.2 # how often to switch dance directions
 ball_follow_kp = .004
 close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 4.
-ball_stuck_ratio = 1.1
+ball_stuck_ratio = 1.04
 
 # GoToYellow
 yellow_follow_kp = .004

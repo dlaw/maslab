@@ -34,12 +34,13 @@ class LookAway(LookAround):
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
     size = 1.
+    def __init__(self):
+        self.non_herp_time = time.time()
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
-        if ball['size'] < self.size * constants.ball_stuck_ratio:
-            # TODO remove me
-            print "HERP DERP because the ball isn't getting closer"
-            print ball['size'] / self.size
+        if ball['size'] > self.size * constants.ball_stuck_ratio:
+            self.non_herp_time = time.time()
+        if time.time() - self.non_herp_time > constants.herp_derp_timeout:
             return maneuvering.HerpDerp()
         self.size = .9 * self.size + .1 * ball['size']
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
