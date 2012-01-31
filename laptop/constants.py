@@ -25,8 +25,8 @@ close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
-# LostBall
-lost_ball_timeout = .15 # how long to keep driving after losing a ball and before looking around
+# DriveBlind
+drive_blind_timeout = .15 # how long to keep driving after losing a (b/w)all and before looking around
 
 # GoToYellow
 yellow_follow_kp = .007
@@ -75,3 +75,4 @@ lost_wall_timeout = 2 # how long to turn after losing a wall
 wall_follow_drive = .6 # how fast to drive
 wall_follow_turn = .5 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
+wall_absent_before_look_away = 2. # we need to be on a wall for this long in order to LookAway
