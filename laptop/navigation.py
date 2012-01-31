@@ -17,9 +17,11 @@ class LookAround(main.State):
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
 
-class LookAway(main.State):
-    turning_away = True
-    timeout = constants.look_around_timeout * 2 # might need to turn around twice
+class LookAway(LookAround):
+    def __init__(self, turning_away = True):
+        self.turning_away = turning_away
+    def on_stuck(self):
+        return self.default_action()
     def default_action(self):
         if self.turning_away:
             arduino.drive(0, -constants.look_around_speed)
@@ -29,6 +31,11 @@ class LookAway(main.State):
             arduino.drive(0, constants.look_around_speed)
             if arduino.get_ir()[3] < constants.wall_follow_dist:
                 return FollowWall()
+    def on_timeout(self):
+        if self.turning_away:
+            return LookAway(turning_away = False)
+        else:
+            return FollowWall()
 
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
