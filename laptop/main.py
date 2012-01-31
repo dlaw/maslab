@@ -36,7 +36,7 @@ class State:
     def on_timeout(self): # called by main.py if applicable
         """Action to take once self.timeout has passed.""" 
         import navigation
-        return navigation.LookAround()
+        return navigation.HerpDerp()
 
 def run(duration = 180):
     import navigation

@@ -5,7 +5,7 @@ ir_max = [89., 131., 167., 94.]
 drive_speed = .7 # standard drive forward speed
 
 # DumpBalls
-dump_search = 30 # seconds before end-of-match to start looking for yellow wall
+dump_search = 60 # seconds before end-of-match to start looking for yellow wall
 dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dump_ir_final = .9
 dump_ir_turn_tol = .05
@@ -45,6 +45,9 @@ look_around_speed = .8
 init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to this each time ForcedFollowWall happens
 prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
+
+# HerpDerp
+herp_derp_timeout = 0.5
 
 # FollowWall
 follow_wall_timeout = 20 # how long to follow a wall before looking away

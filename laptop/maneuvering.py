@@ -6,6 +6,7 @@ class SnarfBall(main.State):
         arduino.drive(constants.snarf_speed, 0)
 
 class DumpBalls(main.State):
+    timeout = constants.dump_search # don't time out!
     def next(self, time_left): # override next so nothing can interrupt a dump
         fl, fr = arduino.get_ir()[1:-1]
         if min(fl, fr) > constants.dump_ir_final:
@@ -19,6 +20,7 @@ class DumpBalls(main.State):
             arduino.drive(constants.dump_fwd_speed, 0)
 
 class HappyDance(main.State): # dead-end state
+    timeout = constants.dump_dance # don't time out! (keep this in case we ever increase dump_dance)
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
@@ -50,10 +52,10 @@ class Unstick(main.State):
             self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
-            return navigation.LookAround()
+            return navigation.HerpDerp()
         if self.unstick_complete:
             if time.time() > self.stop_time:
-                return navigation.LookAround()
+                return navigation.LookAround() # this is intentionally not a HerpDerp!
         elif self.trigger_released():
             self.unstick_complete = True
             self.stop_time = time.time() + constants.unstick_clean_period
