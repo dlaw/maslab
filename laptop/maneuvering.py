@@ -17,7 +17,6 @@ class DumpBalls(main.State):
             if not self.final:
                 return ConfirmLinedUp()
             elif time_left < constants.dump_dance:
-                arduino.set_door(True)
                 return HappyDance()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
@@ -36,11 +35,14 @@ class HappyDance(main.State): # dead-end state
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
+        arduino.set_door(True)
     def next(self, time_left): # override next so nothing can interrupt a HappyDance
         if time.time() > self.next_shake:
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
+    def on_timeout(self):
+        arduino.set_door(False) # disable the door but stay in this state
 
 class Unstick(main.State):
     def __init__(self):
