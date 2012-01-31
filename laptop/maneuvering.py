@@ -92,7 +92,7 @@ class Unstick(main.State):
         functions rely on having the angle you want to drive, so add pi.
         """
         drive = np.cos(self.escape_angle + np.pi)
-        turn = np.sin(self.escape_angle + np.pi)
+        turn = constants.unstick_max_turn * np.sin(self.escape_angle + np.pi)
         arduino.drive(drive, turn)
 
 class HerpDerp(main.State):

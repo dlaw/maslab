@@ -39,8 +39,9 @@ ir_stuck_threshold = 0.9
 ir_unstuck_threshold = 0.8 # ir_stuck_threshold should be larger than ir_unstuck_threshold
 unstick_angle_offset_range = 1.6 # add between -this and +this (randomly) to the escape angle
 probability_to_use_bump = 0.9 # when getting unstuck, use bump sensors this percent of the time (as a decimal)
-unstick_wiggle_period = 0.5 # after this amount of time, generate a new Unstick (with new randomness)
-unstick_clean_period = 0.3 # time to keep moving after getting unstuck
+unstick_wiggle_period = 0.4 # after this amount of time, generate a new Unstick (with new randomness)
+unstick_clean_period = 0.2 # time to keep moving after getting unstuck
+unstick_max_turn = 0.6 # the magnitude of the maximum turn value while unsticking
 
 # SnarfBall
 snarf_time = .4 # how long to snarf a ball after losing sight of it
