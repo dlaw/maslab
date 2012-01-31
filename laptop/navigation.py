@@ -39,6 +39,9 @@ class GoToBall(main.State):
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         if ball['size'] < self.size * constants.ball_stuck_ratio:
+            # TODO remove me
+            print "HERP DERP because the ball isn't getting closer"
+            print ball['size'] / self.size
             return maneuvering.HerpDerp()
         self.size = .9 * self.size + .1 * ball['size']
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
