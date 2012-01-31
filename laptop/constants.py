@@ -6,7 +6,7 @@ drive_speed = .9 # standard drive forward speed
 
 # DumpBalls
 want_first_dump = True
-first_dump_time = 101 # time to first look for yellow walls
+first_dump_time = 137 # time to first look for yellow walls
 final_dump_time = 44 # time to stop going for red balls
 dump_ir_final = .8
 dump_ir_turn_tol = .2
