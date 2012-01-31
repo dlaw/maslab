@@ -62,6 +62,8 @@ class DriveBlind(main.State):
     timeout = constants.drive_blind_timeout
     def default_action(self):
         arduino.drive(constants.drive_speed, 0)
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
     def on_yellow(self):
