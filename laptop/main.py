@@ -35,8 +35,8 @@ class State:
         raise NotImplementedError # subclass has to do this one
     def on_timeout(self): # called by main.py if applicable
         """Action to take once self.timeout has passed.""" 
-        import maneuvering
-        return maneuvering.HerpDerp()
+        import navigation
+        return navigation.LookAround()
 
 def run(duration = 180):
     import navigation

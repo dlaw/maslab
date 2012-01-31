@@ -49,7 +49,7 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        return maneuvering.HerpDerp()
+        return LookAround()
 
 class GoToYellow(main.State):
     def on_yellow(self):
@@ -60,7 +60,7 @@ class GoToYellow(main.State):
             and wall['size'] > 3500):
             return maneuvering.DumpBalls()
     def default_action(self):
-        return maneuvering.HerpDerp()
+        return LookAround()
 
 class GoToWall(main.State):
     def default_action(self):
@@ -92,7 +92,7 @@ class FollowWall(main.State): # PDD controller
         dd = (d - self.last_d) if self.last_d else 0
         self.last_p, self.last_d = p, d
         if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
-            return LookAway()
+            return GoToWall()
         elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
                and (time.time() - self.time_wall_absent) > constants.lost_wall_timeout)
                or self.turning_away): # too close in front
