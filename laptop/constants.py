@@ -49,6 +49,10 @@ delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each t
 
 # HerpDerp
 herp_derp_timeout = 0.5
+herp_derp_min_drive = .3
+herp_derp_max_drive = .7
+herp_derp_min_turn = .3
+herp_derp_max_turn = .6
 
 # FollowWall
 follow_wall_timeout = 20 # how long to follow a wall before looking away

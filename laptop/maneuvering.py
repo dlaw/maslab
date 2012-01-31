@@ -82,8 +82,11 @@ class Unstick(main.State):
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
-        self.drive = random.uniform(-constants.drive_speed, -constants.drive_speed/2)
-        self.turn = random.uniform(-1, 1)
+        self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
+                                         constants.herp_derp_max_drive)
+        self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *
+                     random.uniform(constants.herp_derp_min_turn,
+                                    constants.herp_derp_max_turn))
     def next(self, time_left): # don't do anything else
         arduino.drive(self.drive, self.turn)
     def on_timeout(self):
