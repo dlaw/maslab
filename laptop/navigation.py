@@ -113,6 +113,8 @@ class FollowWall(main.State): # PDD controller
             drive = 0
             turn = constants.wall_follow_turn
             arduino.drive(drive, turn)
+    def on_timeout():
+        return LookAway()
 
 class ForcedFollowWall(FollowWall):
     def on_ball(self):
