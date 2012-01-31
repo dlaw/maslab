@@ -5,7 +5,7 @@ ir_max = [89., 131., 167., 94.]
 drive_speed = .7 # standard drive forward speed
 
 # DumpBalls
-dump_search = 30 # seconds before end-of-match to start looking for yellow wall
+dump_search = 60 # seconds before end-of-match to start looking for yellow wall
 dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dump_ir_final = .9
 dump_ir_turn_tol = .05
