@@ -28,18 +28,10 @@ class LookAway(LookAround):
         if arduino.get_ir()[ir] > constants.wall_follow_dist:
             self.on_timeout()
     def on_timeout(self):
-        if self.turning_away: return LookAway(turning_away = False)
-        else: return FollowWall()
-
-class HerpDerp(main.State):
-    timeout = constants.herp_derp_timeout
-    def __init__(self):
-        self.drive = random.uniform(-constants.drive_speed, -constants.drive_speed/2)
-        self.turn = random.uniform(-1, 1)
-    def next(self, time_left): # don't do anything else
-        arduino.drive(self.drive, self.turn)
-    def on_timeout(self):
-        return LookAround()
+        if self.turning_away:
+            return LookAway(turning_away = False)
+        else:
+            return FollowWall()
 
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
@@ -53,7 +45,7 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        return HerpDerp()
+        return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
     def on_yellow(self):
@@ -64,7 +56,7 @@ class GoToYellow(main.State):
             and wall['size'] > 3500):
             return maneuvering.DumpBalls()
     def default_action(self):
-        return HerpDerp()
+        return maneuvering.HerpDerp()
 
 class GoToWall(main.State):
     def default_action(self):
@@ -120,7 +112,7 @@ class FollowWall(main.State): # PDD controller
             drive = 0
             turn = constants.wall_follow_turn
             arduino.drive(drive, turn)
-    def on_timeout():
+    def on_timeout(self):
         return LookAway()
 
 class ForcedFollowWall(FollowWall):
