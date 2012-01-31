@@ -19,7 +19,8 @@ class LookAround(main.State):
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
 
-class LookAway(LookAround):
+class LookAway(main.State):
+    timeout = constants.look_around_timeout
     def __init__(self, turning_away = True):
         self.turning_away = turning_away
     def on_stuck(self):
