@@ -75,3 +75,4 @@ lost_wall_timeout = 2 # how long to turn after losing a wall
 wall_follow_drive = .6 # how fast to drive
 wall_follow_turn = .5 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
+wall_absent_before_look_away = 2. # we need to be on a wall for this long in order to LookAway
