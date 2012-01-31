@@ -8,7 +8,7 @@ class LookAround(main.State):
         if np.random.rand() < constants.prob_forcing_wall_follow:
             self.force_wall_follow = True
         else:
-            constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
+            constants.prob_forcing_wall_follow *= constants.look_around_multiplier_prob_forcing_wall_follow
     def next(self, time_left):
         if self.force_wall_follow:
             constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
