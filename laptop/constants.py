@@ -46,6 +46,9 @@ init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to
 prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
 
+# HerpDerp
+herp_derp_timeout = 0.5
+
 # FollowWall
 follow_wall_timeout = 20 # how long to follow a wall before looking away
 wall_follow_dist = .6 # target distance for wall following
