@@ -9,7 +9,7 @@ class DumpBalls(main.State):
     timeout = constants.final_dump_time # don't time out!
     def __init__(self, final = False):
         self.final = final
-        arduino.set_sucker(False)
+        if final: arduino.set_sucker(False)
     def next(self, time_left): # override next so nothing can interrupt a dump
         fl, fr = arduino.get_ir()[1:-1]
         if min(fl, fr) > constants.dump_ir_final:
