@@ -23,18 +23,19 @@ class LookAway(main.State):
     timeout = constants.look_around_timeout
     def __init__(self, turning_away = True):
         self.turning_away = turning_away
+        self.turn = -1 if turning_away else 1
+        self.ir = 0 if turning_away else 3
     def on_stuck(self):
         return self.default_action()
     def default_action(self):
-        turn, ir = (-1, 0) if self.turning_away else (1, 3)
-        arduino.drive(0, turn * constants.look_around_speed)
-        if arduino.get_ir()[ir] > constants.wall_follow_dist:
+        arduino.drive(0, self.turn * constants.look_around_speed)
+        if arduino.get_ir()[self.ir] > constants.wall_follow_limit: # ok because of state C
             if self.turning_away:
                 return LookAway(turning_away = False)
             else:
                 return FollowWall()
     def on_timeout(self):
-        return GoToWall()
+        return maneuvering.HerpDerp()
 
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
