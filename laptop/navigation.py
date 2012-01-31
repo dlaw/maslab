@@ -26,10 +26,10 @@ class LookAway(LookAround):
         turn, ir = (-1, 0) if self.turning_away else (1, 3)
         arduino.drive(0, turn * constants.look_around_speed)
         if arduino.get_ir()[ir] > constants.wall_follow_dist:
-            self.on_timeout()
+            if self.turning_away: return LookAway(turning_away = False)
+            else: return FollowWall()
     def on_timeout(self):
-        if self.turning_away: return LookAway(turning_away = False)
-        else: return FollowWall()
+        return GoToWall()
 
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
