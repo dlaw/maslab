@@ -52,7 +52,7 @@ class Unstick(main.State):
             self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
         if self.escape_angle is None: # init said nothing was triggered
-            return navigation.HerpDerp()
+            return HerpDerp()
         if self.unstick_complete:
             if time.time() > self.stop_time:
                 return navigation.LookAround() # this is intentionally not a HerpDerp!
@@ -78,3 +78,14 @@ class Unstick(main.State):
         drive = np.cos(self.escape_angle + np.pi)
         turn = np.sin(self.escape_angle + np.pi)
         arduino.drive(drive, turn)
+
+class HerpDerp(main.State):
+    timeout = constants.herp_derp_timeout
+    def __init__(self):
+        self.drive = random.uniform(-constants.drive_speed, -constants.drive_speed/2)
+        self.turn = random.uniform(-1, 1)
+    def next(self, time_left): # don't do anything else
+        arduino.drive(self.drive, self.turn)
+    def on_timeout(self):
+        return LookAround()
+
