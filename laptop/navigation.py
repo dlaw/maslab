@@ -23,19 +23,13 @@ class LookAway(LookAround):
     def on_stuck(self):
         return self.default_action()
     def default_action(self):
-        if self.turning_away:
-            arduino.drive(0, -constants.look_around_speed)
-            if arduino.get_ir()[0] > constants.wall_follow_dist:
-                self.turning_away = False
-        else:
-            arduino.drive(0, constants.look_around_speed)
-            if arduino.get_ir()[3] > constants.wall_follow_dist:
-                return FollowWall()
+        turn, ir = (-1, 0) if self.turning_away else (1, 3)
+        arduino.drive(0, turn * constants.look_around_speed)
+        if arduino.get_ir()[ir] > constants.wall_follow_dist:
+            self.on_timeout()
     def on_timeout(self):
-        if self.turning_away:
-            return LookAway(turning_away = False)
-        else:
-            return FollowWall()
+        if self.turning_away: return LookAway(turning_away = False)
+        else: return FollowWall()
 
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
