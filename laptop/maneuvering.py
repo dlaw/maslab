@@ -6,7 +6,7 @@ class SnarfBall(main.State):
         arduino.drive(constants.snarf_speed, 0)
 
 class DumpBalls(main.State):
-    timeout = constants.dump_search # don't time out!
+    timeout = constants.final_dump_time # don't time out!
     def __init__(self, final = False):
         self.final = final
         arduino.set_sucker(False)
