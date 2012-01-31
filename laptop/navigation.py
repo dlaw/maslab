@@ -52,9 +52,14 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        return LookAround()
+        return LostBall()
     def on_timeout(self):
         return maneuvering.HerpDerp()
+
+class LostBall(main.State):
+    timeout = constants.lost_ball_timeout
+    def default_action(self):
+        arduino.drive(constants.drive_speed, 0)
 
 class GoToYellow(main.State):
     def on_yellow(self):
