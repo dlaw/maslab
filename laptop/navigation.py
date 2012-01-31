@@ -50,6 +50,8 @@ class GoToBall(main.State):
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
         return LookAround()
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
     def on_yellow(self):
@@ -61,6 +63,8 @@ class GoToYellow(main.State):
             return maneuvering.DumpBalls()
     def default_action(self):
         return LookAround()
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class GoToWall(main.State):
     def default_action(self):
@@ -68,6 +72,8 @@ class GoToWall(main.State):
             arduino.drive(0, 0)
             return FollowWall()
         arduino.drive(constants.drive_speed, 0)
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class FollowWall(main.State): # PDD controller
     last_p, last_d = None, None
