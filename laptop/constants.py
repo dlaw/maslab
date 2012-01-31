@@ -25,8 +25,8 @@ close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
-# LostBall
-lost_ball_timeout = .15 # how long to keep driving after losing a ball and before looking around
+# DriveBlind
+drive_blind_timeout = .15 # how long to keep driving after losing a (b/w)all and before looking around
 
 # GoToYellow
 yellow_follow_kp = .007
