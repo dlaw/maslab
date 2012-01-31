@@ -45,7 +45,7 @@ class Unstick(main.State):
         else:
             self.escape_angle = None # oops, not good style
         if self.escape_angle is not None:
-            self.escape_angle += random.uniform(-1.6, 1.6) # add some randomness
+            self.escape_angle += random.uniform(-constants.unstick_angle_offset_range, constants.unstick_angle_offset_range) # add some randomness
             self.unstick_complete = False
             self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
@@ -73,6 +73,6 @@ class Unstick(main.State):
         Note that escape_angle is the angle of the sensor, but the trig
         functions rely on having the angle you want to drive, so add pi.
         """
-        drive = constants.escape_drive_kp * np.cos(self.escape_angle + np.pi)
-        turn = constants.escape_turn_kp * np.sin(self.escape_angle + np.pi)
+        drive = np.cos(self.escape_angle + np.pi)
+        turn = np.sin(self.escape_angle + np.pi)
         arduino.drive(drive, turn)
