@@ -17,9 +17,22 @@ class LookAround(main.State):
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
 
+class LookAway(main.State):
+    turning_away = True
+    timeout = constants.look_around_timeout * 2 # might need to turn around twice
+    def default_action(self):
+        if self.turning_away:
+            arduino.drive(0, -constants.look_around_speed)
+            if arduino.get_ir()[0] < constants.wall_follow_dist:
+                self.turning_away = False
+        else:
+            arduino.drive(0, constants.look_around_speed)
+            if arduino.get_ir()[3] < constants.wall_follow_dist:
+                return FollowWall()
+
 class GoToBall(main.State):
+    timeout = constants.go_to_ball_timeout
     def on_ball(self):
-        self.timeout = constants.go_to_ball_timeout
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
@@ -37,7 +50,7 @@ class GoToYellow(main.State):
             and wall['size'] > 3500):
             return maneuvering.DumpBalls()
     def default_action(self):
-        return LookAround() # lost the wall
+        return LookAround()
 
 class GoToWall(main.State):
     def default_action(self):
@@ -69,7 +82,7 @@ class FollowWall(main.State): # PDD controller
         dd = (d - self.last_d) if self.last_d else 0
         self.last_p, self.last_d = p, d
         if time.time() - self.time_wall_seen > constants.lost_wall_timeout:
-            return LookAround()
+            return LookAway()
         elif ((max(arduino.get_ir()[1:-1]) > constants.wall_follow_dist
                and (time.time() - self.time_wall_absent) > constants.lost_wall_timeout)
                or self.turning_away): # too close in front
