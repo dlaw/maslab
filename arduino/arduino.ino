@@ -83,7 +83,10 @@ void loop() {
 // ******************************
 
 ISR(ADC_vect){               //ADC complete interrupt handler
-  analog[adcmap[adchan]]= ADCH;
+  //analog[adcmap[adchan]]= ADCH;
+  filter[adchan] *= 15;
+  filter[adchan] += ((uint32_t) ADCH)<<24;  
+  filter[adchan] >>= 4;
   adchan++;
   if(adchan>5)adchan=0;
   adc_select(adcmap[adchan]);

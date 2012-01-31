@@ -24,7 +24,8 @@ void set_drive(serdata data){
 // command 0x02
 // Send analog data
 void send_analog(serdata data){
-  usart0_tx(analog[adcmap[data[0]]]);
+  //usart0_tx(analog[adcmap[data[0]]]);
+  usart0_tx(((uint8_t)(filter[data[0]]>>20)));
 }
 
 // command 0x03
