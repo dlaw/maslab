@@ -43,13 +43,12 @@ class HerpDerp(main.State):
 
 class GoToBall(main.State):
     timeout = constants.go_to_ball_timeout
-    def __init__(self):
-        self.size = max(ball['size'] for ball in kinect.balls)
+    size = 1.
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
-#        if ball['size'] / self.size < constants.ball_stuck_ratio:
-        print(ball['size'] / float(self.size))
-        self.size = .8 * self.size + .2 * ball['size']
+        if ball['size'] < self.size * constants.ball_stuck_ratio:
+            return maneuvering.HerpDerp()
+        self.size = .9 * self.size + .1 * ball['size']
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
         if ball['row'][0] > constants.close_ball_row:
