@@ -26,8 +26,10 @@ class LookAway(LookAround):
         turn, ir = (-1, 0) if self.turning_away else (1, 3)
         arduino.drive(0, turn * constants.look_around_speed)
         if arduino.get_ir()[ir] > constants.wall_follow_dist:
-            if self.turning_away: return LookAway(turning_away = False)
-            else: return FollowWall()
+            if self.turning_away:
+                return LookAway(turning_away = False)
+            else:
+                return FollowWall()
     def on_timeout(self):
         return GoToWall()
 
@@ -49,6 +51,8 @@ class GoToBall(main.State):
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
         return LookAround()
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
     def on_yellow(self):
@@ -60,6 +64,8 @@ class GoToYellow(main.State):
             return maneuvering.DumpBalls()
     def default_action(self):
         return LookAround()
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class GoToWall(main.State):
     def default_action(self):
@@ -67,6 +73,8 @@ class GoToWall(main.State):
             arduino.drive(0, 0)
             return FollowWall()
         arduino.drive(constants.drive_speed, 0)
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
 
 class FollowWall(main.State): # PDD controller
     last_p, last_d = None, None
