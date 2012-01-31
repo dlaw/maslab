@@ -39,7 +39,9 @@ class GoToBall(main.State):
         self.size = max(ball['size'] for ball in kinect.balls)
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
-        print(ball['size'])
+#        if ball['size'] / self.size < constants.ball_stuck_ratio:
+        print(ball['size'] / float(self.size))
+        self.size = .8 * self.size + .2 * ball['size']
         offset = constants.ball_follow_kp * (ball['col'][0] - 80)
         arduino.drive(max(0, constants.drive_speed - abs(offset)), offset)
         if ball['row'][0] > constants.close_ball_row:
