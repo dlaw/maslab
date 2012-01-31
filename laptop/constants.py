@@ -7,8 +7,8 @@ drive_speed = .9 # standard drive forward speed
 # DumpBalls
 dump_search = 30 # seconds before end-of-match to start looking for yellow wall # TODO: increase for complex field
 dump_dance = 30 # 3 # seconds before end-of-match to start the HappyDance # TODO change me back to 3
-dump_ir_final = .9
-dump_ir_turn_tol = .1
+dump_ir_final = .8
+dump_ir_turn_tol = .2
 dump_fwd_speed = .6
 dump_turn_speed = .4
 back_up_time = 1.
@@ -44,7 +44,7 @@ snarf_speed = 1. # how fast to drive while snarfing
 
 # LookAround
 look_around_timeout = 3
-look_around_speed = .7
+look_around_speed = .5
 init_prob_forcing_wall_follow = 0.02 # initial value of the below, also reset to this each time ForcedFollowWall happens
 prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 delta_prob_forcing_wall_follow = 0.01 # increase the above by this amount each time we create a new LookAround()
