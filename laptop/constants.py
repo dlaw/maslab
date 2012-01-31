@@ -11,7 +11,7 @@ dump_ir_final = .9
 dump_ir_turn_tol = .05
 dump_fwd_speed = .6
 dump_turn_speed = .4
-back_up_time = .622
+back_up_time = 1.
 wall_center_tolerance = 10 # pixels from center that wall center can be
 
 # HappyDance
@@ -25,7 +25,7 @@ go_to_ball_timeout = 4.
 ball_stuck_ratio = 1.04
 
 # GoToYellow
-yellow_follow_kp = .004
+yellow_follow_kp = .007
 dump_ir_threshhold = .5 # how close we need to be to a yellow wall before dumping
 
 # Unstick
