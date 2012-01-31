@@ -13,6 +13,7 @@ def run():
     arduino.set_helix(True)
     arduino.set_sucker(True)
     stop_time = time.time() + 180
+    timeout_time = time.time() + state.timeout
     while time.time() < stop_time:
         if want_change:
             want_change = False
@@ -35,12 +36,15 @@ def run():
                 print("{0} was not found in any of the classes".format(s[0]))
             else:
                 state = new_state
+                timeout_time = time.time() + state.timeout
                 print("State manually changed to {0}".format(state))
         kinect.process_frame()
         try:
-            new_state = state.next(stop_time - time.time())
+            new_state = (state.on_timeout() if time.time() > timeout_time
+                                             else state.next(stop_time - time.time()))
             if new_state is not None: # if the state has changed
                 state = new_state
+                timeout_time = time.time() + state.timeout
                 print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
