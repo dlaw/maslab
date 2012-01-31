@@ -5,8 +5,8 @@ ir_max = [89., 131., 167., 94.]
 drive_speed = .9 # standard drive forward speed
 
 # DumpBalls
-dump_search = 30 # seconds before end-of-match to start looking for yellow wall # TODO: increase for complex field
-dump_dance = 30 # 3 # seconds before end-of-match to start the HappyDance # TODO change me back to 3
+dump_search = 45 # seconds before end-of-match to start looking for yellow wall # TODO: increase for complex field
+dump_dance = 45 # 3 # seconds before end-of-match to start the HappyDance # TODO change me back to 3
 dump_ir_final = .8
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
@@ -61,13 +61,13 @@ herp_derp_min_turn = .2
 herp_derp_max_turn = .5
 
 # FollowWall
-follow_wall_timeout = 20 # how long to follow a wall before looking away
+follow_wall_timeout = 10 # how long to follow a wall before looking away
 wall_follow_dist = .6 # target distance for wall following
 wall_follow_limit = .4 # maximum distance we can be from a wall
-wall_follow_kp = .8
+wall_follow_kp = .7
 wall_follow_kd = 3.3
-wall_follow_kdd = 1.5
+wall_follow_kdd = 1.7
 lost_wall_timeout = 2 # how long to turn after losing a wall
-wall_follow_drive = .8 # how fast to drive
+wall_follow_drive = .75 # how fast to drive
 wall_follow_turn = .5 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
