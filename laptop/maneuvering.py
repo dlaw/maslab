@@ -44,7 +44,7 @@ class HappyDance(main.State): # dead-end state
     def on_timeout(self):
         constants.want_first_dump = False
         arduino.set_door(False) 
-        return LookAround()
+        return navigation.LookAround()
 
 class Unstick(main.State):
     def __init__(self):
