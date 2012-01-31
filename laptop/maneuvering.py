@@ -87,5 +87,5 @@ class HerpDerp(main.State):
     def next(self, time_left): # don't do anything else
         arduino.drive(self.drive, self.turn)
     def on_timeout(self):
-        return LookAround()
+        return navigation.LookAround()
 
