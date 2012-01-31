@@ -8,7 +8,7 @@ drive_speed = .9 # standard drive forward speed
 want_first_dump = True
 first_dump_time = 137 # time to first look for yellow walls
 final_dump_time = 44 # time to stop going for red balls
-dump_ir_final = .8
+dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
 dump_turn_speed = .4
@@ -27,7 +27,7 @@ go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
 # DriveBlind
-drive_blind_timeout = .15 # how long to keep driving after losing a (b/w)all and before looking around
+drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
 
 # GoToYellow
 yellow_follow_kp = .007
