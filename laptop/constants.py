@@ -10,7 +10,9 @@ dump_dance = 5 # seconds before end-of-match to start the HappyDance
 dump_ir_final = .9
 dump_ir_turn_tol = .05
 dump_fwd_speed = .6
-dump_turn_speed = .3
+dump_turn_speed = .4
+back_up_time = .622
+wall_center_tolerance = 10 # pixels from center that wall center can be
 
 # HappyDance
 dance_turn = 0.6 # the speed at which to turn while dancing

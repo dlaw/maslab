@@ -7,6 +7,8 @@ class SnarfBall(main.State):
 
 class DumpBalls(main.State):
     timeout = constants.dump_search # don't time out!
+    def __init__(self, final = False):
+        self.final = final
     def next(self, time_left): # override next so nothing can interrupt a dump
         fl, fr = arduino.get_ir()[1:-1]
         if min(fl, fr) > constants.dump_ir_final:
@@ -14,10 +16,19 @@ class DumpBalls(main.State):
             if time_left < constants.dump_dance:
                 arduino.set_door(True)
                 return HappyDance()
+            elif not self.final:
+                return ConfirmLinedUp()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
         else:
             arduino.drive(constants.dump_fwd_speed, 0)
+
+class ConfirmLinedUp(main.State):
+    timeout = constants.back_up_time
+    def next(self, time_left):
+        arduino.drive(-constants.dump_fwd_speed, 0)
+    def on_timeout(self):
+        return navigation.GoToYellow()
 
 class HappyDance(main.State): # dead-end state
     timeout = constants.dump_dance # don't time out! (keep this in case we ever increase dump_dance)
@@ -34,7 +45,8 @@ class Unstick(main.State):
     def __init__(self):
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
-        if len(triggered_bump) and (not len(triggered_ir) or np.random.rand()<constants.probability_to_use_bump):
+        if (np.random.rand() < constants.probability_to_use_bump
+            or not len(triggered_ir)) and len(triggered_bump):
             # only bump sensors are triggered, or both types are triggered and we randomly chose to look at bump
             choice = random.choice(triggered_bump)
             self.trigger_released = lambda: (not arduino.get_bump()[choice])
