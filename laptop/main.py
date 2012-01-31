@@ -13,10 +13,11 @@ class State:
         """Superclass method to execute appropriate event handlers and actions."""
         if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
+        elif (time_left < constants.first_dump_time and constants.want_first_dump
+              or time_left < constants.final_dump_time) and kinect.yellow_walls:
+            return self.on_yellow()
         elif time_left >= constants.final_dump_time and kinect.balls:
             return self.on_ball()
-        elif time_left < constants.first_dump_time and kinect.yellow_walls:
-            return self.on_yellow()
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
         """Action to take when a ball is seen and we're not in dump mode."""

@@ -42,6 +42,7 @@ class HappyDance(main.State): # dead-end state
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
+        constants.want_first_dump = False
         arduino.set_door(False) 
         return LookAround()
 
