@@ -9,10 +9,12 @@ class LookAround(main.State):
             self.force_wall_follow = True
         else:
             constants.prob_forcing_wall_follow += constants.delta_prob_forcing_wall_follow
-    def default_action(self):
+    def next(self, time_left):
         if self.force_wall_follow:
             constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
             return ForcedFollowWall()
+        return main.State.next(self, time_left)
+    def default_action(self):
         arduino.drive(0, self.turn)
     def on_timeout(self):
         return GoToWall() # enter wall-following mode
