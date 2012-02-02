@@ -73,7 +73,7 @@ class Unstick(main.State):
         else:
             self.escape_angle = None # oops, not good style
         if self.escape_angle is not None:
-            self.escape_angle += random.uniform(-constants.unstick_angle_offset_range, constants.unstick_angle_offset_range) # add some randomness
+            self.escape_angle += random.triangular(-constants.unstick_angle_offset_range, constants.unstick_angle_offset_range) # add some randomness
             self.unstick_complete = False
             self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
