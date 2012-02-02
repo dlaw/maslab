@@ -45,7 +45,6 @@ class GoToBall(main.State):
     size = 1.
     def __init__(self):
         self.non_herp_time = time.time()
-        variables.go_to_ball_attempts += 1
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         if ball['size'] > self.size * constants.ball_stuck_ratio:
@@ -58,7 +57,6 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        variables.go_to_ball_attempts -= 1 # don't increase because we maybe didn't lose it
         return DriveBlind()
     def on_timeout(self):
         return maneuvering.HerpDerp()
@@ -68,7 +66,6 @@ class DriveBlind(main.State):
     def default_action(self):
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
-        variables.go_to_ball_attempts += 1
         return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
