@@ -8,10 +8,11 @@ typedef volatile unsigned char serdata[];
 typedef void (*responder) (serdata);
 
 volatile unsigned char ball_cnt = 0;
-
+volatile unsigned char is_alive = 0;
 // command 0x00
 // Send an ack
 void ack(serdata data){
+  is_alive=1;
   usart0_tx(0x00);
 }
 
