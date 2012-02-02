@@ -20,13 +20,7 @@ def raw_command(response_fmt, data_fmt, *data):
     port.flushInput() # clear out old crap
     output = struct.pack('>' + data_fmt, *data)
     if debug: print('Sending {0}'.format(format_bytes(output)))
-    try:
-        port.write(output)
-    except:
-        print("Arduino I/O error... reinitializing")
-        connect()
-        time.sleep(1) # arduino must reboot
-        port.write(output)
+    port.write(output)
     response_data = port.read(struct.calcsize(response_fmt))
     if debug: print('Received {0}'.format(format_bytes(response_data)))
     try:
