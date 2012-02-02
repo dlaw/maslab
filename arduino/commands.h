@@ -76,9 +76,14 @@ void get_ball_cnt(serdata data) {
   ball_cnt = 0;
 }
 
+void reset_qik(serdata data) {
+  qik_reset();
+  usart0_tx(0x00);
+}
+
 // How many bytes of data will follow each command?
 unsigned char commands[] = {
-  0, 2, 1, 0, 0, 2, 0
+  0, 2, 1, 0, 0, 2, 0, 0
 };
 
 // What function shall be called to respond to each command?
@@ -89,5 +94,6 @@ responder responses[] = {
   &button_pressed,
   &get_bump,
   &set_motor,
-  &get_ball_cnt
+  &get_ball_cnt,
+  &reset_qik
 };

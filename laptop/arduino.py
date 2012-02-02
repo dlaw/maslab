@@ -81,3 +81,7 @@ def get_bump():
 
 def get_new_ball_count():
     return raw_command('B', 'B', 6)[0]
+
+def reset_qik():
+    return raw_command('B', 'B', 7)[0]
+

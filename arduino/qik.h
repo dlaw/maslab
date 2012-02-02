@@ -14,7 +14,7 @@ void qik_init(void){
 void qik_reset(void){
   pinMode(36, OUTPUT);
   digitalWrite(36, LOW);
-  delay(10);
+  _delay_ms(10);
   pinMode(36, INPUT);
   pinMode(36, HIGH);
 }
