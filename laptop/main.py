@@ -45,8 +45,11 @@ class State:
         return navigation.LookAround()
 
 def run(duration = 180):
+    global number_possessed_balls
+    global ball_attempts
+    global stalking_yellow
+    global time_last_seen_yellow
     import navigation
-    global number_possessed_balls, ball_attempts, stalking_yellow, time_last_seen_yellow
 
     print("ready to go: waiting for switch")
     initial_switch = arduino.get_switch()
