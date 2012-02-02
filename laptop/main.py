@@ -66,6 +66,8 @@ def run(duration = 180):
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
+        if kinect.yellow_walls:
+            variables.saw_yellow[0] = True
         if (time_left < constants.yellow_stalk_time and # we're near the end
             any(variables.saw_yellow) and # and we've recently seen a yellow wall
             variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
@@ -79,6 +81,8 @@ def run(duration = 180):
             if new_state is not None: # if the state has changed
                 state = new_state
                 timeout_time = time.time() + state.timeout
+                variables.saw_yellow.pop()
+                variables.saw_yellow.insert(0, False)
                 # TODO remove the {2} attempts
                 print("{0} with {1} seconds to go, {2} attempts, can_follow_walls is {3}".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls))
         except Exception, ex:
