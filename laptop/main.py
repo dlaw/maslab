@@ -54,7 +54,11 @@ def run(duration = 180):
         kinect.process_frame()
         time_left = stop_time - time.time()
 
-        new_balls = arduino.get_new_ball_count()
+        try:
+            new_balls = arduino.get_new_ball_count()
+        except Exception, ex:
+            new_balls = 0
+            print("{0} while attempting to get new ball count".format(ex))
         variables.number_possessed_balls += new_balls
         if new_balls:
             print("{0} NEW BALLS, now {1} balls total".format(new_balls, variables.number_possessed_balls))
