@@ -64,7 +64,7 @@ def run(duration = 180):
         new_balls = arduino.get_new_ball_count()
         number_possessed_balls += new_balls
         if new_balls:
-            print "NEW BALLS detected", new_balls
+            print("{0} NEW BALLS, now {1} balls total".format(new_balls, number_possessed_balls))
             ball_attempts = 0
         
         if number_possessed_balls >= constants.max_balls_to_possess:
