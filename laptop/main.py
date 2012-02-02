@@ -10,6 +10,8 @@ assert kinect.initialized, "kinect not initialized"
 # runtime variables used by multiple states
 prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
+can_follow_wall = True # whether we're allowed to enter FollowWall mode
+# TODO actually set can_follow_wall to False when appropriate
 
 class State:
     timeout = 10 # default timeout of 10 seconds per state
