@@ -6,7 +6,7 @@ class SnarfBall(main.State):
         arduino.drive(constants.snarf_speed, 0)
 
 class DumpBalls(main.State):
-    timeout = constants.final_dump_time # don't time out!
+    timeout = constants.dump_time # don't time out!
     def __init__(self, final = False):
         self.final = final
     def next(self, time_left): # override next so nothing can interrupt a dump
@@ -15,7 +15,7 @@ class DumpBalls(main.State):
             arduino.drive(0, 0)
             if not self.final:
                 return ConfirmLinedUp()
-            elif time_left < constants.eject_time or time_left > constants.final_dump_time:
+            elif time_left < constants.eject_time:
                 return HappyDance()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)

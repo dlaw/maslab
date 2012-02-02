@@ -2,12 +2,14 @@ ir_max = [89., 131., 167., 94.] # for IR calibration
 drive_speed = .9 # standard drive forward speed
 
 # Control state transitions
-min_balls_to_dump = 5 # except for endgame, only dump if we have at least this many balls
-max_balls_to_possess = 17 # max number of balls that can fit in the third level at any given time
+max_balls_to_possess = 13 # max number of balls that can fit in the third level at any given time
+# TODO measure how many balls we can possess
+min_balls_to_stalk_yellow = 5 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
+yellow_stalk_time = 137 # time to look for yellow walls and stay near them
+time_without_yellow_before_following = 10 # if we've disabled wall following but go this long without seeing yellow, re-enable wall following
 
 # DumpBalls
-first_dump_time = 137 # time to first look for yellow walls
-final_dump_time = 44 # time to stop going for red balls
+dump_time = 44 # time to stop going for red balls
 dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
