@@ -1,8 +1,9 @@
-# for the arduino
-ir_max = [89., 131., 167., 94.]
-
-# Multi-purpose
+ir_max = [89., 131., 167., 94.] # for IR calibration
 drive_speed = .9 # standard drive forward speed
+
+# Control state transitions
+min_balls_to_dump = 5 # except for endgame, only dump if we have at least this many balls
+max_balls_to_possess = 17 # max number of balls that can fit in the third level at any given time
 
 # DumpBalls
 first_dump_time = 137 # time to first look for yellow walls
