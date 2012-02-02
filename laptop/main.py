@@ -7,13 +7,17 @@ assert arduino.is_alive(), "could not talk to Arduino"
 assert arduino.get_voltage() > 8, "battery not present or voltage low"
 assert kinect.initialized, "kinect not initialized"
 
+# runtime variables used by multiple states
+want_first_dump = True
+prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
+
 class State:
     timeout = 10 # default timeout of 10 seconds per state
     def next(self, time_left):
         """Superclass method to execute appropriate event handlers and actions."""
         if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
-        elif ((time_left < constants.first_dump_time and constants.want_first_dump)
+        elif ((time_left < constants.first_dump_time and want_first_dump)
               or time_left < constants.final_dump_time) and kinect.yellow_walls:
             return self.on_yellow()
         elif time_left >= constants.final_dump_time and kinect.balls:

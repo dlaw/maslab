@@ -5,13 +5,13 @@ class LookAround(main.State):
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
         self.force_wall_follow = False
-        if np.random.rand() < constants.prob_forcing_wall_follow:
+        if np.random.rand() < main.prob_forcing_wall_follow:
             self.force_wall_follow = True
         else:
-            constants.prob_forcing_wall_follow *= constants.look_around_multiplier_prob_forcing_wall_follow
+            main.prob_forcing_wall_follow *= constants.look_around_multiplier_prob_forcing_wall_follow
     def next(self, time_left):
         if self.force_wall_follow:
-            constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
+            main.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
             return ForcedFollowWall()
         return main.State.next(self, time_left)
     def default_action(self):
