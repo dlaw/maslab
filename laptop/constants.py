@@ -32,7 +32,8 @@ go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
 # DriveBlind
-drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
+ball_blind_timeout = .1
+yellow_blind_timeout = .5
 
 # GoToYellow
 yellow_follow_kp = .007

@@ -57,13 +57,13 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        return DriveBlind()
+        return DriveBlind(constants.ball_blind_timeout)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
 class DriveBlind(main.State):
-    timeout = constants.drive_blind_timeout
-    def default_action(self):
+    def default_action(self, timeout):
+        self.timeout = timeout
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
         return maneuvering.HerpDerp()
@@ -78,7 +78,7 @@ class GoToYellow(main.State):
             return maneuvering.DumpBalls(final = abs(wall['col'][0] - 80) <
                                          constants.wall_center_tolerance)
     def default_action(self):
-        return DriveBlind()
+        return DriveBlind(constants.yellow_blind_timeout)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
