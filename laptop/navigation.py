@@ -65,7 +65,6 @@ class DriveBlind(main.State):
     def __init__(self, timeout):
         self.timeout = timeout
     def default_action(self):
-        self.timeout = timeout
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
         return maneuvering.HerpDerp()
