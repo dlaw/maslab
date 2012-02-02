@@ -137,9 +137,12 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 // the timed control loop currently triggers every 1.28 ms
 ISR(TIMER0_COMPA_vect) {
   ramp_counter++;
-  if (allow <= 100) {
-  allow++;
-  }
+//ball sense debouncing
+  if (allow <= 100) allow++;
+//helix pwm @ 50%
+  if (helix) PORTG ^= 0x04;
+  else PORTG &= ~0x04;
+//blinky counter
   blink++;
 }
 

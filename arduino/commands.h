@@ -9,6 +9,7 @@ typedef void (*responder) (serdata);
 
 volatile unsigned char ball_cnt = 0;
 volatile unsigned char is_alive = 0;
+volatile char helix = 0;
 // command 0x00
 // Send an ack
 void ack(serdata data){
@@ -59,8 +60,8 @@ void set_motor(serdata data) {
     else digitalWrite(37, LOW);
     
   } else if (data[1] == 0) {
-    if (data[0] != 0) digitalWrite(39, HIGH);
-    else digitalWrite(39, LOW);
+    if (data[0] != 0) helix=1;//digitalWrite(39, HIGH);
+    else helix=0;//digitalWrite(39, LOW);
   }   
     
   usart0_tx(0x00);
