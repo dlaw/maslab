@@ -88,13 +88,23 @@ class GoToWall(main.State):
         return maneuvering.HerpDerp()
 
 class ForcedGoToWall(main.State):
+    def __init__(self):
+        self.on_wall = False
     def on_ball(self):
         return self.default_action() # ignore balls
     def default_action(self):
-        if max(arduino.get_ir()) > constants.wall_follow_dist:
-            arduino.drive(0, 0)
-            return ForcedFollowWall()
-        arduino.drive(constants.drive_speed, 0)
+        if not self.on_wall: # go to the wall
+            if max(arduino.get_ir()) > constants.wall_follow_dist:
+                self.on_wall = True
+                arduino.drive(0, constants.wall_follow_turn)
+            else:
+                arduino.drive(constants.drive_speed, 0)
+        else: # now turn towards the wall
+            if arduino.get_ir()[3] > constants.wall_follow_limit: # the wall is on the proper side
+                arduino.drive(0, 0)
+                return ForcedFollowWall()
+            else:
+                arduino.drive(0, constants.wall_follow_turn)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
