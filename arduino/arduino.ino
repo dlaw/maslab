@@ -11,6 +11,7 @@ volatile char frame = 0;
 volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
+volatile unsigned char allow;
 
 void setup(){
   DDRF &= ~0xff;  //adc 2
@@ -35,6 +36,10 @@ void setup(){
 
   OCR0A = 20; // trigger the timer interrupt every 500 us
   TIMSK0 |= B00000010; // enable interrupt A
+  
+  // int4 for ball detect
+  EICRB = B00000011;
+  EIMSK = B00010000;
   
   sei();            // start interrupts
   
@@ -65,6 +70,17 @@ void setup(){
   
   pinMode(36, INPUT);      //qik reset
   digitalWrite(36, LOW);
+  
+  pinMode(35, OUTPUT);
+  pinMode(37, OUTPUT);
+  pinMode(39, OUTPUT);
+  
+  //pinMode(2, INPUT);
+  pinMode(3, OUTPUT);
+  digitalWrite(3, LOW);
+  //digitalWrite(2, HIGH);
+  
+  PORTE |= B00010000;
 }
 
 void loop() {
@@ -105,4 +121,16 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 // the timed control loop currently triggers every 1.28 ms
 ISR(TIMER0_COMPA_vect) {
   ramp_counter++;
+  if (allow <= 100) {
+  allow++;
+  }
+}
+
+ISR(INT4_vect) {
+  if (allow > 100) {
+    // needs some sort of a debounce functionality
+    ball_cnt++;
+    allow = 0;
+    TCNT0 = 0;
+  }
 }
