@@ -37,8 +37,7 @@ class GoToBall(main.State):
         variables.go_to_ball_attempts += 1
     def next(self, time_left):
         if variables.go_to_ball_attempts >= constants.max_ball_attempts:
-            variables.go_to_ball_attempts = 0
-            return ForcedFollowWall()
+            return ForcedGoToWall()
         return main.State.next(self, time_left)
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
@@ -84,6 +83,17 @@ class GoToWall(main.State):
         if max(arduino.get_ir()) > constants.wall_follow_dist:
             arduino.drive(0, 0)
             return FollowWall()
+        arduino.drive(constants.drive_speed, 0)
+    def on_timeout(self):
+        return maneuvering.HerpDerp()
+
+class ForcedGoToWall(main.State):
+    def on_ball(self):
+        return self.default_action() # ignore balls
+    def default_action(self):
+        if max(arduino.get_ir()) > constants.wall_follow_dist:
+            arduino.drive(0, 0)
+            return ForcedFollowWall()
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
         return maneuvering.HerpDerp()
@@ -141,7 +151,10 @@ class FollowWall(main.State): # PDD controller
         return self.follow()
 
 class ForcedFollowWall(FollowWall):
+    def __init__(self):
+        variables.go_to_ball_attempts = 0 # reset this counter
     def on_ball(self):
         return self.default_action() # ignore balls
     def on_timeout(self):
         return FollowWall()
+
