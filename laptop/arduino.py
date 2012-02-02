@@ -81,5 +81,5 @@ def get_bump():
     bumps = raw_command('B', 'B', 4)[0]
     return [not bool(bumps & (1 << i)) for i in range(2)]
 
-def get_ball_count():
+def get_new_ball_count():
     return raw_command('B', 'B', 6)[0]

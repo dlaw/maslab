@@ -61,7 +61,7 @@ def run(duration = 180):
     arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
-        number_possessed_balls += arduino.get_ball_count()
+        number_possessed_balls += arduino.get_new_ball_count()
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
                          else state.next(stop_time - time.time()))
