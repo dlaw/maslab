@@ -68,7 +68,7 @@ def run(duration = 180):
         if kinect.yellow_walls:
             time_last_seen_yellow = time.time()
         if time_left < constants.dump_time and
-           time.time() - time_last_seen_yellow > constants.time_without_yellow_before_following:
+           time.time() - time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking:
             stalking_yellow = False
         
         try:
