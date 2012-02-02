@@ -40,6 +40,9 @@ def is_alive():
     try: return raw_command('B', 'B', 0) == (0,)
     except: return False
 
+def set_led(value):
+    return raw_command('B', 'BB', 7, value) == (0,)
+
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
     left = np.clip(left, -1, 1)

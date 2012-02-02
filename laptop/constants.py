@@ -5,7 +5,7 @@ helix_twiddle_period = [5, 0.5] # list of (time to stay on, time to stay off)
 # Control state transitions
 max_balls_to_possess = 13 # max number of balls that can fit in the third level at any given time
 # TODO measure how many balls we can possess
-min_balls_to_stalk_yellow = 7 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
+min_balls_to_stalk_yellow = 6 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
 yellow_stalk_time = 100 # time to look for yellow walls and stay near them
 max_look_around_timeouts = 3 # if we're stalking yellow but look around this many times without seeing yellow, re-enable wall following
 max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
@@ -61,7 +61,7 @@ look_around_speed = .5 # also used in LookAway
 look_away_timeout = 6
 
 # HerpDerp
-herp_derp_timeout = 0.5
+herp_derp_timeout = 0.8
 herp_derp_min_drive = .4
 herp_derp_max_drive = .6
 herp_derp_min_turn = .2
