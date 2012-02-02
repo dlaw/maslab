@@ -37,7 +37,8 @@ def raw_command(response_fmt, data_fmt, *data):
 
 def is_alive():
     """Check whether the arduino is responding to commands."""
-    return raw_command('B', 'B', 0) == (0,)
+    try: return raw_command('B', 'B', 0) == (0,)
+    except: return False
 
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
