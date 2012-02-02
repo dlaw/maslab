@@ -2,7 +2,6 @@ import numpy as np, constants, random, time, arduino, main, navigation, variable
 
 class SnarfBall(main.State):
     timeout = constants.snarf_time
-    def __init__(self):
     def next(self, time_left): # override next because we snarf no matter what
         arduino.drive(constants.snarf_speed, 0)
 
