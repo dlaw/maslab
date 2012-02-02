@@ -66,8 +66,12 @@ def run(duration = 180):
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
-        variables.can_follow_walls = False if (time_left < constants.yellow_stalk_time and
-                                     any(variables.saw_yellow)) else True
+        if (time_left < constants.yellow_stalk_time and
+            any(variables.saw_yellow) and
+            variables.number_possessed_balls > min_balls_to_stalk_yellow):
+            variables.can_follow_walls = False
+        else:
+            variables.can_follow_walls = True
         
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
