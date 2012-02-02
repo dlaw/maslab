@@ -84,8 +84,6 @@ def run(duration = 180):
             if new_state is not None: # if the state has changed
                 state = new_state
                 timeout_time = time.time() + state.timeout
-                variables.saw_yellow.pop()
-                variables.saw_yellow.insert(0, False)
                 # TODO remove the {2} attempts
                 print("{0} with {1} seconds to go, ({2}, {3}, {4})".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls, variables.ignore_balls))
         except Exception, ex:
