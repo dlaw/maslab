@@ -48,7 +48,7 @@ def run(duration = 180):
     stop_time = time.time() + duration
     state = navigation.LookAround()
     timeout_time = time.time() + state.timeout
-    third_level_full = False
+    variables.helix_enabled = True
     helix_on = True
     next_helix_twiddle = duration - constants.helix_twiddle_period[not helix_on]
     arduino.set_helix(True)
@@ -75,9 +75,9 @@ def run(duration = 180):
             variables.ignore_balls = False
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
-            third_level_full = True
+            variables.helix_enabled = False
             arduino.set_helix(False) # possess future balls in the lower level
-        if not third_level_full and time_left < next_helix_twiddle:
+        if variables.helix_enabled and time_left < next_helix_twiddle:
             helix_on = not helix_on
             arduino.set_helix(helix_on)
             next_helix_twiddle = time_left - constants.helix_twiddle_period[not helix_on]

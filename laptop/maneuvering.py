@@ -27,6 +27,7 @@ class WaitInSilence(main.State):
     def __init__(self):
         arduino.set_helix(False)
         arduino.set_sucker(False)
+        variables.helix_enabled = False
     def next(self, time_left):
         arduino.drive(0, 0)
         if time_left < constants.eject_time:
