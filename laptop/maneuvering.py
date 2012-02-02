@@ -41,13 +41,13 @@ class HappyDance(main.State): # dead-end state
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
-        constants.want_first_dump = False
+        main.want_first_dump = False
         arduino.set_door(False) 
         return navigation.LookAround()
 
 class Unstick(main.State):
     def __init__(self):
-        constants.prob_forcing_wall_follow *= constants.unstick_multiplier_prob_forcing_wall_follow
+        main.prob_forcing_wall_follow *= constants.unstick_multiplier_prob_forcing_wall_follow
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
         if (np.random.rand() < constants.probability_to_use_bump

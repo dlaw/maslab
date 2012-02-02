@@ -5,7 +5,6 @@ ir_max = [89., 131., 167., 94.]
 drive_speed = .9 # standard drive forward speed
 
 # DumpBalls
-want_first_dump = True
 first_dump_time = 137 # time to first look for yellow walls
 final_dump_time = 44 # time to stop going for red balls
 dump_ir_final = .75
@@ -51,10 +50,9 @@ snarf_speed = 1. # how fast to drive while snarfing
 # LookAround
 look_around_timeout = 3
 look_around_speed = .5 # also used in LookAway
-init_prob_forcing_wall_follow = 0.01 # initial value of the below, also reset to this each time ForcedFollowWall happens
-prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
-look_around_multiplier_prob_forcing_wall_follow = 1.05 # multiply the above by this amount each time we create a new LookAround()
-unstick_multiplier_prob_forcing_wall_follow = 1.1 # multiply the above by this amount each time we create a new Unstick()
+init_prob_forcing_wall_follow = 0.01 # each time ForcedFollowWall happens, reset the probability to this
+look_around_multiplier_prob_forcing_wall_follow = 1.05 # multiply the probability by this amount each time we create a new LookAround()
+unstick_multiplier_prob_forcing_wall_follow = 1.1 # multiply the probability by this amount each time we create a new Unstick()
 
 # LookAway
 look_away_timeout = 6
