@@ -54,7 +54,7 @@ def run(duration = 180):
         kinect.process_frame()
         time_left = stop_time - time.time()
 
-        try:
+        try: # sometimes this throws a NoneType exception, so let's catch it to be safe
             new_balls = arduino.get_new_ball_count()
         except Exception, ex:
             new_balls = 0
@@ -66,9 +66,9 @@ def run(duration = 180):
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
-        if (time_left < constants.yellow_stalk_time and
-            any(variables.saw_yellow) and
-            variables.number_possessed_balls > min_balls_to_stalk_yellow):
+        if (time_left < constants.yellow_stalk_time and # we're near the end
+            any(variables.saw_yellow) and # and we've recently seen a yellow wall
+            variables.number_possessed_balls > min_balls_to_stalk_yellow): # and the third level is sufficiently full
             variables.can_follow_walls = False
         else:
             variables.can_follow_walls = True
