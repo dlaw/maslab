@@ -25,6 +25,7 @@ class DumpBalls(main.State):
             arduino.drive(constants.dump_fwd_speed, 0)
 
 class WaitInSilence(main.State):
+    timeout = constants.dump_time # don't time out!
     def __init__(self):
         arduino.set_helix(False)
         arduino.set_sucker(False)
