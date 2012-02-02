@@ -153,6 +153,7 @@ class FollowWall(main.State): # PDD controller
 class ForcedFollowWall(FollowWall):
     def __init__(self):
         variables.go_to_ball_attempts = 0 # reset this counter
+        FollowWall.__init__(self)
     def on_ball(self):
         return self.default_action() # ignore balls
     def on_timeout(self):
