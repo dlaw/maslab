@@ -17,12 +17,21 @@ class DumpBalls(main.State):
             arduino.drive(0, 0)
             if not self.final:
                 return ConfirmLinedUp()
-            elif time_left < constants.eject_time:
-                return HappyDance()
+            else:
+                return WaitInSilence()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
         else:
             arduino.drive(constants.dump_fwd_speed, 0)
+
+class WaitInSilence(main.State):
+    def __init__(self):
+        arduino.set_helix(False)
+        arduino.set_sucker(False)
+    def next(self, time_left):
+        arduino.drive(0, 0)
+        if time_left < constants.eject_time:
+            return HappyDance()
 
 class ConfirmLinedUp(main.State):
     timeout = constants.back_up_time
