@@ -38,7 +38,7 @@ dump_ir_threshhold = .5 # how close we need to be to a yellow wall before dumpin
 
 # Unstick
 ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4] # position of sensors on the robot (0 is straight ahead, positive direction is clockwise)
-bump_sensor_angles = [2.36, 3.93, 5.50, 0.79] # 45 degrees from straight behind
+bump_sensor_angles = [0.79, 5.50, 2.36, 3.93] # 45 degrees from straight behind
 ir_stuck_threshold = 0.9
 ir_unstuck_threshold = 0.8 # ir_stuck_threshold should be larger than ir_unstuck_threshold
 unstick_angle_offset_range = 1.6 # add between -this and +this (randomly) to the escape angle
