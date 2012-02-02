@@ -41,7 +41,6 @@ class HappyDance(main.State): # dead-end state
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
-        main.want_first_dump = False
         arduino.set_door(False)
         main.number_possessed_balls = 0 # we no longer possess any balls
         return navigation.LookAround()
