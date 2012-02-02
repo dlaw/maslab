@@ -54,7 +54,7 @@ def run(duration = 180):
         kinect.process_frame()
         time_left = stop_time - time.time()
 
-        try:
+        try: # sometimes this throws a NoneType exception, so let's catch it to be safe
             new_balls = arduino.get_new_ball_count()
         except Exception, ex:
             new_balls = 0
@@ -62,19 +62,16 @@ def run(duration = 180):
         variables.number_possessed_balls += new_balls
         if new_balls:
             print("{0} NEW BALLS, now {1} balls total with {2} seconds to go".format(new_balls, variables.number_possessed_balls, time_left))
-            variables.ball_attempts = 0
+            variables.go_to_ball_attempts = 0
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
-        if (variables.number_possessed_balls >= constants.min_balls_to_stalk_yellow and
-            time_left < constants.yellow_stalk_time and
-            kinect.yellow_walls):
-            variables.stalking_yellow = True
-        if kinect.yellow_walls:
-            variables.time_last_seen_yellow = time.time()
-        if (time_left < constants.dump_time and
-            time.time() - variables.time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking):
-            variables.stalking_yellow = False
+        if (time_left < constants.yellow_stalk_time and # we're near the end
+            any(variables.saw_yellow) and # and we've recently seen a yellow wall
+            variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
+            variables.can_follow_walls = False
+        else:
+            variables.can_follow_walls = True
         
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
@@ -83,7 +80,7 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, {2} attempts, stalking_yellow is {3}".format(state, time_left, variables.ball_attempts, variables.stalking_yellow))
+                print("{0} with {1} seconds to go, {2} attempts, can_follow_walls is {3}".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
