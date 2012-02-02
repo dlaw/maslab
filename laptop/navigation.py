@@ -62,7 +62,9 @@ class GoToBall(main.State):
         return maneuvering.HerpDerp()
 
 class DriveBlind(main.State):
-    def default_action(self, timeout):
+    def __init__(self, timeout):
+        self.timeout = timeout
+    def default_action(self):
         self.timeout = timeout
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
