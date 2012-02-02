@@ -67,6 +67,7 @@ def run(duration = 180):
         if not variables.ignore_balls and variables.go_to_ball_attempts >= constants.max_ball_attempts:
             variables.ignore_balls = True
             end_ignore_balls = time_left - random.uniform(.5, 1)*constants.ignore_balls_length
+            variables.go_to_ball_attempts = 0
         if variables.ignore_balls and time_left < end_ignore_balls:
             variables.ignore_balls = False
         
