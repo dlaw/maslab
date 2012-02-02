@@ -12,7 +12,7 @@ volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 volatile unsigned char allow;
-volatile unsigned char blink=0;
+volatile unsigned int blink=0;
 
 void setup(){
   DDRF &= ~0xff;  //adc 2
