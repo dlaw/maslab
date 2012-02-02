@@ -2,11 +2,13 @@ import numpy as np, constants, random, time, arduino, main, navigation
 
 class SnarfBall(main.State):
     timeout = constants.snarf_time
+    def __init__(self):
+        main.ball_attempts += 1
     def next(self, time_left): # override next because we snarf no matter what
         arduino.drive(constants.snarf_speed, 0)
 
 class DumpBalls(main.State):
-    timeout = constants.final_dump_time # don't time out!
+    timeout = constants.dump_time # don't time out!
     def __init__(self, final = False):
         self.final = final
     def next(self, time_left): # override next so nothing can interrupt a dump
@@ -15,7 +17,7 @@ class DumpBalls(main.State):
             arduino.drive(0, 0)
             if not self.final:
                 return ConfirmLinedUp()
-            elif time_left < constants.eject_time or time_left > constants.final_dump_time:
+            elif time_left < constants.eject_time:
                 return HappyDance()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
@@ -41,13 +43,12 @@ class HappyDance(main.State): # dead-end state
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
-        constants.want_first_dump = False
-        arduino.set_door(False) 
+        arduino.set_door(False)
+        main.number_possessed_balls = 0 # we no longer possess any balls
         return navigation.LookAround()
 
 class Unstick(main.State):
     def __init__(self):
-        constants.prob_forcing_wall_follow *= constants.unstick_multiplier_prob_forcing_wall_follow
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
         if (np.random.rand() < constants.probability_to_use_bump
@@ -99,6 +100,7 @@ class Unstick(main.State):
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
+        main.ball_attempts += 1
         self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
                                          constants.herp_derp_max_drive)
         self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *

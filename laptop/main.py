@@ -7,16 +7,21 @@ assert arduino.is_alive(), "could not talk to Arduino"
 assert arduino.get_voltage() > 8, "battery not present or voltage low"
 assert kinect.initialized, "kinect not initialized"
 
+# runtime variables used by multiple states
+number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
+ball_attempts = 0 # how many times we've tried to get a ball since a new ball has entered the third level
+stalking_yellow = False # when we're stalking yellow, we can't follow walls
+time_last_seen_yellow = time.time()
+
 class State:
     timeout = 10 # default timeout of 10 seconds per state
     def next(self, time_left):
         """Superclass method to execute appropriate event handlers and actions."""
         if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
-        elif ((time_left < constants.first_dump_time and constants.want_first_dump)
-              or time_left < constants.final_dump_time) and kinect.yellow_walls:
+        elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
-        elif time_left >= constants.final_dump_time and kinect.balls:
+        elif time_left >= constants.dump_time and kinect.balls:
             return self.on_ball()
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
@@ -40,9 +45,15 @@ class State:
         return navigation.LookAround()
 
 def run(duration = 180):
+    global number_possessed_balls
+    global ball_attempts
+    global stalking_yellow
+    global time_last_seen_yellow
     import navigation
+
     print("ready to go: waiting for switch")
-    while not arduino.get_switch():
+    initial_switch = arduino.get_switch()
+    while arduino.get_switch() == initial_switch:
         time.sleep(.02) # check every 20 ms
     stop_time = time.time() + duration
     state = navigation.LookAround()
@@ -51,13 +62,34 @@ def run(duration = 180):
     arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
+        time_left = stop_time - time.time()
+
+        new_balls = arduino.get_new_ball_count()
+        number_possessed_balls += new_balls
+        if new_balls:
+            print("{0} NEW BALLS, now {1} balls total".format(new_balls, number_possessed_balls))
+            ball_attempts = 0
+        
+        if number_possessed_balls >= constants.max_balls_to_possess:
+            arduino.set_helix(False) # possess future balls in the lower level
+        if (number_possessed_balls >= constants.min_balls_to_stalk_yellow and
+            time_left < constants.yellow_stalk_time and
+            kinect.yellow_walls):
+            stalking_yellow = True
+        if kinect.yellow_walls:
+            time_last_seen_yellow = time.time()
+        if (time_left < constants.dump_time and
+            time.time() - time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking):
+            stalking_yellow = False
+        
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
-                         else state.next(stop_time - time.time()))
+                         else state.next(time_left))
             if new_state is not None: # if the state has changed
                 state = new_state
                 timeout_time = time.time() + state.timeout
-                print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
+                # TODO remove the {2} attempts
+                print("{0} with {1} seconds to go, {2} attempts".format(state, time_left, ball_attempts))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 

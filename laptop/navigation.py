@@ -4,20 +4,12 @@ class LookAround(main.State):
     timeout = constants.look_around_timeout
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
-        self.force_wall_follow = False
-        if np.random.rand() < constants.prob_forcing_wall_follow:
-            self.force_wall_follow = True
-        else:
-            constants.prob_forcing_wall_follow *= constants.look_around_multiplier_prob_forcing_wall_follow
-    def next(self, time_left):
-        if self.force_wall_follow:
-            constants.prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # reset
-            return ForcedFollowWall()
-        return main.State.next(self, time_left)
     def default_action(self):
         arduino.drive(0, self.turn)
     def on_timeout(self):
-        return GoToWall() # enter wall-following mode
+        if not main.stalking_yellow:
+            return GoToWall() # enter wall-following mode
+        return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
 
 class LookAway(main.State):
     timeout = constants.look_away_timeout
@@ -42,6 +34,11 @@ class GoToBall(main.State):
     size = 1.
     def __init__(self):
         self.non_herp_time = time.time()
+    def next(self, time_left):
+        if main.ball_attempts >= constants.max_ball_attempts:
+            main.ball_attempts = 0
+            return ForcedFollowWall()
+        return main.State.next(self, time_left)
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         if ball['size'] > self.size * constants.ball_stuck_ratio:

@@ -1,5 +1,7 @@
 import serial, subprocess, struct, constants, numpy as np
 
+debug = False
+
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
     try:
@@ -9,7 +11,6 @@ for name in names:
         break
     except:
         continue
-debug = False
 
 def format_bytes(bytes):
     return ' '.join([hex(ord(b)) for b in bytes])
@@ -19,7 +20,13 @@ def raw_command(response_fmt, data_fmt, *data):
     port.flushInput() # clear out old crap
     output = struct.pack('>' + data_fmt, *data)
     if debug: print('Sending {0}'.format(format_bytes(output)))
-    port.write(output)
+    try:
+        port.write(output)
+    except:
+        print("Arduino I/O error... reinitializing")
+        connect()
+        time.sleep(1) # arduino must reboot
+        port.write(output)
     response_data = port.read(struct.calcsize(response_fmt))
     if debug: print('Received {0}'.format(format_bytes(response_data)))
     try:
@@ -30,7 +37,8 @@ def raw_command(response_fmt, data_fmt, *data):
 
 def is_alive():
     """Check whether the arduino is responding to commands."""
-    return raw_command('B', 'B', 0) == (0,)
+    try: return raw_command('B', 'B', 0) == (0,)
+    except: return False
 
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
@@ -67,3 +75,6 @@ def set_door(value):
 def get_bump():
     bumps = raw_command('B', 'B', 4)[0]
     return [not bool(bumps & (1 << i)) for i in range(2)]
+
+def get_new_ball_count():
+    return raw_command('B', 'B', 6)[0]
