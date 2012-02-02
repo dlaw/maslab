@@ -61,7 +61,7 @@ look_around_speed = .5 # also used in LookAway
 look_away_timeout = 6
 
 # HerpDerp
-herp_derp_timeout = 1
+herp_derp_timeout = 1.1
 herp_derp_first_time = .6
 herp_derp_first_drive = -.4
 herp_derp_first_turn = .4

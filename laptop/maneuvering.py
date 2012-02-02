@@ -118,6 +118,7 @@ class HerpDerp(main.State):
         self.midtime = time.time() + constants.herp_derp_first_time
     def next(self, time_left): # don't do anything else
         if time.time() < self.midtime:
-            arduino.drive(self.herp_derp_first_drive, self.sign * self.herp_derp_first_turn)
+            arduino.drive(constants.herp_derp_first_drive,
+                          self.sign * constants.herp_derp_first_turn)
         else:
             arduino.drive(0, -1 * self.sign * constants.herp_derp_second_turn)
