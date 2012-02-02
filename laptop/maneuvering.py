@@ -54,7 +54,6 @@ class HappyDance(main.State): # dead-end state
     def on_timeout(self):
         arduino.set_door(False)
         variables.number_possessed_balls = 0 # we no longer possess any balls
-        return navigation.LookAround()
 
 class Unstick(main.State):
     def __init__(self):
@@ -108,7 +107,7 @@ class Unstick(main.State):
         arduino.drive(drive, turn)
 
 class HerpDerp(main.State):
-    timeout = 2*constants.herp_derp_timeout
+    timeout = constants.herp_derp_timeout
     def __init__(self):
         self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
                                          constants.herp_derp_max_drive)
@@ -120,10 +119,9 @@ class HerpDerp(main.State):
             self.sign = np.sign(arduino.get_ir()[2] - arduino.get_ir()[1])
         self.turn = random.uniform(constants.herp_derp_min_turn,
                                    constants.herp_derp_max_turn)
-        self.midtime = time.time() + constants.herp_derp_timeout
+        self.midtime = time.time() + self.timeout * 2. / 3.
     def next(self, time_left): # don't do anything else
         if time.time() < self.midtime:
-            arduino.drive(self.drive, self.sign*self.turn)
+            arduino.drive(self.drive, self.sign * self.turn)
         else:
-            arduino.drive(self.drive, -1*self.sign*self.turn)
-
+            arduino.drive(0, -1 * self.sign * self.turn)
