@@ -27,7 +27,7 @@ ball_follow_kp = .006
 close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
-max_go_to_ball_attempts = 5 # if we try this many times without the ball count increasing, go to ForcedFollowWall
+max_go_to_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DriveBlind
 drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
