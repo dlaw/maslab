@@ -83,7 +83,7 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, {2} attempts".format(state, time_left, variables.ball_attempts))
+                print("{0} with {1} seconds to go, {2} attempts, stalking_yellow is {3}".format(state, time_left, variables.ball_attempts, variables.stalking_yellow))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
