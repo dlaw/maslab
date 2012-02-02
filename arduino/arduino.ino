@@ -100,16 +100,29 @@ void setup(){
   is_alive=0;
 
   PORTE |= B00010000;
+  
+
 }
 
 void loop() {
+
+  
+  
   if(is_alive==1){
-    if((blink>=400)){
+    if((blink>=100)){
       blink=0;
       digitalWrite(30,HIGH);
     }
-    if(blink>=200){
+    if(blink>=50){
       digitalWrite(30,LOW);
+    }
+  } else {
+    if ((blink >= 600)) {
+      blink = 0;
+      digitalWrite(30, HIGH);
+    }
+    if (blink >= 300) {
+      digitalWrite(30, LOW);
     }
   }
   if (ramp_counter) {
