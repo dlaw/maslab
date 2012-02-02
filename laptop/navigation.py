@@ -14,7 +14,7 @@ class LookAround(main.State):
             variables.saw_yellow.pop()
             variables.saw_yellow.insert(0, self.saw_yellow)
             if not any(variables.saw_yellow): # we lost the yellow (repeatedly), so follow walls again
-                variables.can_follow_walls = False
+                variables.can_follow_walls = True
         if variables.can_follow_walls:
             return GoToWall() # enter wall-following mode
         return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
