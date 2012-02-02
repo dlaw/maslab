@@ -8,6 +8,7 @@ min_balls_to_stalk_yellow = 7 # if we have this many balls, are within yellow_st
 yellow_stalk_time = 100 # time to look for yellow walls and stay near them
 max_look_arounds_before_losing_yellow = 3 # if we're stalking yellow but look around this many times without seeing yellow, re-enable wall following
 max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
+ignore_balls_length = 17
 
 # DumpBalls
 dump_time = 40 # time to stop going for red balls

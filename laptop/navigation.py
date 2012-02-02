@@ -35,10 +35,6 @@ class GoToBall(main.State):
     def __init__(self):
         self.non_herp_time = time.time()
         variables.go_to_ball_attempts += 1
-    def next(self, time_left):
-        if variables.go_to_ball_attempts >= constants.max_ball_attempts:
-            return ForcedGoToWall()
-        return main.State.next(self, time_left)
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         if ball['size'] > self.size * constants.ball_stuck_ratio:
@@ -84,27 +80,6 @@ class GoToWall(main.State):
             arduino.drive(0, 0)
             return FollowWall()
         arduino.drive(constants.drive_speed, 0)
-    def on_timeout(self):
-        return maneuvering.HerpDerp()
-
-class ForcedGoToWall(main.State):
-    def __init__(self):
-        self.on_wall = False
-    def on_ball(self):
-        return self.default_action() # ignore balls
-    def default_action(self):
-        if not self.on_wall: # go to the wall
-            if max(arduino.get_ir()) > constants.wall_follow_dist:
-                self.on_wall = True
-                arduino.drive(0, constants.wall_follow_turn)
-            else:
-                arduino.drive(constants.drive_speed, 0)
-        else: # now turn towards the wall
-            if arduino.get_ir()[3] > constants.wall_follow_limit: # the wall is on the proper side
-                arduino.drive(0, 0)
-                return ForcedFollowWall()
-            else:
-                arduino.drive(0, constants.wall_follow_turn)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
@@ -159,13 +134,4 @@ class FollowWall(main.State): # PDD controller
         if time.time() - self.time_wall_absent > constants.wall_absent_before_look_away:
             return LookAway()
         return self.follow()
-
-class ForcedFollowWall(FollowWall):
-    def __init__(self):
-        variables.go_to_ball_attempts = 0 # reset this counter
-        FollowWall.__init__(self)
-    def on_ball(self):
-        return self.default_action() # ignore balls
-    def on_timeout(self):
-        return FollowWall()
 

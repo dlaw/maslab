@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, constants, variables
+import signal, time, arduino, kinect, constants, variables, random
 
 time.sleep(1) # wait for arduino and kinect to power up
 assert arduino.is_alive(), "could not talk to Arduino"
@@ -15,7 +15,7 @@ class State:
             return self.on_stuck()
         elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
-        elif time_left >= constants.dump_time and kinect.balls:
+        elif time_left >= constants.dump_time and kinect.balls and not variables.ignore_balls:
             return self.on_ball()
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
@@ -63,6 +63,12 @@ def run(duration = 180):
         if new_balls:
             print("{0} NEW BALLS, now {1} balls total with {2} seconds to go".format(new_balls, variables.number_possessed_balls, time_left))
             variables.go_to_ball_attempts = 0
+        
+        if not variables.ignore_balls and variables.go_to_ball_attempts >= constants.max_ball_attempts:
+            variables.ignore_balls = True
+            end_ignore_balls = time_left - random.uniform(.5, 1)*constants.ignore_balls_length
+        if variables.ignore_balls and time_left < end_ignore_balls:
+            variables.ignore_balls = False
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
