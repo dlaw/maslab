@@ -61,7 +61,7 @@ def run(duration = 180):
             print("{0} while attempting to get new ball count".format(ex))
         variables.number_possessed_balls += new_balls
         if new_balls:
-            print("{0} NEW BALLS, now {1} balls total".format(new_balls, variables.number_possessed_balls))
+            print("{0} NEW BALLS, now {1} balls total with {2} seconds to go".format(new_balls, variables.number_possessed_balls, time_left))
             variables.ball_attempts = 0
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
