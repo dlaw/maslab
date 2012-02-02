@@ -5,12 +5,12 @@ drive_speed = .9 # standard drive forward speed
 max_balls_to_possess = 13 # max number of balls that can fit in the third level at any given time
 # TODO measure how many balls we can possess
 min_balls_to_stalk_yellow = 7 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
-yellow_stalk_time = 137 # time to look for yellow walls and stay near them
+yellow_stalk_time = 100 # time to look for yellow walls and stay near them
 max_look_arounds_before_losing_yellow = 3 # if we're stalking yellow but look around this many times without seeing yellow, re-enable wall following
 max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DumpBalls
-dump_time = 44 # time to stop going for red balls
+dump_time = 40 # time to stop going for red balls
 dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
