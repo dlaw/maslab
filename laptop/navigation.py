@@ -4,10 +4,14 @@ class LookAround(main.State):
     timeout = constants.look_around_timeout
     def __init__(self):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
+        variables.saw_yellow.pop()
+        variables.saw_yellow.insert(0, False)
     def default_action(self):
+        if kinect.yellow_walls:
+            variables.saw_yellow[0] = True
         arduino.drive(0, self.turn)
     def on_timeout(self):
-        if not variables.stalking_yellow:
+        if variables.can_follow_walls:
             return GoToWall() # enter wall-following mode
         return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
 

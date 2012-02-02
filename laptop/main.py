@@ -66,15 +66,8 @@ def run(duration = 180):
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
-        if (variables.number_possessed_balls >= constants.min_balls_to_stalk_yellow and
-            time_left < constants.yellow_stalk_time and
-            kinect.yellow_walls):
-            variables.stalking_yellow = True
-        if kinect.yellow_walls:
-            variables.time_last_seen_yellow = time.time()
-        if (time_left < constants.dump_time and
-            time.time() - variables.time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking):
-            variables.stalking_yellow = False
+        can_follow_walls = False if (time_left < constants.yellow_stalk_time and
+                                     any(variables.saw_yellow)) else True
         
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time

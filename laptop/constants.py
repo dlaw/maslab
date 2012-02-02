@@ -6,7 +6,7 @@ max_balls_to_possess = 13 # max number of balls that can fit in the third level 
 # TODO measure how many balls we can possess
 min_balls_to_stalk_yellow = 5 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
 yellow_stalk_time = 137 # time to look for yellow walls and stay near them
-allowable_time_without_yellow_while_stalking = 10 # if we're stalking yellow but go this long without seeing yellow, re-enable wall following
+max_look_arounds_before_losing_yellow = 3 # if we're stalking yellow but look around this many times without seeing yellow, re-enable wall following
 max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DumpBalls
