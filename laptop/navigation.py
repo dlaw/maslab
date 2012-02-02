@@ -17,7 +17,7 @@ class LookAround(main.State):
     def default_action(self):
         arduino.drive(0, self.turn)
     def on_timeout(self):
-        if main.can_follow_wall:
+        if not main.stalking_yellow:
             return GoToWall() # enter wall-following mode
         return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
 

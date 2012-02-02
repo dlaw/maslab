@@ -10,8 +10,8 @@ assert kinect.initialized, "kinect not initialized"
 # runtime variables used by multiple states
 prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
-can_follow_wall = True # whether we're allowed to enter FollowWall mode
-# TODO actually set can_follow_wall to False when appropriate
+stalking_yellow = False # when we're stalking yellow, we can't follow walls
+time_last_seen_yellow = time.time()
 
 class State:
     timeout = 10 # default timeout of 10 seconds per state
@@ -19,14 +19,9 @@ class State:
         """Superclass method to execute appropriate event handlers and actions."""
         if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
-        elif ( (time_left < constants.first_dump_time and
-                 number_balls_possessed > constants.min_balls_to_dump) or
-               (number_balls_possessed >= constants.max_balls_to_possess) or
-               (time_left < constants.final_dump_time)
-             ) and kinect.yellow_walls:
+        elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
-        elif number_balls_possessed < constants.max_balls_to_possess and
-             time_left >= constants.final_dump_time and kinect.balls:
+        elif time_left >= constants.dump_time and kinect.balls:
             return self.on_ball()
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
@@ -61,14 +56,28 @@ def run(duration = 180):
     arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
+        time_left = stop_time - time.time()
+
         number_possessed_balls += arduino.get_new_ball_count()
+        if number_possessed_balls >= constants.max_balls_to_possess:
+            arduino.set_helix(False) # possess future balls in the lower level
+        if number_possessed_balls >= constants.min_balls_to_stalk_yellow and
+           time_left < constants.yellow_stalk_time and
+           kinect.yellow_walls:
+            stalking_yellow = True
+        if kinect.yellow_walls:
+            time_last_seen_yellow = time.time()
+        if time_left < constants.dump_time and
+           time.time() - time_last_seen_yellow > constants.time_without_yellow_before_following:
+            stalking_yellow = False
+        
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
-                         else state.next(stop_time - time.time()))
+                         else state.next(time_left))
             if new_state is not None: # if the state has changed
                 state = new_state
                 timeout_time = time.time() + state.timeout
-                print("{0} with {1} seconds to go".format(state, stop_time - time.time()))
+                print("{0} with {1} seconds to go".format(state, time_left))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
