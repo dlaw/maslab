@@ -68,7 +68,7 @@ def run(duration = 180):
             arduino.set_helix(False) # possess future balls in the lower level
         if (time_left < constants.yellow_stalk_time and # we're near the end
             any(variables.saw_yellow) and # and we've recently seen a yellow wall
-            variables.number_possessed_balls > min_balls_to_stalk_yellow): # and the third level is sufficiently full
+            variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
             variables.can_follow_walls = False
         else:
             variables.can_follow_walls = True
