@@ -45,8 +45,8 @@ class HappyDance(main.State): # dead-end state
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
-        arduino.set_door(True)
     def next(self, time_left): # override next so nothing can interrupt a HappyDance
+        arduino.set_door(True)
         if time.time() > self.next_shake:
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
