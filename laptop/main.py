@@ -90,7 +90,7 @@ def run(duration = 180):
                 variables.saw_yellow.pop()
                 variables.saw_yellow.insert(0, False)
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, {2} attempts, can_follow_walls is {3}".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls))
+                print("{0} with {1} seconds to go, ({2}, {3}, {4})".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls, variables.ignore_balls))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
