@@ -36,6 +36,7 @@ class GoToBall(main.State):
         self.non_herp_time = time.time()
     def next(self, time_left):
         if main.ball_attempts >= constants.max_ball_attempts:
+            main.ball_attempts = 0
             return ForcedFollowWall()
         return main.State.next(self, time_left)
     def on_ball(self):
