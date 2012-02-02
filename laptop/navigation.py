@@ -6,6 +6,9 @@ class LookAround(main.State):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
         self.saw_yellow = False
     def default_action(self):
+        if (variables.can_follow_walls and variables.ignore_balls and
+            not variables.yellow_stalk_period):
+            return GoToWall()
         if kinect.yellow_walls: # safe to go here because default_action() will be called at least once before on_timeout()
             self.saw_yellow = True
         arduino.drive(0, self.turn)
@@ -14,7 +17,7 @@ class LookAround(main.State):
             variables.saw_yellow.pop()
             variables.saw_yellow.insert(0, self.saw_yellow)
             if not any(variables.saw_yellow): # we lost the yellow (repeatedly), so follow walls again
-                variables.can_follow_walls = False
+                variables.can_follow_walls = True
         if variables.can_follow_walls:
             return GoToWall() # enter wall-following mode
         return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
@@ -42,7 +45,6 @@ class GoToBall(main.State):
     size = 1.
     def __init__(self):
         self.non_herp_time = time.time()
-        variables.go_to_ball_attempts += 1
     def on_ball(self):
         ball = max(kinect.balls, key = lambda ball: ball['size'])
         if ball['size'] > self.size * constants.ball_stuck_ratio:
@@ -55,17 +57,17 @@ class GoToBall(main.State):
         if ball['row'][0] > constants.close_ball_row:
             return maneuvering.SnarfBall()
     def default_action(self): # we don't see a ball, and we're not stuck
-        variables.go_to_ball_attempts -= 1 # don't increase because we maybe didn't lose it
-        return DriveBlind()
+        return DriveBlind(constants.ball_blind_timeout)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
 class DriveBlind(main.State):
-    timeout = constants.drive_blind_timeout
+    def __init__(self, timeout):
+        self.timeout = timeout
     def default_action(self):
+        self.timeout = timeout
         arduino.drive(constants.drive_speed, 0)
     def on_timeout(self):
-        variables.go_to_ball_attempts += 1
         return maneuvering.HerpDerp()
 
 class GoToYellow(main.State):
@@ -78,7 +80,7 @@ class GoToYellow(main.State):
             return maneuvering.DumpBalls(final = abs(wall['col'][0] - 80) <
                                          constants.wall_center_tolerance)
     def default_action(self):
-        return DriveBlind()
+        return DriveBlind(constants.yellow_blind_timeout)
     def on_timeout(self):
         return maneuvering.HerpDerp()
 
@@ -101,7 +103,7 @@ class FollowWall(main.State): # PDD controller
         self.time_wall_absent = 0
     def on_stuck(self):
         if ((time.time() - self.time_last_unstuck > constants.wall_stuck_timeout)
-            or any(arduino.get_bump())):
+            or any(arduino.get_bump()[1:])): # note that we don't care about the front-right bump sensor
             return maneuvering.Unstick()
         return self.follow()
     def default_action(self):

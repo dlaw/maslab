@@ -32,7 +32,8 @@ go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
 # DriveBlind
-drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
+ball_blind_timeout = .1
+yellow_blind_timeout = .5
 
 # GoToYellow
 yellow_follow_kp = .007
@@ -61,11 +62,11 @@ look_around_speed = .5 # also used in LookAway
 look_away_timeout = 6
 
 # HerpDerp
-herp_derp_timeout = 0.8
-herp_derp_min_drive = .4
-herp_derp_max_drive = .6
-herp_derp_min_turn = .2
-herp_derp_max_turn = .3
+herp_derp_timeout = 0.5
+herp_derp_min_drive = .5
+herp_derp_max_drive = .7
+herp_derp_min_turn = .4
+herp_derp_max_turn = .5
 
 # FollowWall
 follow_wall_timeout = 17 # how long to follow a wall before looking away

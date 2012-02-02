@@ -66,12 +66,12 @@ def run(duration = 180):
         variables.number_possessed_balls += new_balls
         if new_balls:
             print("{0} NEW BALLS, now {1} balls total with {2} seconds to go".format(new_balls, variables.number_possessed_balls, time_left))
-            variables.go_to_ball_attempts = 0
+            variables.ball_attempts = 0
         
-        if not variables.ignore_balls and variables.go_to_ball_attempts >= constants.max_ball_attempts:
+        if not variables.ignore_balls and variables.ball_attempts >= constants.max_ball_attempts:
             variables.ignore_balls = True
             end_ignore_balls = time_left - random.uniform(.5, 1)*constants.ignore_balls_length
-            variables.go_to_ball_attempts = 0
+            variables.ball_attempts = 0
         if variables.ignore_balls and time_left < end_ignore_balls:
             variables.ignore_balls = False
         
@@ -83,7 +83,8 @@ def run(duration = 180):
             arduino.set_helix(helix_on)
             next_helix_twiddle = time_left - constants.helix_twiddle_period[not helix_on]
 
-        if (time_left < constants.yellow_stalk_time and # we're near the end
+        variables.yellow_stalk_period = (time_left < constants.yellow_stalk_time)
+        if (variables.yellow_stalk_period and # we're near the end
             kinect.yellow_walls and # and we can see a yellow wall
             variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
             variables.can_follow_walls = False
@@ -95,7 +96,7 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, ({2}, {3}, {4})".format(state, time_left, variables.go_to_ball_attempts, variables.can_follow_walls, variables.ignore_balls))
+                print("{0} with {1} seconds to go, ({2}, {3}, {4})".format(state, time_left, variables.ball_attempts, variables.can_follow_walls, variables.ignore_balls))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
