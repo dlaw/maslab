@@ -1,15 +1,22 @@
 import serial, subprocess, struct, constants, numpy as np
 
-names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
-for name in names:
-    try:
-        port = serial.Serial(name, 500000, timeout=.01) # 500k baud
-        if port != name[-1]: # if we're on Linux
-            subprocess.call(['stty', '-F', name, '-clocal'])
-        break
-    except:
-        continue
+port = None
 debug = False
+
+def connect():
+    global port
+    if port:
+        port.close()
+    names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
+    for name in names:
+        try:
+            port = serial.Serial(name, 500000, timeout=.01) # 500k baud
+            if port != name[-1]: # if we're on Linux
+                subprocess.call(['stty', '-F', name, '-clocal'])
+            break
+        except:
+            continue
+connect()
 
 def format_bytes(bytes):
     return ' '.join([hex(ord(b)) for b in bytes])
@@ -19,7 +26,13 @@ def raw_command(response_fmt, data_fmt, *data):
     port.flushInput() # clear out old crap
     output = struct.pack('>' + data_fmt, *data)
     if debug: print('Sending {0}'.format(format_bytes(output)))
-    port.write(output)
+    try:
+        port.write(output)
+    except:
+        print("Arduino I/O error... reinitializing")
+        connect()
+        time.sleep(1) # arduino must reboot
+        port.write(output)
     response_data = port.read(struct.calcsize(response_fmt))
     if debug: print('Received {0}'.format(format_bytes(response_data)))
     try:
