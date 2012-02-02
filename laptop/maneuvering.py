@@ -112,13 +112,18 @@ class HerpDerp(main.State):
     def __init__(self):
         self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
                                          constants.herp_derp_max_drive)
-        self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *
-                     random.uniform(constants.herp_derp_min_turn,
-                                    constants.herp_derp_max_turn))
+        if arduino.get_bump()[1]:
+            self.sign = 1
+        elif arduino.get_bump()[0]:
+            self.sign = -1
+        else:
+            self.sign = np.sign(arduino.get_ir()[2] - arduino.get_ir()[1])
+        self.turn = random.uniform(constants.herp_derp_min_turn,
+                                   constants.herp_derp_max_turn)
         self.midtime = time.time() + constants.herp_derp_timeout
     def next(self, time_left): # don't do anything else
         if time.time() < self.midtime:
-            arduino.drive(self.drive, self.turn)
+            arduino.drive(self.drive, self.sign*self.turn)
         else:
-            arduino.drive(self.drive, -self.turn)
+            arduino.drive(self.drive, -1*self.sign*self.turn)
 

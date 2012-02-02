@@ -100,9 +100,14 @@ class FollowWall(main.State): # PDD controller
         self.time_last_unstuck = time.time()
         self.time_wall_seen = time.time()
         self.time_wall_absent = 0
+    def on_block(self): # ignore front top right bump sensor
+        if arduino.get_bump()[1]:
+            return maneuvering.HerpDerp()
+        return self.follow()
     def on_stuck(self):
         if ((time.time() - self.time_last_unstuck > constants.wall_stuck_timeout)
-            or any(arduino.get_bump()[1:])): # note that we don't care about the front-right bump sensor
+            or any(arduino.get_bump()[2:4])):
+            # if this was called by an IR, require stricter conditions
             return maneuvering.Unstick()
         return self.follow()
     def default_action(self):

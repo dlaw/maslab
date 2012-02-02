@@ -11,7 +11,9 @@ class State:
     timeout = 10 # default timeout of 10 seconds per state
     def next(self, time_left):
         """Superclass method to execute appropriate event handlers and actions."""
-        if any(arduino.get_bump()) or max(arduino.get_ir()) > 1:
+        if any(arduino.get_bump()[0:2]):
+            return self.on_block()
+        elif any(arduino.get_bump()[2:4]) or max(arduino.get_ir()) > 1:
             return self.on_stuck()
         elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
@@ -26,6 +28,10 @@ class State:
         """Action to take when a yellow wall is seen and we're in dump mode."""
         import navigation
         return navigation.GoToYellow()
+    def on_block(self): # called by State.next if applicable
+        """Action to take when we are blocked (sensed by a high front touch sensor)."""
+        import maneuvering
+        return maneuvering.HerpDerp()
     def on_stuck(self): # called by State.next if applicable
         """Action to take when we are probably stuck."""
         import maneuvering
