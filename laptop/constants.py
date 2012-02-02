@@ -1,5 +1,6 @@
 ir_max = [89., 131., 167., 94.] # for IR calibration
 drive_speed = .9 # standard drive forward speed
+helix_twiddle_period = [5, 0.5] # list of (time to stay on, time to stay off)
 
 # Control state transitions
 max_balls_to_possess = 13 # max number of balls that can fit in the third level at any given time

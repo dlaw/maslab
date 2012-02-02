@@ -48,6 +48,9 @@ def run(duration = 180):
     stop_time = time.time() + duration
     state = navigation.LookAround()
     timeout_time = time.time() + state.timeout
+    third_level_full = False
+    helix_on = True
+    next_helix_twiddle = duration - constants.helix_twiddle_period[not helix_on]
     arduino.set_helix(True)
     arduino.set_sucker(True)
     while time.time() < stop_time:
@@ -72,7 +75,13 @@ def run(duration = 180):
             variables.ignore_balls = False
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
+            third_level_full = True
             arduino.set_helix(False) # possess future balls in the lower level
+        if not third_level_full and time_left < next_helix_twiddle:
+            helix_on = not helix_on
+            arduino.set_helix(helix_on)
+            next_helix_twiddle = time_left - constants.helix_twiddle_period[not helix_on]
+
         if (time_left < constants.yellow_stalk_time and # we're near the end
             kinect.yellow_walls and # and we can see a yellow wall
             variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
