@@ -46,6 +46,8 @@ class State:
 
 def run(duration = 180):
     import navigation
+    global number_possessed_balls, go_to_ball_attempts, stalking_yellow, time_last_seen_yellow
+
     print("ready to go: waiting for switch")
     initial_switch = arduino.get_switch()
     while arduino.get_switch() == initial_switch:
