@@ -9,7 +9,7 @@ assert kinect.initialized, "kinect not initialized"
 
 # runtime variables used by multiple states
 number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
-go_to_ball_attempts = 0 # how many times we've entered GoToBall since a new ball has entered the third level
+ball_attempts = 0 # how many times we've tried to get a ball since a new ball has entered the third level
 stalking_yellow = False # when we're stalking yellow, we can't follow walls
 time_last_seen_yellow = time.time()
 
@@ -46,7 +46,7 @@ class State:
 
 def run(duration = 180):
     import navigation
-    global number_possessed_balls, go_to_ball_attempts, stalking_yellow, time_last_seen_yellow
+    global number_possessed_balls, ball_attempts, stalking_yellow, time_last_seen_yellow
 
     print("ready to go: waiting for switch")
     initial_switch = arduino.get_switch()
@@ -65,7 +65,7 @@ def run(duration = 180):
         number_possessed_balls += new_balls
         if new_balls:
             print "NEW BALLS detected", new_balls
-            go_to_ball_attempts = 0
+            ball_attempts = 0
         
         if number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level

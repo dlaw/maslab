@@ -34,9 +34,8 @@ class GoToBall(main.State):
     size = 1.
     def __init__(self):
         self.non_herp_time = time.time()
-        main.go_to_ball_attempts += 1
     def next(self, time_left):
-        if main.go_to_ball_attempts >= constants.max_go_to_ball_attempts:
+        if main.ball_attempts >= constants.max_ball_attempts:
             return ForcedFollowWall()
         return main.State.next(self, time_left)
     def on_ball(self):

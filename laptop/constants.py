@@ -7,6 +7,7 @@ max_balls_to_possess = 13 # max number of balls that can fit in the third level 
 min_balls_to_stalk_yellow = 5 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
 yellow_stalk_time = 137 # time to look for yellow walls and stay near them
 allowable_time_without_yellow_while_stalking = 10 # if we're stalking yellow but go this long without seeing yellow, re-enable wall following
+max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DumpBalls
 dump_time = 44 # time to stop going for red balls
@@ -27,7 +28,6 @@ ball_follow_kp = .006
 close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
-max_go_to_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DriveBlind
 drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
