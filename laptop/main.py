@@ -60,6 +60,7 @@ def run(duration = 180):
     next_helix_twiddle = duration - constants.helix_twiddle_period[not helix_on]
     arduino.set_helix(True)
     arduino.set_sucker(True)
+    time.sleep(.3)
     while time.time() < stop_time:
         kinect.process_frame()
         time_left = stop_time - time.time()
