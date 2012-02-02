@@ -85,17 +85,18 @@ void setup(){
   pinMode(30,OUTPUT);
   pinMode(31,OUTPUT);
   digitalWrite(31,HIGH);
+  is_alive=0;
 
   PORTE |= B00010000;
 }
 
 void loop() {
-  if(is_alive){
-    if((blink==1000)){
+  if(is_alive==1){
+    if((blink>=400)){
       blink=0;
       digitalWrite(30,HIGH);
     }
-    if(blink==500){
+    if(blink>=200){
       digitalWrite(30,LOW);
     }
   }
