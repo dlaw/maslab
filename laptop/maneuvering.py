@@ -3,7 +3,6 @@ import numpy as np, constants, random, time, arduino, main, navigation, variable
 class SnarfBall(main.State):
     timeout = constants.snarf_time
     def __init__(self):
-        variables.ball_attempts += 1
     def next(self, time_left): # override next because we snarf no matter what
         arduino.drive(constants.snarf_speed, 0)
 
@@ -110,7 +109,6 @@ class Unstick(main.State):
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
-        variables.ball_attempts += 1
         self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
                                          constants.herp_derp_max_drive)
         self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *

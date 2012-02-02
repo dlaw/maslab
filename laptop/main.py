@@ -62,7 +62,7 @@ def run(duration = 180):
         variables.number_possessed_balls += new_balls
         if new_balls:
             print("{0} NEW BALLS, now {1} balls total with {2} seconds to go".format(new_balls, variables.number_possessed_balls, time_left))
-            variables.ball_attempts = 0
+            variables.go_to_ball_attempts = 0
         
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
@@ -83,7 +83,7 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, {2} attempts, stalking_yellow is {3}".format(state, time_left, variables.ball_attempts, variables.stalking_yellow))
+                print("{0} with {1} seconds to go, {2} attempts, stalking_yellow is {3}".format(state, time_left, variables.go_to_ball_attempts, variables.stalking_yellow))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
