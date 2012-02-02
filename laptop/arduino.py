@@ -74,7 +74,7 @@ def set_door(value):
 
 def get_bump():
     bumps = raw_command('B', 'B', 4)[0]
-    return [not bool(bumps & (1 << i)) for i in range(2)]
+    return [not bool(bumps & (1 << i)) for i in range(4)]
 
 def get_new_ball_count():
     return raw_command('B', 'B', 6)[0]
