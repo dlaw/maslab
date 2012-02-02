@@ -10,6 +10,7 @@ assert kinect.initialized, "kinect not initialized"
 # runtime variables used by multiple states
 want_first_dump = True
 prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
+number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" level
 
 class State:
     timeout = 10 # default timeout of 10 seconds per state
@@ -55,6 +56,7 @@ def run(duration = 180):
     arduino.set_sucker(True)
     while time.time() < stop_time:
         kinect.process_frame()
+        number_possessed_balls += arduino.get_ball_count()
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
                          else state.next(stop_time - time.time()))
