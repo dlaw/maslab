@@ -85,7 +85,8 @@ def run(duration = 180):
             if new_state is not None: # if the state has changed
                 state = new_state
                 timeout_time = time.time() + state.timeout
-                print("{0} with {1} seconds to go".format(state, time_left))
+                # TODO remove the {2} attempts
+                print("{0} with {1} seconds to go, {2} attempts".format(state, time_left, ball_attempts))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 
