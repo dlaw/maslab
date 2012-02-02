@@ -83,7 +83,8 @@ def run(duration = 180):
             arduino.set_helix(helix_on)
             next_helix_twiddle = time_left - constants.helix_twiddle_period[not helix_on]
 
-        if (time_left < constants.yellow_stalk_time and # we're near the end
+        variables.yellow_stalk_period = (time_left < constants.yellow_stalk_time)
+        if (variables.yellow_stalk_period and # we're near the end
             kinect.yellow_walls and # and we can see a yellow wall
             variables.number_possessed_balls > constants.min_balls_to_stalk_yellow): # and the third level is sufficiently full
             variables.can_follow_walls = False

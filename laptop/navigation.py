@@ -6,6 +6,9 @@ class LookAround(main.State):
         self.turn = random.choice([-1, 1]) * constants.look_around_speed
         self.saw_yellow = False
     def default_action(self):
+        if variables.can_follow_walls and variables.ignore_balls and
+           not variables.yellow_stalk_period:
+            return GoToWall()
         if kinect.yellow_walls: # safe to go here because default_action() will be called at least once before on_timeout()
             self.saw_yellow = True
         arduino.drive(0, self.turn)
