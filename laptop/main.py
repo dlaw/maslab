@@ -1,17 +1,11 @@
 #!/usr/bin/python2.7
 
-import signal, time, arduino, kinect, constants
+import signal, time, arduino, kinect, constants, variables
 
 time.sleep(1) # wait for arduino and kinect to power up
 assert arduino.is_alive(), "could not talk to Arduino"
 assert arduino.get_voltage() > 8, "battery not present or voltage low"
 assert kinect.initialized, "kinect not initialized"
-
-# runtime variables used by multiple states
-number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
-ball_attempts = 0 # how many times we've tried to get a ball since a new ball has entered the third level
-stalking_yellow = False # when we're stalking yellow, we can't follow walls
-time_last_seen_yellow = time.time()
 
 class State:
     timeout = 10 # default timeout of 10 seconds per state
@@ -45,10 +39,6 @@ class State:
         return navigation.LookAround()
 
 def run(duration = 180):
-    global number_possessed_balls
-    global ball_attempts
-    global stalking_yellow
-    global time_last_seen_yellow
     import navigation
 
     print("ready to go: waiting for switch")
@@ -65,22 +55,22 @@ def run(duration = 180):
         time_left = stop_time - time.time()
 
         new_balls = arduino.get_new_ball_count()
-        number_possessed_balls += new_balls
+        variables.number_possessed_balls += new_balls
         if new_balls:
-            print("{0} NEW BALLS, now {1} balls total".format(new_balls, number_possessed_balls))
-            ball_attempts = 0
+            print("{0} NEW BALLS, now {1} balls total".format(new_balls, variables.number_possessed_balls))
+            variables.ball_attempts = 0
         
-        if number_possessed_balls >= constants.max_balls_to_possess:
+        if variables.number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
-        if (number_possessed_balls >= constants.min_balls_to_stalk_yellow and
+        if (variables.number_possessed_balls >= constants.min_balls_to_stalk_yellow and
             time_left < constants.yellow_stalk_time and
             kinect.yellow_walls):
-            stalking_yellow = True
+            variables.stalking_yellow = True
         if kinect.yellow_walls:
-            time_last_seen_yellow = time.time()
+            variables.time_last_seen_yellow = time.time()
         if (time_left < constants.dump_time and
-            time.time() - time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking):
-            stalking_yellow = False
+            time.time() - variables.time_last_seen_yellow > constants.allowable_time_without_yellow_while_stalking):
+            variables.stalking_yellow = False
         
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
@@ -89,7 +79,7 @@ def run(duration = 180):
                 state = new_state
                 timeout_time = time.time() + state.timeout
                 # TODO remove the {2} attempts
-                print("{0} with {1} seconds to go, {2} attempts".format(state, time_left, ball_attempts))
+                print("{0} with {1} seconds to go, {2} attempts".format(state, time_left, variables.ball_attempts))
         except Exception, ex:
             print("{0} while attempting to change states".format(ex))
 

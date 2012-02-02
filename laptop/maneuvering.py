@@ -1,9 +1,9 @@
-import numpy as np, constants, random, time, arduino, main, navigation
+import numpy as np, constants, random, time, arduino, main, navigation, variables
 
 class SnarfBall(main.State):
     timeout = constants.snarf_time
     def __init__(self):
-        main.ball_attempts += 1
+        variables.ball_attempts += 1
     def next(self, time_left): # override next because we snarf no matter what
         arduino.drive(constants.snarf_speed, 0)
 
@@ -44,7 +44,7 @@ class HappyDance(main.State): # dead-end state
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
         arduino.set_door(False)
-        main.number_possessed_balls = 0 # we no longer possess any balls
+        variables.number_possessed_balls = 0 # we no longer possess any balls
         return navigation.LookAround()
 
 class Unstick(main.State):
@@ -100,7 +100,7 @@ class Unstick(main.State):
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
-        main.ball_attempts += 1
+        variables.ball_attempts += 1
         self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
                                          constants.herp_derp_max_drive)
         self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *

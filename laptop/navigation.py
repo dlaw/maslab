@@ -1,4 +1,4 @@
-import arduino, random, main, maneuvering, constants, kinect, time, numpy as np
+import arduino, random, main, maneuvering, constants, kinect, time, numpy as np, variables
 
 class LookAround(main.State):
     timeout = constants.look_around_timeout
@@ -7,7 +7,7 @@ class LookAround(main.State):
     def default_action(self):
         arduino.drive(0, self.turn)
     def on_timeout(self):
-        if not main.stalking_yellow:
+        if not variables.stalking_yellow:
             return GoToWall() # enter wall-following mode
         return maneuvering.HerpDerp() # if wall-following is disabled, instead HerpDerp
 
@@ -35,8 +35,8 @@ class GoToBall(main.State):
     def __init__(self):
         self.non_herp_time = time.time()
     def next(self, time_left):
-        if main.ball_attempts >= constants.max_ball_attempts:
-            main.ball_attempts = 0
+        if variables.ball_attempts >= constants.max_ball_attempts:
+            variables.ball_attempts = 0
             return ForcedFollowWall()
         return main.State.next(self, time_left)
     def on_ball(self):
