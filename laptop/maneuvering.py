@@ -47,7 +47,6 @@ class HappyDance(main.State): # dead-end state
 
 class Unstick(main.State):
     def __init__(self):
-        main.prob_forcing_wall_follow *= constants.unstick_multiplier_prob_forcing_wall_follow
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
         if (np.random.rand() < constants.probability_to_use_bump

@@ -27,6 +27,7 @@ ball_follow_kp = .006
 close_ball_row = 80 # snarf the ball if its center is below this row
 go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
+max_go_to_ball_attempts = 5 # if we try this many times without the ball count increasing, go to ForcedFollowWall
 
 # DriveBlind
 drive_blind_timeout = .3 # how long to keep driving after losing a (b/w)all and before looking around
@@ -53,9 +54,6 @@ snarf_speed = 1. # how fast to drive while snarfing
 # LookAround
 look_around_timeout = 3
 look_around_speed = .5 # also used in LookAway
-init_prob_forcing_wall_follow = 0.01 # each time ForcedFollowWall happens, reset the probability to this
-look_around_multiplier_prob_forcing_wall_follow = 1.05 # multiply the probability by this amount each time we create a new LookAround()
-unstick_multiplier_prob_forcing_wall_follow = 1.1 # multiply the probability by this amount each time we create a new Unstick()
 
 # LookAway
 look_away_timeout = 6

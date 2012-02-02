@@ -8,8 +8,8 @@ assert arduino.get_voltage() > 8, "battery not present or voltage low"
 assert kinect.initialized, "kinect not initialized"
 
 # runtime variables used by multiple states
-prob_forcing_wall_follow = constants.init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
 number_possessed_balls = 0 # how many balls we currently possess in our "extra cheese" (third) level
+go_to_ball_attempts = 0 # how many times we've entered GoToBall since a new ball has entered the third level
 stalking_yellow = False # when we're stalking yellow, we can't follow walls
 time_last_seen_yellow = time.time()
 
@@ -47,7 +47,8 @@ class State:
 def run(duration = 180):
     import navigation
     print("ready to go: waiting for switch")
-    while not arduino.get_switch():
+    initial_switch = arduino.get_switch()
+    while arduino.get_switch() == initial_switch:
         time.sleep(.02) # check every 20 ms
     stop_time = time.time() + duration
     state = navigation.LookAround()
@@ -58,7 +59,11 @@ def run(duration = 180):
         kinect.process_frame()
         time_left = stop_time - time.time()
 
-        number_possessed_balls += arduino.get_new_ball_count()
+        new_balls = arduino.get_new_ball_count()
+        number_possessed_balls += new_balls
+        if new_balls:
+            go_to_ball_attempts = 0
+        
         if number_possessed_balls >= constants.max_balls_to_possess:
             arduino.set_helix(False) # possess future balls in the lower level
         if number_possessed_balls >= constants.min_balls_to_stalk_yellow and
