@@ -40,8 +40,8 @@ class State:
 
 def run(duration = 180):
     import navigation
-
     print("ready to go: waiting for switch")
+    arduino.ready()
     initial_switch = arduino.get_switch()
     while arduino.get_switch() == initial_switch:
         time.sleep(.02) # check every 20 ms
