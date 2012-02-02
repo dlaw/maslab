@@ -13,7 +13,6 @@ volatile char helix = 0;
 // command 0x00
 // Send an ack
 void ack(serdata data){
-  is_alive=1;
   usart0_tx(0x00);
 }
 
@@ -67,8 +66,6 @@ void set_motor(serdata data) {
   }   
     
   usart0_tx(0x00);
-  
-  drive(current_lvel, current_rvel);
 }
 
 void get_ball_cnt(serdata data) {
@@ -76,9 +73,14 @@ void get_ball_cnt(serdata data) {
   ball_cnt = 0;
 }
 
+void blink_led(serdata data) {
+  is_alive=data[0] & 0x01;
+  usart0_tx(0x00);
+}
+
 // How many bytes of data will follow each command?
 unsigned char commands[] = {
-  0, 2, 1, 0, 0, 2, 0
+  0, 2, 1, 0, 0, 2, 0, 1
 };
 
 // What function shall be called to respond to each command?
@@ -89,5 +91,6 @@ responder responses[] = {
   &button_pressed,
   &get_bump,
   &set_motor,
-  &get_ball_cnt
+  &get_ball_cnt,
+  &blink_led
 };
