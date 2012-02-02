@@ -12,6 +12,7 @@ volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
 volatile unsigned char allow;
+volatile unsigned char blink=0;
 
 void setup(){
   DDRF &= ~0xff;  //adc 2
@@ -80,10 +81,24 @@ void setup(){
   digitalWrite(3, LOW);
   //digitalWrite(2, HIGH);
   
+  //main.py LED
+  pinMode(30,OUTPUT);
+  pinMode(31,OUTPUT);
+  digitalWrite(31,HIGH);
+
   PORTE |= B00010000;
 }
 
 void loop() {
+  if(is_alive){
+    if((blink==1000)){
+      blink=0;
+      digitalWrite(30,HIGH);
+    }
+    if(blink==500){
+      digitalWrite(30,LOW);
+    }
+  }
   if (ramp_counter) {
     if (target_lvel > current_lvel) current_lvel++;
     if (target_lvel < current_lvel) current_lvel--;
@@ -124,6 +139,7 @@ ISR(TIMER0_COMPA_vect) {
   if (allow <= 100) {
   allow++;
   }
+  blink++;
 }
 
 ISR(INT4_vect) {
