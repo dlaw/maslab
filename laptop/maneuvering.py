@@ -110,9 +110,9 @@ class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
         if arduino.get_bump()[1]:
-            self.sign = 1
-        elif arduino.get_bump()[0]:
             self.sign = -1
+        elif arduino.get_bump()[0]:
+            self.sign = 1
         else:
             self.sign = np.sign(arduino.get_ir()[2] - arduino.get_ir()[1])
         self.midtime = time.time() + constants.herp_derp_first_time
