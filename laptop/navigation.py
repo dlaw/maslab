@@ -142,7 +142,7 @@ class FollowWall(main.State): # PDD controller
             arduino.drive(drive, turn)
         else: # lost wall but not timed out, so turn into the wall
             self.time_wall_absent = time.time()
-            drive = 0
+            drive = .2 # TODO kludge
             turn = constants.wall_follow_turn
             arduino.drive(drive, turn)
     def on_timeout(self):

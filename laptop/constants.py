@@ -11,7 +11,7 @@ max_ball_attempts = 10 # if we try this many times without the ball count increa
 ignore_balls_length = 17
 
 # DumpBalls
-dump_time = 40 # time to stop going for red balls
+dump_time = 20 # time to stop going for red balls
 dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
@@ -74,7 +74,7 @@ wall_follow_limit = .4 # maximum distance we can be from a wall
 wall_follow_kp = .7
 wall_follow_kd = 3.
 wall_follow_kdd = 2.
-lost_wall_timeout = 2 # how long to turn after losing a wall
+lost_wall_timeout = 4 # how long to turn after losing a wall
 wall_follow_drive = .7 # how fast to drive
 wall_follow_turn = .55 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
