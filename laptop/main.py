@@ -17,7 +17,9 @@ class State:
             return self.on_stuck()
         elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
-        elif time_left >= constants.dump_time and kinect.balls and not variables.ignore_balls:
+        elif (time_left >= constants.dump_time and kinect.balls
+              and not variables.ignore_balls
+              and not variables.ignore_balls_until_yellow):
             return self.on_ball()
         return self.default_action()
     def on_ball(self): # called by State.next if applicable
@@ -81,7 +83,8 @@ def run(duration = 180):
             variables.ball_attempts = 0
         if variables.ignore_balls and time_left < end_ignore_balls:
             variables.ignore_balls = False
-        
+        if kinect.yellow_walls:
+            variables.ignore_balls_until_yellow = False
         if variables.number_possessed_balls >= constants.max_balls_to_possess:
             variables.helix_enabled = False
             arduino.set_helix(False) # possess future balls in the lower level
