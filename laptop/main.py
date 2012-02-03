@@ -11,9 +11,10 @@ class State:
     timeout = 10 # default timeout of 10 seconds per state
     def next(self, time_left):
         """Superclass method to execute appropriate event handlers and actions."""
-        if any(arduino.get_bump()[0:2]):
+        irs = arduino.get_ir()
+        if any(arduino.get_bump()[0:2]) or irs[1] > 1 or irs[2] > 1:
             return self.on_block()
-        elif any(arduino.get_bump()[2:4]) or max(arduino.get_ir()) > 1:
+        elif any(arduino.get_bump()[2:4]) or irs[0] > 1 or irs[3] > 1:
             return self.on_stuck()
         elif time_left < constants.dump_time and kinect.yellow_walls:
             return self.on_yellow()
