@@ -111,6 +111,7 @@ def run(duration = 180):
             print("{0} while attempting to change states".format(ex))
 
 def kill(*args):
+    arduino.set_led(False)
     arduino.drive(0, 0)
     arduino.set_sucker(False)
     arduino.set_helix(False)
