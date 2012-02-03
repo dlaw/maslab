@@ -11,6 +11,8 @@ volatile char frame = 0;
 volatile unsigned char ramp_counter = 0;
 
 const int SERVO_PIN = 0;
+volatile unsigned char allow;
+volatile unsigned int blink=0;
 
 void setup(){
   DDRF &= ~0xff;  //adc 2
@@ -35,6 +37,10 @@ void setup(){
 
   OCR0A = 20; // trigger the timer interrupt every 500 us
   TIMSK0 |= B00000010; // enable interrupt A
+  
+  // int4 for ball detect
+  EICRB = B00000011;
+  EIMSK = B00010000;
   
   sei();            // start interrupts
   
@@ -63,11 +69,62 @@ void setup(){
   pinMode(50, OUTPUT);
   digitalWrite(50, LOW);
   
+  pinMode(25, OUTPUT);
+  digitalWrite(25, LOW);
+  
+  pinMode(24, INPUT);
+  digitalWrite(24, HIGH);
+  
+  pinMode(23, OUTPUT);
+  digitalWrite(23, LOW);
+  
+  pinMode(22, INPUT);
+  digitalWrite(22, HIGH);
+  
   pinMode(36, INPUT);      //qik reset
   digitalWrite(36, LOW);
+  
+  pinMode(35, OUTPUT);
+  pinMode(37, OUTPUT);
+  pinMode(39, OUTPUT);
+  
+  //pinMode(2, INPUT);
+  pinMode(3, OUTPUT);
+  digitalWrite(3, LOW);
+  //digitalWrite(2, HIGH);
+  
+  //main.py LED
+  pinMode(30,OUTPUT);
+  pinMode(31,OUTPUT);
+  digitalWrite(31,HIGH);
+  is_alive=0;
+
+  PORTE |= B00010000;
+  
+
 }
 
 void loop() {
+
+  
+  
+  if(is_alive==1){
+    if((blink>=100)){
+      blink=0;
+      digitalWrite(30,HIGH);
+    }
+    if(blink>=50){
+      digitalWrite(30,LOW);
+    }
+  } else {
+    if ((blink >= 600)) {
+      blink = 0;
+      digitalWrite(30, HIGH);
+    }
+    if (blink >= 300) {
+      digitalWrite(30, LOW);
+    }
+  }
   if (ramp_counter) {
     if (target_lvel > current_lvel) current_lvel++;
     if (target_lvel < current_lvel) current_lvel--;
@@ -105,4 +162,20 @@ ISR(USART0_RX_vect){         //USART receive interrupt handler
 // the timed control loop currently triggers every 1.28 ms
 ISR(TIMER0_COMPA_vect) {
   ramp_counter++;
+//ball sense debouncing
+  if (allow <= 100) allow++;
+//helix pwm @ 50%
+  if (helix) PORTG ^= 0x04;
+  else PORTG &= ~0x04;
+//blinky counter
+  blink++;
+}
+
+ISR(INT4_vect) {
+  if (allow > 100) {
+    // needs some sort of a debounce functionality
+    ball_cnt++;
+    allow = 0;
+    TCNT0 = 0;
+  }
 }

@@ -1,7 +1,7 @@
 #include "adc.h"
 
-char target_lvel = 0, target_rvel = 0, current_lvel = 0, current_rvel = 0;
-int cnt = 0;
+volatile char target_lvel = 0, target_rvel = 0, current_lvel = 0, current_rvel = 0;
+volatile int cnt = 0;
 
 void qik_init(void){
   usart1_tx(0x84);
@@ -14,7 +14,7 @@ void qik_init(void){
 void qik_reset(void){
   pinMode(36, OUTPUT);
   digitalWrite(36, LOW);
-  delay(10);
+  _delay_ms(10);
   pinMode(36, INPUT);
   pinMode(36, HIGH);
 }

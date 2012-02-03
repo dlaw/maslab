@@ -1,5 +1,7 @@
 import serial, subprocess, struct, constants, numpy as np
 
+debug = False
+
 names = ['/dev/ttyACM0', '/dev/ttyACM1', '/dev/tty.usbmodem621']
 for name in names:
     try:
@@ -9,7 +11,6 @@ for name in names:
         break
     except:
         continue
-debug = False
 
 def format_bytes(bytes):
     return ' '.join([hex(ord(b)) for b in bytes])
@@ -30,7 +31,11 @@ def raw_command(response_fmt, data_fmt, *data):
 
 def is_alive():
     """Check whether the arduino is responding to commands."""
-    return raw_command('B', 'B', 0) == (0,)
+    try: return raw_command('B', 'B', 0) == (0,)
+    except: return False
+
+def set_led(value):
+    return raw_command('B', 'BB', 7, value) == (0,)
 
 def set_motors(left, right):
     """Set the drive motors.  Speeds range from -1.0 to 1.0."""
@@ -66,4 +71,11 @@ def set_door(value):
 
 def get_bump():
     bumps = raw_command('B', 'B', 4)[0]
-    return [not bool(bumps & (1 << i)) for i in range(2)]
+    return [not bool(bumps & (1 << i)) for i in range(4)]
+
+def get_new_ball_count():
+    return raw_command('B', 'B', 6)[0]
+
+def reset_qik():
+    return raw_command('B', 'B', 8)[0]
+

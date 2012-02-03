@@ -1,14 +1,18 @@
-# for the arduino
-ir_max = [89., 131., 167., 94.]
-
-# Multi-purpose
+ir_max = [89., 131., 167., 94.] # for IR calibration
 drive_speed = .9 # standard drive forward speed
+helix_twiddle_period = [5, 0.5] # list of (time to stay on, time to stay off)
+
+# Control state transitions
+max_balls_to_possess = 13 # max number of balls that can fit in the third level at any given time
+min_balls_to_stalk_yellow = 8 # if we have this many balls, are within yellow_stalk_time, and see a yellow wall, turn off wall following
+yellow_stalk_time = 100 # time to look for yellow walls and stay near them
+max_look_around_timeouts = 2 # if we're stalking yellow but look around this many times without seeing yellow, re-enable wall following and disable balls
+max_ball_attempts = 10 # if we try this many times without the ball count increasing, go to ForcedFollowWall
+ignore_balls_length = 17
 
 # DumpBalls
-want_first_dump = True
-first_dump_time = 137 # time to first look for yellow walls
-final_dump_time = 24 # time to stop going for red balls
-dump_ir_final = .8
+dump_time = 40 # time to stop going for red balls
+dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
 dump_turn_speed = .4
@@ -27,7 +31,8 @@ go_to_ball_timeout = 12.
 ball_stuck_ratio = 1.04
 
 # DriveBlind
-drive_blind_timeout = .15 # how long to keep driving after losing a (b/w)all and before looking around
+ball_blind_timeout = .1
+yellow_blind_timeout = .5
 
 # GoToYellow
 yellow_follow_kp = .007
@@ -35,7 +40,7 @@ dump_ir_threshhold = .5 # how close we need to be to a yellow wall before dumpin
 
 # Unstick
 ir_sensor_angles = [-1.4, -0.7, 0.7, 1.4] # position of sensors on the robot (0 is straight ahead, positive direction is clockwise)
-bump_sensor_angles = [2.36, 3.93] # 45 degrees from straight behind
+bump_sensor_angles = [0.79, 5.50, 2.36, 3.93] # 45 degrees from straight behind
 ir_stuck_threshold = 0.9
 ir_unstuck_threshold = 0.8 # ir_stuck_threshold should be larger than ir_unstuck_threshold
 unstick_angle_offset_range = 1.6 # add between -this and +this (randomly) to the escape angle
@@ -49,22 +54,18 @@ snarf_time = .4 # how long to snarf a ball after losing sight of it
 snarf_speed = 1. # how fast to drive while snarfing
 
 # LookAround
-look_around_timeout = 3
-look_around_speed = .5 # also used in LookAway
-init_prob_forcing_wall_follow = 0.01 # initial value of the below, also reset to this each time ForcedFollowWall happens
-prob_forcing_wall_follow = init_prob_forcing_wall_follow # each time we create a new LookAround(), go to ForcedFollowWall with this probability
-look_around_multiplier_prob_forcing_wall_follow = 1.05 # multiply the above by this amount each time we create a new LookAround()
-unstick_multiplier_prob_forcing_wall_follow = 1.1 # multiply the above by this amount each time we create a new Unstick()
+look_around_timeout = 3.5
+look_around_speed = .6 # also used in LookAway
 
 # LookAway
 look_away_timeout = 6
 
 # HerpDerp
-herp_derp_timeout = 0.5
-herp_derp_min_drive = .4
-herp_derp_max_drive = .6
-herp_derp_min_turn = .2
-herp_derp_max_turn = .3
+herp_derp_timeout = 2
+herp_derp_first_time = 1.3
+herp_derp_first_drive = -.5
+herp_derp_first_turn = .5
+herp_derp_second_turn = .7
 
 # FollowWall
 follow_wall_timeout = 17 # how long to follow a wall before looking away
@@ -73,8 +74,8 @@ wall_follow_limit = .4 # maximum distance we can be from a wall
 wall_follow_kp = .7
 wall_follow_kd = 3.
 wall_follow_kdd = 2.
-lost_wall_timeout = 2 # how long to turn after losing a wall
-wall_follow_drive = .6 # how fast to drive
-wall_follow_turn = .5 # how to turn after losing a wall
+lost_wall_timeout = 4 # how long to turn after losing a wall
+wall_follow_drive = .7 # how fast to drive
+wall_follow_turn = .55 # how to turn after losing a wall
 wall_stuck_timeout = 3 # how long an IR can be >1 before we go to unstick
 wall_absent_before_look_away = 2. # we need to be on a wall for this long in order to LookAway

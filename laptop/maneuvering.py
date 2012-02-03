@@ -1,4 +1,4 @@
-import numpy as np, constants, random, time, arduino, main, navigation
+import numpy as np, constants, random, time, arduino, main, navigation, variables
 
 class SnarfBall(main.State):
     timeout = constants.snarf_time
@@ -6,7 +6,7 @@ class SnarfBall(main.State):
         arduino.drive(constants.snarf_speed, 0)
 
 class DumpBalls(main.State):
-    timeout = constants.final_dump_time # don't time out!
+    timeout = constants.dump_time # don't time out!
     def __init__(self, final = False):
         self.final = final
     def next(self, time_left): # override next so nothing can interrupt a dump
@@ -15,12 +15,23 @@ class DumpBalls(main.State):
             arduino.drive(0, 0)
             if not self.final:
                 return ConfirmLinedUp()
-            elif time_left < constants.eject_time or time_left > constants.final_dump_time:
-                return HappyDance()
+            else:
+                return WaitInSilence()
         elif abs(fl - fr) > constants.dump_ir_turn_tol:
             arduino.drive(0, np.sign(fr - fl) * constants.dump_turn_speed)
         else:
             arduino.drive(constants.dump_fwd_speed, 0)
+
+class WaitInSilence(main.State):
+    timeout = constants.dump_time # don't time out!
+    def __init__(self):
+        arduino.set_helix(False)
+        arduino.set_sucker(False)
+        variables.helix_enabled = False
+    def next(self, time_left):
+        arduino.drive(0, 0)
+        if time_left < constants.eject_time:
+            return HappyDance()
 
 class ConfirmLinedUp(main.State):
     timeout = constants.back_up_time
@@ -34,20 +45,19 @@ class HappyDance(main.State): # dead-end state
     def __init__(self):
         self.next_shake = time.time() + constants.dance_period
         self.shake_dir = 1
-        arduino.set_door(True)
     def next(self, time_left): # override next so nothing can interrupt a HappyDance
+        arduino.set_door(True)
         if time.time() > self.next_shake:
             self.next_shake = time.time() + constants.dance_period
             self.shake_dir *= -1
         arduino.drive(0, self.shake_dir * constants.dance_turn)
     def on_timeout(self):
-        constants.want_first_dump = False
-        arduino.set_door(False) 
-        return navigation.LookAround()
+        arduino.set_door(False)
+        variables.number_possessed_balls = 0 # we no longer possess any balls
 
 class Unstick(main.State):
     def __init__(self):
-        constants.prob_forcing_wall_follow *= constants.unstick_multiplier_prob_forcing_wall_follow
+        variables.ball_attempts += 1
         triggered_bump = np.where(arduino.get_bump())[0]
         triggered_ir = np.where(np.array(arduino.get_ir()) > constants.ir_stuck_threshold)[0]
         if (np.random.rand() < constants.probability_to_use_bump
@@ -64,7 +74,7 @@ class Unstick(main.State):
         else:
             self.escape_angle = None # oops, not good style
         if self.escape_angle is not None:
-            self.escape_angle += random.uniform(-constants.unstick_angle_offset_range, constants.unstick_angle_offset_range) # add some randomness
+            self.escape_angle += random.triangular(-constants.unstick_angle_offset_range, constants.unstick_angle_offset_range) # add some randomness
             self.unstick_complete = False
             self.stop_time = time.time() + constants.unstick_wiggle_period
     def next(self, time_left):
@@ -99,13 +109,16 @@ class Unstick(main.State):
 class HerpDerp(main.State):
     timeout = constants.herp_derp_timeout
     def __init__(self):
-        self.drive = -1 * random.uniform(constants.herp_derp_min_drive,
-                                         constants.herp_derp_max_drive)
-        self.turn = (np.sign(arduino.get_ir()[2] - arduino.get_ir()[1]) *
-                     random.uniform(constants.herp_derp_min_turn,
-                                    constants.herp_derp_max_turn))
+        if arduino.get_bump()[1]:
+            self.sign = -1
+        elif arduino.get_bump()[0]:
+            self.sign = 1
+        else:
+            self.sign = np.sign(arduino.get_ir()[2] - arduino.get_ir()[1])
+        self.midtime = time.time() + constants.herp_derp_first_time
     def next(self, time_left): # don't do anything else
-        arduino.drive(self.drive, self.turn)
-    def on_timeout(self):
-        return navigation.LookAround()
-
+        if time.time() < self.midtime:
+            arduino.drive(constants.herp_derp_first_drive,
+                          self.sign * constants.herp_derp_first_turn)
+        else:
+            arduino.drive(0, -1 * self.sign * constants.herp_derp_second_turn)
