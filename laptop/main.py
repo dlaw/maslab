@@ -95,7 +95,7 @@ def run(duration = 180):
             next_helix_twiddle = time_left - constants.helix_twiddle_period[not helix_on]
         variables.yellow_stalk_period = (time_left < constants.yellow_stalk_time or
                                          variables.number_possessed_balls >= constants.min_balls_to_stalk_yellow)
-        if (kinect.yellow_walls and variables.yellow_stalk_period:
+        if kinect.yellow_walls and variables.yellow_stalk_period:
             variables.can_follow_walls = False
         try:
             new_state = (state.on_timeout() if time.time() > timeout_time
