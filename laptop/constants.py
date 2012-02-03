@@ -11,7 +11,7 @@ max_ball_attempts = 10 # if we try this many times without the ball count increa
 ignore_balls_length = 17
 
 # DumpBalls
-dump_time = 20 # time to stop going for red balls
+dump_time = 40 # time to stop going for red balls
 dump_ir_final = .75
 dump_ir_turn_tol = .2
 dump_fwd_speed = .6
@@ -54,8 +54,8 @@ snarf_time = .4 # how long to snarf a ball after losing sight of it
 snarf_speed = 1. # how fast to drive while snarfing
 
 # LookAround
-look_around_timeout = 3
-look_around_speed = .5 # also used in LookAway
+look_around_timeout = 3.5
+look_around_speed = .6 # also used in LookAway
 
 # LookAway
 look_away_timeout = 6
