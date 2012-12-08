@@ -1,4 +1,3 @@
-
 =======================================
 | pleit cereal communication protocol |
 =======================================
@@ -15,7 +14,7 @@ successfully.
 
 Command 0x00: are you awake?
 	      0 bytes data
-	      arduino r esponds with 0x00
+	      arduino responds with 0x00
 
 Command 0x01: set drive motor speeds (open loop)
 	      2 bytes data: left motor speed and right motor speed
